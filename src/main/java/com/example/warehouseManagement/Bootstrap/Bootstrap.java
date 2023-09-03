@@ -1,0 +1,305 @@
+package com.example.warehouseManagement.Bootstrap;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Random;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+import com.example.warehouseManagement.Domains.Customer;
+import com.example.warehouseManagement.Domains.CustomerPool;
+import com.example.warehouseManagement.Domains.GoodsReceiptNote;
+import com.example.warehouseManagement.Domains.GoodsReceiptNoteLine;
+import com.example.warehouseManagement.Domains.Product;
+import com.example.warehouseManagement.Domains.ProductPool;
+import com.example.warehouseManagement.Domains.PurchaseOrder;
+import com.example.warehouseManagement.Domains.PurchaseOrderLine;
+import com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus;
+import com.example.warehouseManagement.Domains.SalesOrder;
+import com.example.warehouseManagement.Domains.SalesOrder.Status;
+import com.example.warehouseManagement.Domains.SalesOrderLine;
+import com.example.warehouseManagement.Domains.Stock;
+import com.example.warehouseManagement.Domains.Vendor;
+import com.example.warehouseManagement.Domains.VendorPool;
+import com.example.warehouseManagement.Domains.Warehouse;
+import com.example.warehouseManagement.Domains.WarehouseSection;
+import com.example.warehouseManagement.Repositories.CustomerRepository;
+import com.example.warehouseManagement.Repositories.GoodsReceiptNoteLineRepository;
+import com.example.warehouseManagement.Repositories.GoodsReceiptNoteRepository;
+import com.example.warehouseManagement.Repositories.ProductRepository;
+import com.example.warehouseManagement.Repositories.PurchaseOrderLineRepository;
+import com.example.warehouseManagement.Repositories.PurchaseOrderRepository;
+import com.example.warehouseManagement.Repositories.SaleOrderLineRepository;
+import com.example.warehouseManagement.Repositories.SalesOrderRepository;
+import com.example.warehouseManagement.Repositories.StockRepository;
+import com.example.warehouseManagement.Repositories.VendorRepository;
+import com.example.warehouseManagement.Repositories.WarehouseRepository;
+import com.example.warehouseManagement.Repositories.WarehouseSectionRepository;
+
+@Component
+public class Bootstrap implements CommandLineRunner{
+
+    private final CustomerRepository customerRepository;
+    private final ProductRepository productRepository;
+    private final VendorRepository vendorRepository;
+    private final SalesOrderRepository salesOrderRepository;
+    private final PurchaseOrderRepository purchaseOrderRepository;
+    private final SaleOrderLineRepository saleOrderLineRepository;
+    private final PurchaseOrderLineRepository purchaseOrderLineRepository;
+    private final WarehouseRepository warehouseRepository;
+    private final WarehouseSectionRepository warehouseSectionRepository;
+    private final StockRepository stockRepository;
+    private final GoodsReceiptNoteRepository goodsReceiptNoteRepository;
+    private final GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository;
+
+    
+    public Bootstrap(CustomerRepository customerRepository, ProductRepository productRepository,
+            VendorRepository vendorRepository, SalesOrderRepository salesOrderRepository,
+            PurchaseOrderRepository purchaseOrderRepository, SaleOrderLineRepository saleOrderLineRepository,
+            PurchaseOrderLineRepository purchaseOrderLineRepository, WarehouseRepository warehouseRepository,
+            WarehouseSectionRepository warehouseSectionRepository, StockRepository stockRepository,
+            GoodsReceiptNoteRepository goodsReceiptNoteRepository, GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository) {
+        this.customerRepository = customerRepository;
+        this.productRepository = productRepository;
+        this.vendorRepository = vendorRepository;
+        this.salesOrderRepository = salesOrderRepository;
+        this.purchaseOrderRepository = purchaseOrderRepository;
+        this.saleOrderLineRepository = saleOrderLineRepository;
+        this.purchaseOrderLineRepository = purchaseOrderLineRepository;
+        this.warehouseRepository = warehouseRepository;
+        this.warehouseSectionRepository = warehouseSectionRepository;
+        this.stockRepository = stockRepository;
+        this.goodsReceiptNoteRepository = goodsReceiptNoteRepository;
+        this.goodsReceiptNoteLineRepository = goodsReceiptNoteLineRepository;
+    }
+
+
+    /**
+     * TC(XNM)
+     * Generates dummy data for testing purposes
+     */
+
+    
+
+    @Override
+    public void run(String... args) throws Exception {
+
+        //Variables
+        Random random = new Random();
+        int VENDORS = 5, CUSTOMERS = 10, SALES_ORDER = 20, PURCHASE_ORDER = 20;
+        List<Vendor> savedVendors = new ArrayList<>();
+        List<Customer> savedCustomers = new ArrayList<>();
+        List<Product> savedProducts = new ArrayList<>();
+        Queue<PurchaseOrder> receivedPurchaseOrders = new LinkedList<>();
+
+
+        //Generate 5 random vendors and adds them to the vendors repository
+        //TC(N)
+        for (int i=0; i<VENDORS; i++) {
+            Vendor vendor = VendorPool.vendorList.get(i);
+            vendor.setPurchaseOrders(new ArrayList<>());
+            Vendor savedVendor = vendorRepository.save(vendor);
+            savedVendors.add(savedVendor);
+        }
+        //VENDORS: 0-APPLE, 1-MICROSOFT, 2-ALPHABET, 3-AMAZON, 4-CISCO
+
+        //Generate 40 random products and adds them to the product repository
+         //0-7 APPLE   8-10 MICROSOFT 11-16 ALPABHET 17-33 AMAZON 34-40 CISCO
+         int [] vendorsProducts = {7, 10, 16, 33, 40};
+         
+         //T(XN)
+         //Adding products to vendors
+         for (int i=0; i<VENDORS; i++) {
+            int start = (i==0) ? 0 : vendorsProducts[i-1]+1;
+            Vendor currentVendor = savedVendors.get(i);
+            for (int j=start; j<=vendorsProducts[i]; j++) {
+                Product product = ProductPool.ProductList.get(j);
+                //Add vendos to the savedProducts objects
+                product.setVendor(currentVendor);
+                Product saveProduct = productRepository.save(product);
+                savedProducts.add(saveProduct);
+                //Adds products to the savedVendors objects
+                currentVendor.getProducts().add(saveProduct);
+            }
+         }
+        
+         //Generate 10 random customers and adds them to the customer repository 
+         //TC(M)
+         for (int i=0; i<CUSTOMERS; i++) {
+            Customer customer = CustomerPool.customerList.get(i);
+            customer.setSalesOrders(new ArrayList<>());
+            Customer savedCustomer = customerRepository.save(customer);
+            savedCustomers.add(savedCustomer);
+         }
+
+         //Generate 20 sales orders by each savedCustomer objects
+         //TC(MSO)
+         for (Customer customer : savedCustomers) {
+            for (int i=0; i<SALES_ORDER; i++) {
+                int month = random.nextInt(1,12);
+                int day = (month==2) ? random.nextInt(1,28) : random.nextInt(1,30);
+                int year = 2023;
+                Long salesOrderNumber = random.nextLong(300000L  , 700000L);
+                LocalDate date = LocalDate.of(year, month, day);
+                int salesOrderLines = random.nextInt(3, 20);
+                int orderStatus = random.nextInt(3);
+                //adds savedCustomer to the savedSalesOrder
+                SalesOrder salesOrder = SalesOrder.builder().salesOrderNumber(salesOrderNumber).customer(customer).date(date).saleOrderLines(new ArrayList<>())
+                    .status((orderStatus == 0 || orderStatus == 2) ? Status.PENDING : Status.SHIPPED).build();
+            
+                //Adds the sales order to the sales order repository
+                SalesOrder so = salesOrderRepository.save(salesOrder);
+
+                so.setSalesOrderNumber(so.getId()+100000L);
+                SalesOrder savedSalesOrder = salesOrderRepository.save(so);
+
+                //Each sales order will generate between 3-20 sales order lines
+                for (int j=0; j<salesOrderLines; j++) {
+                    int randProduct = random.nextInt(savedProducts.size()-1);
+                    int qty = random.nextInt(1,6);
+                    Product selectedProduct = savedProducts.get(randProduct);
+                    //adds savedProduct to the salesOrderLines
+                    //Adds the savedSaleOrder to the savedSalesOrderLines
+                    SalesOrderLine saleOrderLine = SalesOrderLine.builder().product(selectedProduct).qty(qty)
+                        .salesOrder(savedSalesOrder).build();
+                    //Adds the sales orders lines to the sales orders lines repository
+                    SalesOrderLine savedSaleOrderLine = saleOrderLineRepository.save(saleOrderLine);
+                    //Adds the sales orders lines to the savedSalesOrder
+                    savedSalesOrder.getSaleOrderLines().add(savedSaleOrderLine);
+                }
+                //Adds the sales order to customer
+                customer.getSalesOrders().add(savedSalesOrder);
+            }
+         }
+
+         for (Vendor vendor : savedVendors) {
+            for (int i=0; i<PURCHASE_ORDER; i++) {
+                int month = random.nextInt(1,12);
+                int day = (month==2) ? random.nextInt(1,28) : random.nextInt(1,30);
+                int year = 2023;
+                Long purchaseOrderNumber = random.nextLong(300000L  , 700000L);
+                LocalDate date = LocalDate.of(year, month, day);
+                int purchaseOrderLines = random.nextInt(3, 20);
+                int orderStatus = random.nextInt(3);
+                //adds savedCustomer to the purchase order
+                PurchaseOrder purchaseOrder = PurchaseOrder.builder().purchaseOrderNumber(purchaseOrderNumber).vendor(vendor).date(date).purchaseOrderLines(new ArrayList<>())
+                    .status((orderStatus == 0 || orderStatus == 2) ? PoStatus.IN_TRANSIT : PoStatus.RECEIVED).goodsReceiptNotes(new ArrayList<>()).build();
+            
+                //Adds the purchase order to the purchase order repository
+                PurchaseOrder po = purchaseOrderRepository.save(purchaseOrder);
+
+                po.setPurchaseOrderNumber(po.getId() + 100000L);
+                PurchaseOrder savedPurchaseOrder = purchaseOrderRepository.save(po);
+
+                //Each purchase order will generate between 3-20 sales order lines
+                for (int j=0; j<purchaseOrderLines; j++) {
+                    int randProduct = random.nextInt(savedProducts.size()-1);
+                    int qty = random.nextInt(1,6);
+                    Product selectedProduct = savedProducts.get(randProduct);
+                    //adds savedProduct to the purchaseOrder line
+                    //Adds the savedPurchaseOrder to the purchase order line
+                    PurchaseOrderLine purchaseOrderLine = PurchaseOrderLine.builder().product(selectedProduct).qty(qty)
+                        .purchaseOrder(savedPurchaseOrder).build();
+                    //Adds the purchase orders lines to the purchase orders lines repository
+                    PurchaseOrderLine savedPurchaseOrderLine = purchaseOrderLineRepository.save(purchaseOrderLine);
+                    //Adds the purchase orders lines to the savedPurchaseOrder
+                    savedPurchaseOrder.getPurchaseOrderLines().add(savedPurchaseOrderLine);
+                }
+                //Adds the purchase order to vendor
+                vendor.getPurchaseOrders().add(savedPurchaseOrder);
+
+                //Adds the saved purchase order to the po queue
+                if (savedPurchaseOrder.getStatus() == PoStatus.RECEIVED)
+                    receivedPurchaseOrders.offer(savedPurchaseOrder);
+            }
+         }
+
+         //Warehouse, warehouse sections, stocks levels
+         //Warehouse labelling system source: https://idlabelinc.com/tips-for-effective-warehouse-numbering-schemes/
+         //https://docs.flexsim.com/en/19.2/ConnectingFlows/Warehousing/KeyConceptsWarehousing/KeyConceptsWarehousing.html
+         //RACKS LEVELS A-B-C-D-E [5 LEVELS]
+
+        int LEVELS = 6, SLOTS = 2, BAYS = 8, AISLES = 12; //[1152]
+        //AA-01-1-A [AISLE, BAY, SLOT, LEVEL]
+        List<String> aisles = List.of("AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AM");
+        List<String> bays = List.of("01", "02", "03", "04", "05", "06", "07", "08");
+        List<String> levels = List.of("A", "B", "C", "D", "E", "F");
+
+        Warehouse warehouse = Warehouse.builder().address("350 County Road, Jersey City, NJ 07307").build();
+        Warehouse savedWarehouse = warehouseRepository.save(warehouse);
+        List<WarehouseSection> savedWarehouseSections = new ArrayList<>();
+
+        StringBuilder builder = new StringBuilder();
+        // int sample = 50, counter = 0;
+        builder.append("AA-01-1-A");
+        for (int i=0; i<AISLES; i++) {
+            //AISLES
+            builder.replace(0, 2, aisles.get(i));
+            for (int j=0; j<BAYS; j++) {
+                //BAYS
+                builder.replace(3, 5, bays.get(j));
+                for (int k=0; k<SLOTS; k++) {
+                    //SLOTS
+                    builder.replace(6, 7, String.valueOf(k));
+                    for (int l=0; l<LEVELS; l++) {
+                        //LEVELS
+                        builder.replace(8, 9, levels.get(l));
+                        String section = builder.toString();
+                        WarehouseSection warehouseSection = WarehouseSection.builder().sectionNumber(section).warehouse(warehouse).build();
+                        WarehouseSection savedWarehouseSection = warehouseSectionRepository.save(warehouseSection);
+                        savedWarehouseSections.add(savedWarehouseSection);
+                        // if (counter <= sample) {
+                        //     System.out.println(section);
+                        //     counter++;
+                        // }
+                    }
+                }
+            }
+        }
+
+        savedWarehouse.setSections(savedWarehouseSections);
+
+
+        //adds Goods receipt notes, goods receipt notes lines to add stock levels in the warehouse
+        int WAREHOUSE_SECTIONS = savedWarehouseSections.size();
+
+        while (!receivedPurchaseOrders.isEmpty()) {
+            PurchaseOrder rPurchaseOrder = receivedPurchaseOrders.poll();
+            int plusDays = random.nextInt(30, 90);
+            LocalDate date = rPurchaseOrder.getDate().plusDays(plusDays);
+            GoodsReceiptNote goodsReceiptNote = GoodsReceiptNote.builder().date(date).purchaseOrder(rPurchaseOrder).date(date).build();
+            GoodsReceiptNote savedGoodsReceiptNote = goodsReceiptNoteRepository.save(goodsReceiptNote);
+
+            for (PurchaseOrderLine pol : rPurchaseOrder.getPurchaseOrderLines()) {
+                GoodsReceiptNoteLine goodsReceiptNoteLine = GoodsReceiptNoteLine.builder().goodsReceiptNote(savedGoodsReceiptNote)
+                    .qty(pol.getQty()).product(pol.getProduct()).build();
+                GoodsReceiptNoteLine savedGoodsReceiptNoteLine = goodsReceiptNoteLineRepository.save(goodsReceiptNoteLine);
+                savedGoodsReceiptNote.getGoodsReceiptNoteLines().add(savedGoodsReceiptNoteLine);
+                rPurchaseOrder.getGoodsReceiptNotes().add(savedGoodsReceiptNote);
+                WarehouseSection selectedWarehouseSection = savedWarehouseSections.get(random.nextInt(WAREHOUSE_SECTIONS));
+                Stock newStock = Stock.builder().qtyOnHand(savedGoodsReceiptNoteLine.getQty()).product(savedGoodsReceiptNoteLine.getProduct())
+                    .warehouseSection(selectedWarehouseSection).build();
+                stockRepository.save(newStock);
+            }
+        }
+        
+
+        //PRINTS customer, vendor, sales order, sales orders lines, products repository lines
+        System.out.printf("Customers: %d\n", customerRepository.count());
+        System.out.printf("Vendors: %d\n", vendorRepository.count());
+        System.out.printf("Sales Order: %d\n", salesOrderRepository.count());
+        System.out.printf("Sales Order Lines: %d\n", saleOrderLineRepository.count());
+        System.out.printf("Purchase Order: %d\n", purchaseOrderRepository.count());
+        System.out.printf("Purchase Order Lines: %d\n", purchaseOrderLineRepository.count());
+        System.out.printf("Products: %d\n", productRepository.count());
+        System.out.printf("Warehouse Sections: %d\n", warehouseSectionRepository.count());
+        System.out.printf("Goods Receipt Notes: %d\n", goodsReceiptNoteRepository.count());
+        System.out.printf("Stock: %d\n", stockRepository.count());
+        
+    }
+    
+}

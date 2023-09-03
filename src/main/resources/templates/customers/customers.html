@@ -1,0 +1,52 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESSFUL CUSTOMER DELETION -->
+    <div th:if="${param.customerDeleted}">
+        <div class="alert alert-success alert-dismissible fade show my-3" role="alert">
+            Customer has been deleted
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <!-- Page headers -->
+    <h1 class="my-3">Customer List</h1>
+    <!-- Customer list as table -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Name</th>
+                <th scope="col">Street</th>
+                <th scope="col">City</th>
+                <th scope="col">State</th>
+                <th scope="col">zipcode</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="customer : ${customers}">
+                <th scope="row" th:text="${customer.id}">1</th>
+                <td th:text="${customer.name}">Mark</td>
+                <td th:text="${customer.street}">Otto</td>
+                <td th:text="${customer.city}">@mdo</td>
+                <td th:text="${customer.state}">@mdo</td>
+                <td th:text="${customer.zipcode}">@mdo</td>
+                <td><a th:href="@{|/customers/${customer.id}|}" class="btn btn-outline-secondary col-12">Details</a>
+                </td>
+                <td>
+                    <form th:action="@{/customers/{id}(id=${customer.id})}" method="POST">
+                        <button type="submit" class="btn btn-dark col-12">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Footer fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>

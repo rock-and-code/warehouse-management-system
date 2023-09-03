@@ -1,0 +1,39 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <!-- Page headers -->
+    <h1 class="my-3 text-center" th:text="|Sales Orders|">Customer List</h1>
+    <!-- Customer list as table -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Sales Order</th>
+                <th scope="col">Total</th>
+                <th scope="col">Details</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="saleOrder : ${salesOrders}">
+                <th scope="row" th:text="|${#temporals.monthNameShort(saleOrder.date)} ${#temporals.format(saleOrder.date, ' dd, yyyy')}|">1</th>
+                <td th:text="${saleOrder.salesOrder}">Mark</td>
+                <td th:text="${#numbers.formatCurrency(saleOrder.total)}">Otto</td>
+                <td><a th:href="@{/sales-order/{orderId}(orderId=${saleOrder.id})}" class="btn btn-success">Details</a></td>
+                <td>
+                    <form th:action="@{/sales-order/{orderId}(orderId=${saleOrder.id})}" method="post">
+                        <button type="submit" class="btn btn-danger" name="delete">Delete</button>
+                    </form>
+                </td>
+                <!-- TODO: Adds button to delete sales order (first: implement sales order CRUD controll) -->
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Header fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>

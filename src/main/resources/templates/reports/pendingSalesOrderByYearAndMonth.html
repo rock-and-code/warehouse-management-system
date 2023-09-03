@@ -1,0 +1,87 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    
+    <div class="col-md-6 mx-auto">
+        <!-- Page headers -->
+        <h1 class="my-3 text-center">Sales Order By Customer</h1>
+        <!-- FLIGHT FORM -->
+        <form action="#" th:action="@{/reports/pending-sales-orders-by-year-month}" th:object="${pendingSalesOrderByYearAndMonthDto}"
+            method="post" class="horizontal needs-validation" novalidate>
+
+            <!-- Year -->
+            <div class="my-3">
+                <label for="year" class="form-label">Year</label>
+                <input class="form-control" th:field="*{year}" type="number" value="2023" min="2023" max="2023" id="year" aria-label="Default select example" required>
+                <div class="invalid-feedback">
+                    Please enter a year
+                </div>
+            </div>
+
+            <!-- Month -->
+            <div class="my-3">
+                <label for="month" class="form-label">Month</label>
+                <select class="form-select" th:field="*{month}" id="month" aria-label="Default select example"
+                    required>
+                    <option value="0" selected disable>Choose...</option>
+                    <option value="01">January</option>
+                    <option value="02">February</option>
+                    <option value="03">March</option>
+                    <option value="04">April</option>
+                    <option value="05">May</option>
+                    <option value="06">June</option>
+                    <option value="07">July</option>
+                    <option value="08">August</option>
+                    <option value="09">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+                <div class="invalid-feedback">
+                    Please select a month
+                </div>
+            </div>
+
+            <!-- SEARCH BUTTON -->
+            <div class="">
+                <div class="d-grid mx-auto">
+                    <input type="submit" id="print-report" value="Print Report" class="btn btn-dark" />
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    //JAVASCRIPT SNIPPET TO PROVIDES DATA VALIDATION ON FRONT END WHEN FORM IS SUBMITTED
+    //IT WILL SUPPLY A MESSAGE BELOW THE BLANK INPUT FIELD
+    (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        // it checks every input field that its class attribute contains "needs-validation"
+
+        //TODO: MOVE JS TO SEPARTE FILE
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+<!-- Header fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>

@@ -1,0 +1,32 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <!-- Page headers -->
+    <h1 class="my-3 text-center" th:text="|Customer: ${customer.name}|">Customer List</h1>
+    <h3 class="my-3 text-center" th:text="|Address: ${customer.formattedAddress}|">Customer List</h3>
+    <!-- Customer list as table -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Sales Order</th>
+                <th scope="col">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="saleOrder : ${salesOrders}">
+                <th scope="row" th:text="|${#temporals.monthNameShort(saleOrder.date)} ${#temporals.format(saleOrder.date, ' dd, yyyy')}|">1</th>
+                <td th:text="${saleOrder.salesOrder}">Mark</td>
+                <td th:text="${#numbers.formatCurrency(saleOrder.total)}">Otto</td>
+                <!-- TODO: Adds button to delete sales order (first: implement sales order CRUD controll) -->
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Header fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>

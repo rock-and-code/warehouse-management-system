@@ -1,0 +1,63 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<h1 class="my-3 text-center" th:text="|Dash Board|">Customer List</h1>
+<div class="container">
+  <div class="row">
+    <!-- Last Three Months Div -->
+    <div class="col">
+      <h5 class="my-3 text-center" th:text="|Last Three Months Sales|">Customer List</h5>
+      <!-- Customer list as table -->
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Total Sales</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="monthSales : ${lastThreeMonthsSales.lastThreeMonthsSales}">
+            <th scope="row" th:text="${monthSales.getMonth()}">January</th>
+            <td th:text="${#numbers.formatCurrency(monthSales.getTotal())}">$100,000</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="my-3 text-center"
+        th:text="|Three Months Avg Sales: ${#numbers.formatCurrency(lastThreeMonthsSales.getThreeMonthsAverageSales())}|">
+        Customer List</p>
+    </div>
+  </div>
+  <!-- Top Five movers Div-->
+  <div class="row">
+    <div class="col">
+      <h5 class="my-3 text-center" th:text="|Top 5 Movers|">Customer List</h5>
+      <!-- Customer list as table -->
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Sku</th>
+            <th scope="col">Description</th>
+            <th scope="col">Qty on Hand</th>
+            <th scope="col">Average Weekly Sales</th>
+            <th scope="col">Weeks of Inventory</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="mover : ${topFiveMovers}">
+            <th scope="row" th:text="${mover.getSku()}">101010</th>
+            <td th:text="${mover.getDescription()}">Iphone 14</td>
+            <td th:text="${mover.getQtyOnHand()}">190</td>
+            <td th:text="${mover.getAverageWeeklySales()}">40</td>
+            <td th:text="${mover.getWeeksOfInventory()}">4.0</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Header fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>

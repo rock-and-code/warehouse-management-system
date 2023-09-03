@@ -1,0 +1,40 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <!-- Page headers -->
+    <h1 class="my-3 text-center" th:text="|Purchase Order: ${purchaseOrder.purchaseOrderNumber}|">Purchase Order</h1>
+    <h3 class="my-3 text-center" th:text="|Customer: ${purchaseOrder.vendor.name}|">Vendor</h3>
+    <h3 class="my-3 text-center" th:text="|Date: ${#temporals.monthNameShort(purchaseOrder.date)} ${#temporals.format(purchaseOrder.date, ' dd, yyyy')}|">Date</h3>
+    <!-- Customer list as table -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Product</th>
+                <th scope="col">Description</th>
+                <th scope="col">Cost</th>
+                <th scope="col">Qty</th>
+                <th scope="col">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+                <tr th:each="purchaseOrderLine : ${purchaseOrder.purchaseOrderLines}">
+                    <th scope="row" th:text="${counter.incrementAndGet()}">1</th>
+                    <td th:text="${purchaseOrderLine.product.sku}">Mark</td>
+                    <td th:text="${purchaseOrderLine.product.description}">Otto</td>
+                    <td th:text="${#numbers.formatCurrency(purchaseOrderLine.product.cost)}">Otto</td>
+                    <td th:text="${purchaseOrderLine.qty}">Otto</td>
+                    <td th:text="${#numbers.formatCurrency(purchaseOrderLine.subtotal)}">Otto</td>
+                    <!-- TODO: Adds button to delete sales order (first: implement sales order CRUD controll) -->
+                </tr>
+        </tbody>
+    </table>
+    <h3 class="text-center" th:text="|Total ${#numbers.formatCurrency(purchaseOrder.getTotal())}|"></h3>
+</div>
+
+<!-- Header fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>

@@ -1,0 +1,100 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <div class="container">
+        <div class="container mx-auto col-md-6" id="sale-order-form">
+            <div id="header">
+                <h1 class="mt-3">New Sales Order</h1>
+            </div>
+
+            <div id="salesOrderForm">
+                <!-- SALE ORDER FORM -->
+                <form action="#" th:action="@{/sales-order/new-sales-order}" th:object="${newSalesOrderDto}"
+                    method="post" class="row g-3 needs-validation" novalidate>
+                    <!-- FROM/TO INPUTS FIELDS-->
+                    <div class="col-md-6">
+                        <label for="customer" class="form-label">Customer</label>
+                        <select class="form-select" th:field="*{customerId}" aria-label="Default select example"
+                            th:errorclass="fieldError" id="customer" required name="customer">
+                            <option value="" selected disable hidden>Choose...</option>
+                            <option th:each="customer: ${customers}" th:text="|${customer.id} - ${customer.name}|"
+                                th:value="${customer.id}">Two
+                            </option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select the customer
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="date" class="form-label">Date</label>
+                        <input class="form-control" type="text" id="date" th:field="*{date}" disabled name="date">
+                    </div>
+
+                    <!-- SALES ORDER LINES -->
+                    <!-- <div th:each="saleOrderLine: ${newSalesOrderDto.saleOrderLines}"> -->
+                    <div th:each="saleOrderLine, solStat: *{saleOrderLines}">
+                        <div class="input-group mb-3">
+                            <input type="number" min="1" step="1" th:field="*{saleOrderLines[__${solStat.index}__].qty}"
+                                class="form-control" id="qty" value="1">
+                            <select class="form-select" th:field="*{saleOrderLines[__${solStat.index}__].productId}"
+                                aria-label="Default select example" id="product" required>
+                                <option value="" selected disable hidden>Choose...</option>
+                                <option th:each="product: ${products}"
+                                    th:text="|${product.sku} - ${product.description}|" th:value="${product.id}">Two
+                                </option>
+                            </select>
+                                <button type="submit" name="removeRow" th:value="${solStat.index}" class="btn btn-danger">Remove</button>
+                        </div>
+                    </div>
+                    <!-- ADD ORDER LINE BUTTON -->
+                    <div class="col-12">
+                        <button type="submit" name="addRow" value="yes" class="btn btn-primary">Add Order Line</button>
+                    </div>
+                    <!-- </div> -->
+                    <!-- SEARCH BUTTON -->
+                    <div class="col-12">
+                        <div class="d-grid mx-auto">
+                            <button type="submit" name="save" th:value="|yes|" class="btn btn-dark col-12">Place Sales
+                                Order</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    //JAVASCRIPT SNIPPET TO PROVIDES DATA VALIDATION ON FRONT END WHEN FORM IS SUBMITTED
+    //IT WILL SUPPLY A MESSAGE BELOW THE BLANK INPUT FIELD
+    (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        // it checks every input field that its class attribute contains "needs-validation"
+
+        //TODO: MOVE JS TO SEPARTE FILE
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+
+
+<!-- Footer fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>
