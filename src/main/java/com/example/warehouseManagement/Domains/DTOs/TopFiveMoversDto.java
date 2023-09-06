@@ -4,6 +4,6 @@ public interface TopFiveMoversDto {
     Integer getSku();
     String getDescription();
     Integer getQtyOnHand();
-    Integer getAverageWeeklySales();
+    Integer getAverageWeekSales();
     Double getWeeksOfInventory();
 }

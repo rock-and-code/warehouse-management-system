@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.warehouseManagement.Domains.DTOs.StockLevelReportItemDto;
 import com.example.warehouseManagement.Domains.DTOs.TopFiveMoversDto;
 import com.example.warehouseManagement.Repositories.StockRepository;
 
@@ -18,6 +19,11 @@ public class StockServiceImpl implements StockService {
     @Override
     public List<TopFiveMoversDto> getTopFiveMovers() {
         return stockRepository.getTopFiveMovers();
+    }
+
+    @Override
+    public List<StockLevelReportItemDto> findStockReportsItemsByVendorId(Long vendorId) {
+        return stockRepository.findStockReportsItemsByVendorId(vendorId);
     }
     
 }

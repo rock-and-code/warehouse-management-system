@@ -157,46 +157,6 @@ public class Bootstrap implements CommandLineRunner{
             savedCustomers.add(savedCustomer);
          }
 
-         //Generate 20 sales orders by each savedCustomer objects
-         //TC(MSO)
-         for (Customer customer : savedCustomers) {
-            for (int i=0; i<SALES_ORDER; i++) {
-                int month = random.nextInt(1,12);
-                int day = (month==2) ? random.nextInt(1,28) : random.nextInt(1,30);
-                int year = 2023;
-                Long salesOrderNumber = random.nextLong(300000L  , 700000L);
-                LocalDate date = LocalDate.of(year, month, day);
-                int salesOrderLines = random.nextInt(3, 20);
-                int orderStatus = random.nextInt(3);
-                //adds savedCustomer to the savedSalesOrder
-                SalesOrder salesOrder = SalesOrder.builder().salesOrderNumber(salesOrderNumber).customer(customer).date(date).saleOrderLines(new ArrayList<>())
-                    .status((orderStatus == 0 || orderStatus == 2) ? Status.PENDING : Status.SHIPPED).build();
-            
-                //Adds the sales order to the sales order repository
-                SalesOrder so = salesOrderRepository.save(salesOrder);
-
-                so.setSalesOrderNumber(so.getId()+100000L);
-                SalesOrder savedSalesOrder = salesOrderRepository.save(so);
-
-                //Each sales order will generate between 3-20 sales order lines
-                for (int j=0; j<salesOrderLines; j++) {
-                    int randItem = random.nextInt(savedItems.size()-1);
-                    int qty = random.nextInt(1,6);
-                    Item selectedItem = savedItems.get(randItem);
-                    //adds savedProduct to the salesOrderLines
-                    //Adds the savedSaleOrder to the savedSalesOrderLines
-                    SalesOrderLine saleOrderLine = SalesOrderLine.builder().item(selectedItem).qty(qty)
-                        .salesOrder(savedSalesOrder).itemPrice(selectedItem.getItemPrices().get(0)).build();
-                    //Adds the sales orders lines to the sales orders lines repository
-                    SalesOrderLine savedSaleOrderLine = saleOrderLineRepository.save(saleOrderLine);
-                    //Adds the sales orders lines to the savedSalesOrder
-                    savedSalesOrder.getSaleOrderLines().add(savedSaleOrderLine);
-                }
-                //Adds the sales order to customer
-                customer.getSalesOrders().add(savedSalesOrder);
-            }
-         }
-
          for (Vendor vendor : savedVendors) {
             for (int i=0; i<PURCHASE_ORDER; i++) {
                 int month = random.nextInt(1,12);
@@ -208,7 +168,7 @@ public class Bootstrap implements CommandLineRunner{
                 int orderStatus = random.nextInt(3);
                 //adds savedCustomer to the purchase order
                 PurchaseOrder purchaseOrder = PurchaseOrder.builder().purchaseOrderNumber(purchaseOrderNumber).vendor(vendor).date(date).purchaseOrderLines(new ArrayList<>())
-                    .status((orderStatus == 0 || orderStatus == 2) ? PoStatus.IN_TRANSIT : PoStatus.RECEIVED).goodsReceiptNotes(new ArrayList<>()).build();
+                    .status((orderStatus == 0 || orderStatus == 2) ? PoStatus.RECEIVED : PoStatus.IN_TRANSIT).goodsReceiptNotes(new ArrayList<>()).build();
             
                 //Adds the purchase order to the purchase order repository
                 PurchaseOrder po = purchaseOrderRepository.save(purchaseOrder);
@@ -307,6 +267,66 @@ public class Bootstrap implements CommandLineRunner{
                 stockRepository.save(newStock);
             }
         }
+
+
+         //Generate 20 sales orders by each savedCustomer objects
+         //TC(MSO)
+         for (Customer customer : savedCustomers) {
+            for (int i=0; i<SALES_ORDER; i++) {
+                int month = random.nextInt(1,12);
+                int day = (month==2) ? random.nextInt(1,28) : random.nextInt(1,30);
+                int year = 2023;
+                Long salesOrderNumber = random.nextLong(300000L  , 700000L);
+                LocalDate date = LocalDate.of(year, month, day);
+                int salesOrderLines = random.nextInt(3, 20);
+                int orderStatus = random.nextInt(3);
+                //adds savedCustomer to the savedSalesOrder
+                SalesOrder salesOrder = SalesOrder.builder().salesOrderNumber(salesOrderNumber).customer(customer).date(date).saleOrderLines(new ArrayList<>())
+                    .status((orderStatus == 0 || orderStatus == 2) ? Status.PENDING : Status.SHIPPED).build();
+            
+                //Adds the sales order to the sales order repository
+                SalesOrder so = salesOrderRepository.save(salesOrder);
+
+                so.setSalesOrderNumber(so.getId()+100000L);
+                SalesOrder savedSalesOrder = salesOrderRepository.save(so);
+
+                //Each sales order will generate between 3-20 sales order lines
+                for (int j=0; j<salesOrderLines; j++) {
+                    int randItem = random.nextInt(savedItems.size()-1);
+                    int qty = random.nextInt(1,6);
+                    Item selectedItem = savedItems.get(randItem);
+                    //adds savedProduct to the salesOrderLines
+                    //Adds the savedSaleOrder to the savedSalesOrderLines
+                    SalesOrderLine saleOrderLine = SalesOrderLine.builder().item(selectedItem).qty(qty)
+                        .salesOrder(savedSalesOrder).itemPrice(selectedItem.getItemPrices().get(0)).build();
+                    //Adds the sales orders lines to the sales orders lines repository
+                    SalesOrderLine savedSaleOrderLine = saleOrderLineRepository.save(saleOrderLine);
+                    //Adds the sales orders lines to the savedSalesOrder
+                    savedSalesOrder.getSaleOrderLines().add(savedSaleOrderLine);
+                }
+                //Adds the sales order to customer
+                customer.getSalesOrders().add(savedSalesOrder);
+
+                //Substracting stocks levels for sales orders marked as shipped 
+                if (savedSalesOrder.getStatus() == Status.SHIPPED) {
+                    for (SalesOrderLine sol : savedSalesOrder.getSaleOrderLines()) {
+                        int ordered = sol.getQty();
+                        List<Stock> stocks = stockRepository.findByItem(sol.getItem());
+                        for (Stock stock : stocks) {
+                            if (stock.getQtyOnHand() > ordered) {
+                                stock.setQtyOnHand(stock.getQtyOnHand() - ordered);
+                                stockRepository.save(stock);
+                                break;
+                            } else {
+                                ordered -= stock.getQtyOnHand();
+                                stockRepository.delete(stock);
+                            }
+                        }
+                    }
+                    //TODO -> if ordered > 0 place remaining as back order (implement back orders table)
+                }
+            }
+         }
         
 
         //PRINTS customer, vendor, sales order, sales orders lines, products repository lines

@@ -1,0 +1,41 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <!-- Page headers -->
+    <h1 class="my-3 text-center" th:text="|Stock Level Report|">Stock Level Report</h1>
+    <h3 class="my-3 text-center" th:text="|For: ${date}|">Customer List</h3>
+    <!-- Customer list as table -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Vendor</th>
+                <th scope="col">Sku</th>
+                <th scope="col">Description</th>
+                <th scope="col">Average Week Sales</th>
+                <th scope="col">Qty on Hand</th>
+                <th scope="col">Weeks of Inventory</th>
+                <th scope="col">Qty In Transit</th>
+                <th scope="col">Weeks of Inventory</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="stockLevelReportItem : ${stockLevelReportItems}">
+                <th scope="row" th:text="${stockLevelReportItem.getVendorId()}">1</th> <!--scope="row" -->
+                <td th:text="${stockLevelReportItem.getSku()}">101010</td>
+                <td th:text="${stockLevelReportItem.getDescription()}">Iphone 14</td>
+                <td th:text="${stockLevelReportItem.getAverageWeekSales()}">Otto</td>
+                <td th:text="${stockLevelReportItem.getQtyOnHand()}">Otto</td>
+                <td th:text="${stockLevelReportItem.getQtyOnHandWOI()}">Otto</td>
+                <td th:text="${stockLevelReportItem.getQtyInTransit()}">Otto</td>
+                <td th:text="${stockLevelReportItem.getQtyInTransitWOI()}">Otto</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Header fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>

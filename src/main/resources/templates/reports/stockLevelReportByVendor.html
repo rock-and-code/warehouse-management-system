@@ -7,19 +7,19 @@
 <div class="container">
     <div class="col-md-6 mx-auto">
         <!-- Page headers -->
-        <h1 class="my-3 text-center">Sales Order By Customer</h1>
+        <h1 class="my-3 text-center">Stock Level Report By Vendor</h1>
         <!-- SALES ORDER BY CUSTOMER FORM -->
-        <form action="#" th:action="@{/reports/sales-order-details}" th:object="${salesOrderByNumberDto}"
+        <form action="#" th:action="@{/reports/stock-level-report-by-vendor}" th:object="${stockLevelReportByVendor}"
             method="post" class="horizontal needs-validation" novalidate>
 
             <!-- CUSTOMER ID -->
             <div class="my-3">
-                <label for="salesOrderNumber" class="form-label">Sales Order Number</label>
-                <select class="form-select" th:field="*{salesOrderNumber}" id="salesOrderNumber" aria-label="Default select example"
+                <label for="vendorId" class="form-label">Vendor</label>
+                <select class="form-select" th:field="*{vendorId}" id="vendorId" aria-label="Default select example"
                     required>
                     <!-- <option value="" selected disable>Choose...</option> -->
-                    <option th:each="salesOrder: ${salesOrders}" th:text="|${salesOrder.salesOrderNumber} - ${salesOrder.customer.name}|"
-                        th:value="${salesOrder.salesOrderNumber}">Two
+                    <option th:each="vendor: ${vendors}" th:text="|${vendor.id} - ${vendor.name}|"
+                        th:value="${vendor.id}">Two
                     </option>
                 </select>
                 <div class="invalid-feedback">
@@ -30,7 +30,7 @@
             <!-- SEARCH BUTTON -->
             <div class="">
                 <div class="d-grid mx-auto">
-                    <input type="submit" id="print-report" value="Print Report" class="btn btn-dark" />
+                    <input type="submit" id="print-report" value="Print Stock Level Report" class="btn btn-dark" />
                 </div>
             </div>
         </form>
