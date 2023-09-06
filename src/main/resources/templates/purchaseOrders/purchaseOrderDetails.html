@@ -14,7 +14,7 @@
         <thead>
             <tr>
                 <th scope="col">#</th>
-                <th scope="col">Product</th>
+                <th scope="col">Item</th>
                 <th scope="col">Description</th>
                 <th scope="col">Cost</th>
                 <th scope="col">Qty</th>
@@ -24,9 +24,9 @@
         <tbody>
                 <tr th:each="purchaseOrderLine : ${purchaseOrder.purchaseOrderLines}">
                     <th scope="row" th:text="${counter.incrementAndGet()}">1</th>
-                    <td th:text="${purchaseOrderLine.product.sku}">Mark</td>
-                    <td th:text="${purchaseOrderLine.product.description}">Otto</td>
-                    <td th:text="${#numbers.formatCurrency(purchaseOrderLine.product.cost)}">Otto</td>
+                    <td th:text="${purchaseOrderLine.item.sku}">Mark</td>
+                    <td th:text="${purchaseOrderLine.item.description}">Otto</td>
+                    <td th:text="${#numbers.formatCurrency(purchaseOrderLine.itemCost.cost)}">Otto</td>
                     <td th:text="${purchaseOrderLine.qty}">Otto</td>
                     <td th:text="${#numbers.formatCurrency(purchaseOrderLine.subtotal)}">Otto</td>
                     <!-- TODO: Adds button to delete sales order (first: implement sales order CRUD controll) -->

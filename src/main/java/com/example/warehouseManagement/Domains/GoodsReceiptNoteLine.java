@@ -32,7 +32,7 @@ public class GoodsReceiptNoteLine {
     @Column(name = "qty")
     private int qty;
     @ManyToOne
-    @JoinColumn(name= "product_id") //Map foreign key in product entity
-    private Product product;
+    @JoinColumn(name= "item_id") //Map foreign key in product entity
+    private Item item;
 
 }

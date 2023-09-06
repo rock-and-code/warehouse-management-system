@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.PurchaseOrderLine;
-import com.example.warehouseManagement.Services.ProductService;
+import com.example.warehouseManagement.Services.ItemService;
 import com.example.warehouseManagement.Services.PurchaseOrderService;
 import com.example.warehouseManagement.Services.VendorService;
 import com.example.warehouseManagement.Util.Counter;
@@ -28,20 +28,20 @@ public class PurchaseOrderController {
     private static final String PURCHASE_ORDER_ID_PATH = PURCHASE_ORDER_PATH + "/{orderId}";
     private final PurchaseOrderService purchaseOrderService;
     private final VendorService vendorService;
-    private final ProductService productService;
+    private final ItemService itemService;
 
     public PurchaseOrderController(PurchaseOrderService purchaseOrderService, VendorService vendorService,
-            ProductService productService) {
+            ItemService itemService) {
         this.purchaseOrderService = purchaseOrderService;
         this.vendorService = vendorService;
-        this.productService = productService;
+        this.itemService = itemService;
     }
 
     @GetMapping(value = NEW_PURCHASE_ORDER_PATH)
     public String getPurchaseOrderDetails(@ModelAttribute PurchaseOrder purchaseOrder, Model model) {
         model.addAttribute("purchaseOrder", purchaseOrder);
         model.addAttribute("vendors", vendorService.findAll());
-        model.addAttribute("products", productService.findAll());
+        model.addAttribute("items", itemService.findAll());
         return "forms/purchaseOrderForm";
     }
 
@@ -53,7 +53,7 @@ public class PurchaseOrderController {
 
         model.addAttribute("purchaseOrder", purchaseOrder);
         model.addAttribute("vendors", vendorService.findAll());
-        model.addAttribute("products", productService.findAll());
+        model.addAttribute("items", itemService.findAll());
         return "forms/purchaseOrderForm";
     }
 
@@ -66,7 +66,7 @@ public class PurchaseOrderController {
 
         model.addAttribute("purchaseOrder", purchaseOrder);
         model.addAttribute("vendors", vendorService.findAll());
-        model.addAttribute("products", productService.findAll());
+        model.addAttribute("items", itemService.findAll());
         return "forms/purchaseOrderForm";
     }
 

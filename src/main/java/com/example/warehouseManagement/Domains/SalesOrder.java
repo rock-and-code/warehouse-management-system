@@ -54,11 +54,11 @@ public class SalesOrder {
     @Builder.Default
     private Status status = Status.PENDING;
 
-    //TC(N)
+    //TC(M*N)
     public double getTotal() {
         double total = 0;
         for (int i=0; i<saleOrderLines.size(); i++) {
-            total += saleOrderLines.get(i).getProduct().getSalePrice() * saleOrderLines.get(i).getQty();
+            total += saleOrderLines.get(i).getItemPrice().getPrice() * saleOrderLines.get(i).getQty();
         }
         return total;
     }
@@ -67,7 +67,6 @@ public class SalesOrder {
         PENDING, //0
         SHIPPED //1
     }
-
 }
 
 /**

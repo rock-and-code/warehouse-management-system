@@ -30,9 +30,12 @@ public class PurchaseOrderLine {
     @Column(name = "qty")
     private int qty;
     @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @JoinColumn(name = "item_id")
+    private Item item;
+    @ManyToOne
+    @JoinColumn(name = "item_cost_id")
+    private ItemCost itemCost;
     public double getSubtotal() {
-        return qty * product.getCost();
+        return qty * itemCost.getCost();
     }
 }

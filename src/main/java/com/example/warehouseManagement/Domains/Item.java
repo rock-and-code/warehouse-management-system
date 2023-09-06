@@ -1,5 +1,6 @@
 package com.example.warehouseManagement.Domains;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -23,8 +24,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name="product")
-public class Product {
+@Table(name="item")
+public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
@@ -36,17 +37,24 @@ public class Product {
     private int sku;
     @Column(name = "description")
     private String description;
-    @Column(name = "sale_price")
-    private double salePrice;
-    @Column(name = "cost")
-    private double cost;
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "item_prices")
+    @Builder.Default
+    private List<ItemPrice> itemPrices = new ArrayList<>();
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "item_costs")
+    @Builder.Default
+    private List<ItemCost> itemCosts = new ArrayList<>();
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Column(name = "goods_receipt_note_lines")
-    private List<GoodsReceiptNoteLine> goodsReceiptNoteLines;
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<GoodsReceiptNoteLine> goodsReceiptNoteLines = new ArrayList<>();
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Column(name = "sales_order_lines")
-    private List<SalesOrderLine> salesOrderLines;
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<SalesOrderLine> salesOrderLines = new ArrayList<>();
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Column(name = "purchase_order_lines")
-    private List<PurchaseOrderLine> purchaseOrderLines;
+    @Builder.Default
+    private List<PurchaseOrderLine> purchaseOrderLines = new ArrayList<>();
 }

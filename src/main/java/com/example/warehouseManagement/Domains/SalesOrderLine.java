@@ -27,13 +27,16 @@ public class SalesOrderLine {
     @Column(name = "qty")
     private int qty;
     @ManyToOne
-    @JoinColumn(name= "product_id")
-    private Product product;
+    @JoinColumn(name= "item_id")
+    private Item item;
     @ManyToOne
     @JoinColumn(name= "sales_order_id") //Entity's column name
     SalesOrder salesOrder;
+    @ManyToOne
+    @JoinColumn(name = "item_price_id")
+    private ItemPrice itemPrice;
     public double getSubtotal() {
-        return qty * product.getSalePrice();
+        return qty * itemPrice.getPrice();
     }
 
 }

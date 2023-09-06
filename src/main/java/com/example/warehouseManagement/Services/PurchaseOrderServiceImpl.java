@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.PurchaseOrderLine;
 import com.example.warehouseManagement.Domains.DTOs.PurchaseOrderDto;
+import com.example.warehouseManagement.Repositories.ItemCostRepository;
 import com.example.warehouseManagement.Repositories.PurchaseOrderLineRepository;
 import com.example.warehouseManagement.Repositories.PurchaseOrderRepository;
 
@@ -15,10 +16,13 @@ import com.example.warehouseManagement.Repositories.PurchaseOrderRepository;
 public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final PurchaseOrderLineRepository purchaseOrderLineRepository;
+    private final ItemCostRepository itemCostRepository;
     
-    public PurchaseOrderServiceImpl(PurchaseOrderRepository purchaseOrderRepository, PurchaseOrderLineRepository purchaseOrderLineRepository) {
+    public PurchaseOrderServiceImpl(PurchaseOrderRepository purchaseOrderRepository, PurchaseOrderLineRepository purchaseOrderLineRepository,
+            ItemCostRepository itemCostRepository) {
         this.purchaseOrderLineRepository = purchaseOrderLineRepository;
         this.purchaseOrderRepository = purchaseOrderRepository;
+        this.itemCostRepository = itemCostRepository;
     }
 
     /**
@@ -59,8 +63,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public PurchaseOrder save(PurchaseOrder purchaseOrder) {
         PurchaseOrder po = purchaseOrderRepository.save(purchaseOrder);
-        for (PurchaseOrderLine pol : po.getPurchaseOrderLines())
+        for (PurchaseOrderLine pol : po.getPurchaseOrderLines()) {
             pol.setPurchaseOrder(purchaseOrder);
+            pol.setItemCost(itemCostRepository.findCurrentItemCostByItemId(pol.getItem().getId()));
+        }
         purchaseOrderLineRepository.saveAll(po.getPurchaseOrderLines());
         po.setPurchaseOrderNumber(po.getId() + 100000L);
         return purchaseOrderRepository.save(po);

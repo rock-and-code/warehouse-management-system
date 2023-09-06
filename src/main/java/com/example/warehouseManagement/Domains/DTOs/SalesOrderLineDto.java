@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SalesOrderLineDto {
     private int qty;
-    private Long productId; 
+    private Long itemId; 
 }

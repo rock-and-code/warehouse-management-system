@@ -40,11 +40,11 @@
                         <div class="input-group mb-3">
                             <input type="number" min="1" step="1" th:field="*{purchaseOrderLines[__${polStat.index}__].qty}"
                                 class="form-control" id="qty" value="1">
-                            <select class="form-select" th:field="*{purchaseOrderLines[__${polStat.index}__].product.id}"
-                                aria-label="Default select example" id="product" required>
+                            <select class="form-select" th:field="*{purchaseOrderLines[__${polStat.index}__].item.id}"
+                                aria-label="Default select example" id="item" required>
                                 <option value="" selected disable hidden>Choose...</option>
-                                <option th:each="product: ${products}"
-                                    th:text="|${product.sku} - ${product.description}|" th:value="${product.id}">Two
+                                <option th:each="item: ${items}"
+                                    th:text="|${item.sku} - ${item.description}|" th:value="${item.id}">Two
                                 </option>
                             </select>
                                 <button type="submit" name="removeRow" th:value="${polStat.index}" class="btn btn-danger">Remove</button>

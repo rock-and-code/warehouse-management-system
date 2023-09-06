@@ -5,17 +5,16 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.example.warehouseManagement.Domains.Product;
+import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.Vendor;
-import com.example.warehouseManagement.Repositories.ProductRepository;
+import com.example.warehouseManagement.Repositories.ItemRepository;
 
 @Service
-public class ProductServiceImpl implements ProductService {
+public class ItemServiceImpl implements ItemService {
 
-    private final ProductRepository productRepository;
+    private final ItemRepository productRepository;
 
-    
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ItemServiceImpl(ItemRepository productRepository) {
         this.productRepository = productRepository;
     }
     /**
@@ -23,7 +22,7 @@ public class ProductServiceImpl implements ProductService {
      * @return
      */
     @Override
-    public Iterable<Product> findAll() {
+    public Iterable<Item> findAll() {
         return productRepository.findAll();
     }
     /**
@@ -32,7 +31,7 @@ public class ProductServiceImpl implements ProductService {
      * @return
      */
     @Override
-    public Optional<Product> findById(Long id) {
+    public Optional<Item> findById(Long id) {
         return productRepository.findById(id);
     }
     /**
@@ -41,7 +40,7 @@ public class ProductServiceImpl implements ProductService {
      * @return
      */
     @Override
-    public List<Product> findByVendor(Vendor vendor) {
+    public List<Item> findByVendor(Vendor vendor) {
         return productRepository.findByVendor(vendor);
     }
     /**
@@ -50,7 +49,7 @@ public class ProductServiceImpl implements ProductService {
      * @return
      */
     @Override
-    public Product save(Product product) {
+    public Item save(Item product) {
         return productRepository.save(product);
     }
     /**
@@ -58,7 +57,7 @@ public class ProductServiceImpl implements ProductService {
      * @param product
      */
     @Override
-    public void delete(Product product) {
+    public void delete(Item product) {
         productRepository.delete(product);
     }
     

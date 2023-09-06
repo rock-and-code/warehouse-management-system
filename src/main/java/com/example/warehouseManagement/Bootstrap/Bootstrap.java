@@ -14,11 +14,13 @@ import com.example.warehouseManagement.Domains.Customer;
 import com.example.warehouseManagement.Domains.CustomerPool;
 import com.example.warehouseManagement.Domains.GoodsReceiptNote;
 import com.example.warehouseManagement.Domains.GoodsReceiptNoteLine;
-import com.example.warehouseManagement.Domains.Product;
-import com.example.warehouseManagement.Domains.ProductPool;
+import com.example.warehouseManagement.Domains.Item;
+import com.example.warehouseManagement.Domains.ItemCost;
+import com.example.warehouseManagement.Domains.ItemPool;
+import com.example.warehouseManagement.Domains.ItemPrice;
 import com.example.warehouseManagement.Domains.PurchaseOrder;
-import com.example.warehouseManagement.Domains.PurchaseOrderLine;
 import com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus;
+import com.example.warehouseManagement.Domains.PurchaseOrderLine;
 import com.example.warehouseManagement.Domains.SalesOrder;
 import com.example.warehouseManagement.Domains.SalesOrder.Status;
 import com.example.warehouseManagement.Domains.SalesOrderLine;
@@ -27,10 +29,13 @@ import com.example.warehouseManagement.Domains.Vendor;
 import com.example.warehouseManagement.Domains.VendorPool;
 import com.example.warehouseManagement.Domains.Warehouse;
 import com.example.warehouseManagement.Domains.WarehouseSection;
+import com.example.warehouseManagement.Domains.DTOs.ItemInfoDto;
 import com.example.warehouseManagement.Repositories.CustomerRepository;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteLineRepository;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteRepository;
-import com.example.warehouseManagement.Repositories.ProductRepository;
+import com.example.warehouseManagement.Repositories.ItemCostRepository;
+import com.example.warehouseManagement.Repositories.ItemPriceRepository;
+import com.example.warehouseManagement.Repositories.ItemRepository;
 import com.example.warehouseManagement.Repositories.PurchaseOrderLineRepository;
 import com.example.warehouseManagement.Repositories.PurchaseOrderRepository;
 import com.example.warehouseManagement.Repositories.SaleOrderLineRepository;
@@ -44,7 +49,7 @@ import com.example.warehouseManagement.Repositories.WarehouseSectionRepository;
 public class Bootstrap implements CommandLineRunner{
 
     private final CustomerRepository customerRepository;
-    private final ProductRepository productRepository;
+    private final ItemRepository itemRepository;
     private final VendorRepository vendorRepository;
     private final SalesOrderRepository salesOrderRepository;
     private final PurchaseOrderRepository purchaseOrderRepository;
@@ -55,16 +60,19 @@ public class Bootstrap implements CommandLineRunner{
     private final StockRepository stockRepository;
     private final GoodsReceiptNoteRepository goodsReceiptNoteRepository;
     private final GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository;
+    private final ItemPriceRepository itemPriceRepository;
+    private final ItemCostRepository itemCostRepository;
 
     
-    public Bootstrap(CustomerRepository customerRepository, ProductRepository productRepository,
+    public Bootstrap(CustomerRepository customerRepository, ItemRepository itemRepository,
             VendorRepository vendorRepository, SalesOrderRepository salesOrderRepository,
             PurchaseOrderRepository purchaseOrderRepository, SaleOrderLineRepository saleOrderLineRepository,
             PurchaseOrderLineRepository purchaseOrderLineRepository, WarehouseRepository warehouseRepository,
             WarehouseSectionRepository warehouseSectionRepository, StockRepository stockRepository,
-            GoodsReceiptNoteRepository goodsReceiptNoteRepository, GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository) {
+            GoodsReceiptNoteRepository goodsReceiptNoteRepository, GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository,
+            ItemPriceRepository itemPriceRepository, ItemCostRepository itemCostRepository) {
         this.customerRepository = customerRepository;
-        this.productRepository = productRepository;
+        this.itemRepository = itemRepository;
         this.vendorRepository = vendorRepository;
         this.salesOrderRepository = salesOrderRepository;
         this.purchaseOrderRepository = purchaseOrderRepository;
@@ -75,11 +83,12 @@ public class Bootstrap implements CommandLineRunner{
         this.stockRepository = stockRepository;
         this.goodsReceiptNoteRepository = goodsReceiptNoteRepository;
         this.goodsReceiptNoteLineRepository = goodsReceiptNoteLineRepository;
+        this.itemPriceRepository = itemPriceRepository;
+        this.itemCostRepository = itemCostRepository;
     }
 
 
     /**
-     * TC(XNM)
      * Generates dummy data for testing purposes
      */
 
@@ -93,7 +102,7 @@ public class Bootstrap implements CommandLineRunner{
         int VENDORS = 5, CUSTOMERS = 10, SALES_ORDER = 20, PURCHASE_ORDER = 20;
         List<Vendor> savedVendors = new ArrayList<>();
         List<Customer> savedCustomers = new ArrayList<>();
-        List<Product> savedProducts = new ArrayList<>();
+        List<Item> savedItems = new ArrayList<>();
         Queue<PurchaseOrder> receivedPurchaseOrders = new LinkedList<>();
 
 
@@ -109,21 +118,33 @@ public class Bootstrap implements CommandLineRunner{
 
         //Generate 40 random products and adds them to the product repository
          //0-7 APPLE   8-10 MICROSOFT 11-16 ALPABHET 17-33 AMAZON 34-40 CISCO
-         int [] vendorsProducts = {7, 10, 16, 33, 40};
+         int [] vendorsItems = {7, 10, 16, 33, 40};
          
          //T(XN)
          //Adding products to vendors
          for (int i=0; i<VENDORS; i++) {
-            int start = (i==0) ? 0 : vendorsProducts[i-1]+1;
+            int start = (i==0) ? 0 : vendorsItems[i-1]+1; //FIX
             Vendor currentVendor = savedVendors.get(i);
-            for (int j=start; j<=vendorsProducts[i]; j++) {
-                Product product = ProductPool.ProductList.get(j);
+            for (int j=start; j<=vendorsItems[i]; j++) {
+                ItemInfoDto itemInfo = ItemPool.ProductList.get(j);
+                Item item = Item.builder().description(itemInfo.getDescription()).sku(itemInfo.getSku()).build();
                 //Add vendos to the savedProducts objects
-                product.setVendor(currentVendor);
-                Product saveProduct = productRepository.save(product);
-                savedProducts.add(saveProduct);
+                item.setVendor(currentVendor);
+                Item savedItem = itemRepository.save(item);
+                ItemPrice itemPrice = ItemPrice.builder().start(LocalDate.of(2023, 1, 1)).salesOrderLine(new ArrayList<>())
+                    .end(LocalDate.of(2023, 12, 31)).price(itemInfo.getSalesPrice()).item(savedItem).build();
+                ItemCost itemCost = ItemCost.builder().start(LocalDate.of(2023, 1, 1)).purchaseOrderLine(new ArrayList<>(i))
+                    .end(LocalDate.of(2023, 12, 31)).cost(itemInfo.getCost()).item(savedItem).build();
+                ItemPrice savedItemPrice = itemPriceRepository.save(itemPrice);
+                ItemCost savedItemCost = itemCostRepository.save(itemCost);
+                // salesPrices.add(savedItemPrice);
+                // costs.add(savedItemCost);
+                savedItem.getItemPrices().add(savedItemPrice);
+                savedItem.getItemCosts().add(savedItemCost);
+
+                savedItems.add(savedItem);
                 //Adds products to the savedVendors objects
-                currentVendor.getProducts().add(saveProduct);
+                currentVendor.getItems().add(savedItem);
             }
          }
         
@@ -159,13 +180,13 @@ public class Bootstrap implements CommandLineRunner{
 
                 //Each sales order will generate between 3-20 sales order lines
                 for (int j=0; j<salesOrderLines; j++) {
-                    int randProduct = random.nextInt(savedProducts.size()-1);
+                    int randItem = random.nextInt(savedItems.size()-1);
                     int qty = random.nextInt(1,6);
-                    Product selectedProduct = savedProducts.get(randProduct);
+                    Item selectedItem = savedItems.get(randItem);
                     //adds savedProduct to the salesOrderLines
                     //Adds the savedSaleOrder to the savedSalesOrderLines
-                    SalesOrderLine saleOrderLine = SalesOrderLine.builder().product(selectedProduct).qty(qty)
-                        .salesOrder(savedSalesOrder).build();
+                    SalesOrderLine saleOrderLine = SalesOrderLine.builder().item(selectedItem).qty(qty)
+                        .salesOrder(savedSalesOrder).itemPrice(selectedItem.getItemPrices().get(0)).build();
                     //Adds the sales orders lines to the sales orders lines repository
                     SalesOrderLine savedSaleOrderLine = saleOrderLineRepository.save(saleOrderLine);
                     //Adds the sales orders lines to the savedSalesOrder
@@ -197,13 +218,13 @@ public class Bootstrap implements CommandLineRunner{
 
                 //Each purchase order will generate between 3-20 sales order lines
                 for (int j=0; j<purchaseOrderLines; j++) {
-                    int randProduct = random.nextInt(savedProducts.size()-1);
+                    int randItem = random.nextInt(savedItems.size()-1);
                     int qty = random.nextInt(1,6);
-                    Product selectedProduct = savedProducts.get(randProduct);
+                    Item selectedItem = savedItems.get(randItem);
                     //adds savedProduct to the purchaseOrder line
                     //Adds the savedPurchaseOrder to the purchase order line
-                    PurchaseOrderLine purchaseOrderLine = PurchaseOrderLine.builder().product(selectedProduct).qty(qty)
-                        .purchaseOrder(savedPurchaseOrder).build();
+                    PurchaseOrderLine purchaseOrderLine = PurchaseOrderLine.builder().item(selectedItem).qty(qty)
+                        .purchaseOrder(savedPurchaseOrder).itemCost(selectedItem.getItemCosts().get(0)).build();
                     //Adds the purchase orders lines to the purchase orders lines repository
                     PurchaseOrderLine savedPurchaseOrderLine = purchaseOrderLineRepository.save(purchaseOrderLine);
                     //Adds the purchase orders lines to the savedPurchaseOrder
@@ -276,12 +297,12 @@ public class Bootstrap implements CommandLineRunner{
 
             for (PurchaseOrderLine pol : rPurchaseOrder.getPurchaseOrderLines()) {
                 GoodsReceiptNoteLine goodsReceiptNoteLine = GoodsReceiptNoteLine.builder().goodsReceiptNote(savedGoodsReceiptNote)
-                    .qty(pol.getQty()).product(pol.getProduct()).build();
+                    .qty(pol.getQty()).item(pol.getItem()).build();
                 GoodsReceiptNoteLine savedGoodsReceiptNoteLine = goodsReceiptNoteLineRepository.save(goodsReceiptNoteLine);
                 savedGoodsReceiptNote.getGoodsReceiptNoteLines().add(savedGoodsReceiptNoteLine);
                 rPurchaseOrder.getGoodsReceiptNotes().add(savedGoodsReceiptNote);
                 WarehouseSection selectedWarehouseSection = savedWarehouseSections.get(random.nextInt(WAREHOUSE_SECTIONS));
-                Stock newStock = Stock.builder().qtyOnHand(savedGoodsReceiptNoteLine.getQty()).product(savedGoodsReceiptNoteLine.getProduct())
+                Stock newStock = Stock.builder().qtyOnHand(savedGoodsReceiptNoteLine.getQty()).item(savedGoodsReceiptNoteLine.getItem())
                     .warehouseSection(selectedWarehouseSection).build();
                 stockRepository.save(newStock);
             }
@@ -295,7 +316,7 @@ public class Bootstrap implements CommandLineRunner{
         System.out.printf("Sales Order Lines: %d\n", saleOrderLineRepository.count());
         System.out.printf("Purchase Order: %d\n", purchaseOrderRepository.count());
         System.out.printf("Purchase Order Lines: %d\n", purchaseOrderLineRepository.count());
-        System.out.printf("Products: %d\n", productRepository.count());
+        System.out.printf("Items: %d\n", itemRepository.count());
         System.out.printf("Warehouse Sections: %d\n", warehouseSectionRepository.count());
         System.out.printf("Goods Receipt Notes: %d\n", goodsReceiptNoteRepository.count());
         System.out.printf("Stock: %d\n", stockRepository.count());

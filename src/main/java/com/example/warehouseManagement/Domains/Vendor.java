@@ -41,9 +41,9 @@ public class Vendor {
     @Column(name = "contact_info")
     private String contactInfo;
     @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Column(name = "products")
+    @Column(name = "items")
     @Builder.Default
-    private List<Product> products = new ArrayList();
+    private List<Item> items = new ArrayList();
     @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Column(name = "purchase_orders")
     @Builder.Default

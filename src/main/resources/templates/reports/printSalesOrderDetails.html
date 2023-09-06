@@ -22,10 +22,10 @@
         </thead>
         <tbody>
             <tr th:each="salesOrderLine : ${salesOrder.saleOrderLines}">
-                <th scope="row" th:text="${salesOrderLine.product.description}">1</th> <!--scope="row" -->
-                <td th:text="${salesOrderLine.product.sku}">Mark</td>
+                <th scope="row" th:text="${salesOrderLine.item.description}">1</th> <!--scope="row" -->
+                <td th:text="${salesOrderLine.item.sku}">Mark</td>
                 <td th:text="${salesOrderLine.qty}">Mark</td>
-                <td th:text="${#numbers.formatCurrency(salesOrderLine.product.salePrice)}">Otto</td>
+                <td th:text="${#numbers.formatCurrency(salesOrderLine.itemPrice.price)}">Otto</td>
                 <td th:text="${#numbers.formatCurrency(salesOrderLine.subtotal)}">Otto</td>
             </tr>
         </tbody>

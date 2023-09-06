@@ -54,7 +54,7 @@ public class PurchaseOrder {
     public double getTotal() {
         double total = 0;
         for (int i=0; i<purchaseOrderLines.size(); i++) {
-            total += purchaseOrderLines.get(i).getProduct().getCost() * purchaseOrderLines.get(i).getQty();
+            total += purchaseOrderLines.get(i).getItemCost().getCost() * purchaseOrderLines.get(i).getQty();
         }
         return total;
     }

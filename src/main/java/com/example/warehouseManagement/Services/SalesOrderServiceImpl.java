@@ -11,6 +11,7 @@ import com.example.warehouseManagement.Domains.SalesOrder;
 import com.example.warehouseManagement.Domains.SalesOrderLine;
 import com.example.warehouseManagement.Domains.DTOs.PendingSalesOrderDto;
 import com.example.warehouseManagement.Domains.DTOs.SalesOrderDto;
+import com.example.warehouseManagement.Repositories.ItemPriceRepository;
 import com.example.warehouseManagement.Repositories.SaleOrderLineRepository;
 import com.example.warehouseManagement.Repositories.SalesOrderRepository;
 
@@ -19,12 +20,14 @@ public class SalesOrderServiceImpl implements SalesOrderService {
 
     private final SalesOrderRepository salesOrderRepository;
     private final SaleOrderLineRepository saleOrderLineRepository;
-    
+    private final ItemPriceRepository itemPriceRepository;
 
     public SalesOrderServiceImpl(SalesOrderRepository salesOrderRepository,
-            SaleOrderLineRepository saleOrderLineRepository) {
+            SaleOrderLineRepository saleOrderLineRepository,
+            ItemPriceRepository itemPriceRepository) {
         this.salesOrderRepository = salesOrderRepository;
         this.saleOrderLineRepository = saleOrderLineRepository;
+        this.itemPriceRepository = itemPriceRepository;
     }
 
     @Override
@@ -55,8 +58,10 @@ public class SalesOrderServiceImpl implements SalesOrderService {
     @Override
     public SalesOrder save(SalesOrder salesOrder) {
         SalesOrder so = salesOrderRepository.save(salesOrder);
-        for (SalesOrderLine sol : so.getSaleOrderLines())
+        for (SalesOrderLine sol : so.getSaleOrderLines()) {
             sol.setSalesOrder(salesOrder);
+            sol.setItemPrice(itemPriceRepository.findCurrentItemPriceByItemId(sol.getItem().getId()));
+        }
         saleOrderLineRepository.saveAll(so.getSaleOrderLines());
         so.setSalesOrderNumber(so.getId() +  100000L);
         return salesOrderRepository.save(so);

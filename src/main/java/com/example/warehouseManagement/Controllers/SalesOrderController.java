@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.example.warehouseManagement.Domains.SalesOrder;
 import com.example.warehouseManagement.Domains.SalesOrderLine;
 import com.example.warehouseManagement.Services.CustomerService;
-import com.example.warehouseManagement.Services.ProductService;
+import com.example.warehouseManagement.Services.ItemService;
 import com.example.warehouseManagement.Services.SalesOrderService;
 import com.example.warehouseManagement.Util.Counter;
 
@@ -28,20 +28,20 @@ public class SalesOrderController {
     private static final String SALES_ORDER_ID_PATH = SALES_ORDER_PATH + "/{orderId}";
     private final SalesOrderService salesOrderService;
     private final CustomerService customerService;
-    private final ProductService productService;
+    private final ItemService itemService;
 
     public SalesOrderController(SalesOrderService salesOrderService, CustomerService customerService,
-            ProductService productService) {
+            ItemService itemService) {
         this.salesOrderService = salesOrderService;
         this.customerService = customerService;
-        this.productService = productService;
+        this.itemService = itemService;
     }
 
     @GetMapping(value = NEW_SALES_ORDER_PATH)
     public String getSalesOrderDetails(@ModelAttribute SalesOrder salesOrder, Model model) {
         model.addAttribute("salesOrder", salesOrder);
         model.addAttribute("customers", customerService.findAll());
-        model.addAttribute("products", productService.findAll());
+        model.addAttribute("items", itemService.findAll());
         return "forms/salesOrderForm";
     }
 
@@ -53,7 +53,7 @@ public class SalesOrderController {
 
         model.addAttribute("salesOrder", salesOrder);
         model.addAttribute("customers", customerService.findAll());
-        model.addAttribute("products", productService.findAll());
+        model.addAttribute("items", itemService.findAll());
         return "forms/salesOrderForm";
     }
 
@@ -66,7 +66,7 @@ public class SalesOrderController {
 
         model.addAttribute("salesOrder", salesOrder);
         model.addAttribute("customers", customerService.findAll());
-        model.addAttribute("products", productService.findAll());
+        model.addAttribute("items", itemService.findAll());
         return "forms/salesOrderForm";
     }
 
