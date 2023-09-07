@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.warehouseManagement.Domains.PurchaseOrder;
+import com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus;
 import com.example.warehouseManagement.Domains.PurchaseOrderLine;
 import com.example.warehouseManagement.Services.ItemService;
 import com.example.warehouseManagement.Services.PurchaseOrderService;
@@ -38,7 +39,7 @@ public class PurchaseOrderController {
     }
 
     @GetMapping(value = NEW_PURCHASE_ORDER_PATH)
-    public String getPurchaseOrderDetails(@ModelAttribute PurchaseOrder purchaseOrder, Model model) {
+    public String newPurchaseOrder(@ModelAttribute PurchaseOrder purchaseOrder, Model model) {
         model.addAttribute("purchaseOrder", purchaseOrder);
         model.addAttribute("vendors", vendorService.findAll());
         model.addAttribute("items", itemService.findAll());
@@ -98,7 +99,7 @@ public class PurchaseOrderController {
         return "purchaseOrders/purchaseOrderDetails";
         }
         else {
-            return "redirect:/purchase-order?orderNotFound";
+            return "redirect:/purchase-order?notFound";
         }   
     }
 
@@ -106,12 +107,16 @@ public class PurchaseOrderController {
     public String deletePurchaseOrder(@PathVariable(value = "orderId") Long orderId, Model model) {
         Optional<PurchaseOrder> order = purchaseOrderService.findById(orderId);
         if (order.isPresent()) {
-            System.out.println("Order " + order.get().getId() + " deleted");
-            purchaseOrderService.delete(order.get());
-            return "redirect:/purchase-order";
+            if (order.get().getStatus() != PoStatus.RECEIVED) {
+                purchaseOrderService.delete(order.get());
+                return "redirect:/purchase-order";
+            }
+            else {
+                return "redirect:/purchase-order?failedToDelete";
+            }
         }
         else {
-            return "redirect:/purchase-order?orderNotFound";
+            return "redirect:/purchase-order?notFound";
         }   
     }
 

@@ -6,60 +6,61 @@
 
 <div class="container">
     <div class="container">
-        <div class="container mx-auto col-md-6" id="sale-order-form">
+        <div class="container mx-auto col-md-6" id="goods-receipt-note-form">
             <div id="header">
-                <h1 class="mt-3">New Purchase Order</h1>
+                <h1 class="mt-3">New Good Receipt Note</h1>
             </div>
 
-            <div id="purchaseOrderForm">
-                <!-- PURCHASE ORDER FORM -->
-                <form action="#" th:action="@{/purchase-order/new-purchase-order}" th:object="${purchaseOrder}"
+            <div id="goodsReceiptNoteForm">
+                <!-- GOODS RECEIPT NOTE  FORM -->
+                <form action="#" th:action="@{/goods-receipt-note/new-good-receipt-note}" th:object="${goodsReceiptNote}"
                     method="post" class="row g-3 needs-validation" novalidate>
-                    <!-- FROM/TO INPUTS FIELDS-->
+                    <!-- PO INPUTS FIELDS-->
                     <div class="col-md-6">
-                        <label for="vendor" class="form-label">Vendor</label>
-                        <select class="form-select" th:field="*{vendor.id}" aria-label="Default select example"
-                            th:errorclass="fieldError" id="vendor" required name="vendor">
+                        <label for="purchaseOrder" class="form-label">Purchase Order</label>
+                        <select class="form-select" th:field="*{purchaseOrder.id}" aria-label="Default select example"
+                            th:errorclass="fieldError" id="purchaseOrder" required name="purchaseOrder">
                             <option value="" selected disable hidden>Choose...</option>
-                            <option th:each="vendor: ${vendors}" th:text="|${vendor.id} - ${vendor.name}|"
-                                th:value="${vendor.id}">Two
+                            <option th:each="purchaseOrder: ${purchaseOrders}" th:text="|${purchaseOrder.purchaseOrderNumber}|"
+                                th:value="${purchaseOrder.id}">Two
                             </option>
                         </select>
                         <div class="invalid-feedback">
                             Please select the customer
                         </div>
                     </div>
+                    <!-- DATE INPUTS FIELDS (DISABLED SINCE THE DATE WILL BE AUTOMATICALLY ASSIGNED AS)-->
                     <div class="col-md-6">
                         <label for="date" class="form-label">Date</label>
                         <input class="form-control" type="text" id="date" th:field="*{date}" disabled name="date">
                     </div>
 
-                    <!-- PURCHASE ORDER LINES -->
+                    <!-- GOODS RECEIPT NOTE LINES -->
                     <!-- <div th:each="saleOrderLine: ${newSalesOrderDto.saleOrderLines}"> -->
-                    <div th:each="purchaseOrderLine, polStat: *{purchaseOrderLines}">
+                    <div th:each="goodsReceiptNoteLine, grnStat: *{goodsReceiptNoteLines}">
                         <div class="input-group mb-3">
-                            <input type="number" min="1" step="1" th:field="*{purchaseOrderLines[__${polStat.index}__].qty}"
+                            <input type="number" min="1" step="1" th:field="*{goodsReceiptNoteLines[__${grnStat.index}__].qty}"
                                 class="form-control" id="qty" value="1">
-                            <select class="form-select" th:field="*{purchaseOrderLines[__${polStat.index}__].item.id}"
+                            <select class="form-select" th:field="*{goodsReceiptNoteLines[__${grnStat.index}__].item.id}"
                                 aria-label="Default select example" id="item" required>
                                 <option value="" selected disable hidden>Choose...</option>
                                 <option th:each="item: ${items}"
                                     th:text="|${item.sku} - ${item.description}|" th:value="${item.id}">Two
                                 </option>
                             </select>
-                                <button type="submit" name="removeRow" th:value="${polStat.index}" class="btn btn-danger">Remove</button>
+                                <button type="submit" name="removeRow" th:value="${grnStat.index}" class="btn btn-danger">Remove</button>
                         </div>
                     </div>
-                    <!-- ADD ORDER LINE BUTTON -->
+                    <!-- ADD GOODS RECEIPT NOTE LINE BUTTON -->
                     <div class="col-12">
                         <button type="submit" name="addRow" value="yes" class="btn btn-primary">Add Order Line</button>
                     </div>
                     <!-- </div> -->
-                    <!-- SEARCH BUTTON -->
+                    <!-- SUBMIT BUTTON -->
                     <div class="col-12">
                         <div class="d-grid mx-auto">
-                            <button type="submit" name="save" th:value="|yes|" class="btn btn-dark col-12">Place Sales
-                                Order</button>
+                            <button type="submit" name="save" th:value="|yes|" class="btn btn-dark col-12">Finish Goods Receipt
+                                Note</button>
                         </div>
                     </div>
                 </form>

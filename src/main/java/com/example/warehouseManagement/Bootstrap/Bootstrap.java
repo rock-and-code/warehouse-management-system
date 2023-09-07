@@ -253,7 +253,9 @@ public class Bootstrap implements CommandLineRunner{
             int plusDays = random.nextInt(30, 90);
             LocalDate date = rPurchaseOrder.getDate().plusDays(plusDays);
             GoodsReceiptNote goodsReceiptNote = GoodsReceiptNote.builder().date(date).purchaseOrder(rPurchaseOrder).date(date).build();
-            GoodsReceiptNote savedGoodsReceiptNote = goodsReceiptNoteRepository.save(goodsReceiptNote);
+            GoodsReceiptNote grn = goodsReceiptNoteRepository.save(goodsReceiptNote);
+            grn.setGoodsReceiptNoteNumber(grn.getId() + 100000L);
+            GoodsReceiptNote savedGoodsReceiptNote = goodsReceiptNoteRepository.save(grn);
 
             for (PurchaseOrderLine pol : rPurchaseOrder.getPurchaseOrderLines()) {
                 GoodsReceiptNoteLine goodsReceiptNoteLine = GoodsReceiptNoteLine.builder().goodsReceiptNote(savedGoodsReceiptNote)

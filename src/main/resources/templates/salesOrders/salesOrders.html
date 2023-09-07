@@ -5,6 +5,27 @@
 <div th:insert="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON UNSUCCESSFUL SO DELETION -->
+    <div th:if="${param.failedToDelete}">
+        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+            Cannot delete a shipped sales order!
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON NOT FOUND SO -->
+    <div th:if="${param.notFound}">
+        <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+            SO not found
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESSFUL ADDED SO -->
+    <div th:if="${param.added}">
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            SO added to the database
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
     <!-- Page headers -->
     <h1 class="my-3 text-center" th:text="|Sales Orders|">Customer List</h1>
     <!-- Customer list as table -->

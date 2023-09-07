@@ -1,0 +1,36 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <!-- Page headers -->
+    <h1 class="my-3 text-center" th:text="|Good Receipt Note: ${goodsReceiptNote.goodsReceiptNoteNumber}|">Good Receipt Note</h1>
+    <h3 class="my-3 text-center" th:text="|Date: ${#temporals.monthNameShort(goodsReceiptNote.date)} ${#temporals.format(goodsReceiptNote.date, ' dd, yyyy')}|">Date</h3>
+    <!-- Customer list as table -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Item</th>
+                <th scope="col">Description</th>
+                <th scope="col">Qty Received</th>
+                <th scope="col">Damaged?</th>
+            </tr>
+        </thead>
+        <tbody>
+                <tr th:each="goodsReceiptNoteLine : ${goodsReceiptNote.goodsReceiptNoteLines}">
+                    <th scope="row" th:text="${counter.incrementAndGet()}">1</th>
+                    <td th:text="${goodsReceiptNoteLine.item.sku}">Mark</td>
+                    <td th:text="${goodsReceiptNoteLine.item.description}">Otto</td>
+                    <td th:text="${goodsReceiptNoteLine.qty}">Otto</td>
+                    <td th:text="${goodsReceiptNoteLine.damaged}">Otto</td>
+                    <!-- TODO: Adds button to delete sales order (first: implement sales order CRUD controll) -->
+                </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Header fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>

@@ -6,15 +6,19 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.example.warehouseManagement.Domains.GoodsReceiptNote;
+import com.example.warehouseManagement.Repositories.GoodsReceiptNoteLineRepository;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteRepository;
 
 @Service
 public class GoodsReceiptNoteImpl implements GoodsReceiptNoteService {
     private final GoodsReceiptNoteRepository goodsReceiptNoteRepository;
+    private final GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository;
     
     
-    public GoodsReceiptNoteImpl(GoodsReceiptNoteRepository goodsReceiptNoteRepository) {
+    public GoodsReceiptNoteImpl(GoodsReceiptNoteRepository goodsReceiptNoteRepository,
+            GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository) {
         this.goodsReceiptNoteRepository = goodsReceiptNoteRepository;
+        this.goodsReceiptNoteLineRepository = goodsReceiptNoteLineRepository;
     }
 
     /**
@@ -55,7 +59,10 @@ public class GoodsReceiptNoteImpl implements GoodsReceiptNoteService {
      */
     @Override
     public GoodsReceiptNote save(GoodsReceiptNote goodsReceiptNote) {
-        return goodsReceiptNoteRepository.save(goodsReceiptNote);
+        GoodsReceiptNote savedGoodsReceiptNote = goodsReceiptNoteRepository.save(goodsReceiptNote);
+        goodsReceiptNoteLineRepository.saveAll(savedGoodsReceiptNote.getGoodsReceiptNoteLines());
+        savedGoodsReceiptNote.setGoodsReceiptNoteNumber(savedGoodsReceiptNote.getId() + 100000L);
+        return goodsReceiptNoteRepository.save(savedGoodsReceiptNote);
     }
 
     /**

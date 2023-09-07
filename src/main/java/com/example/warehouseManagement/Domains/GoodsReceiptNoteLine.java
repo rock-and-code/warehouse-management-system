@@ -34,5 +34,4 @@ public class GoodsReceiptNoteLine {
     @ManyToOne
     @JoinColumn(name= "item_id") //Map foreign key in product entity
     private Item item;
-
 }

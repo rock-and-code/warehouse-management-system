@@ -31,6 +31,8 @@ public class GoodsReceiptNote {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long id;
+    @Column(name = "goods_receipt_note_number")
+    private Long goodsReceiptNoteNumber;
     @ManyToOne
     @JoinColumn(name = "purchase_order_id") //Foreign key to purchase order
     private PurchaseOrder purchaseOrder;
@@ -39,6 +41,14 @@ public class GoodsReceiptNote {
     @Builder.Default
     private List<GoodsReceiptNoteLine> goodsReceiptNoteLines = new ArrayList<>();
     @Column(name = "date")
-    private LocalDate date;
+    @Builder.Default
+    private LocalDate date = LocalDate.now();
+    public int getTotalQty() {
+        int total = 0;
+        for (GoodsReceiptNoteLine goodsReceiptNoteLine : goodsReceiptNoteLines) 
+            total += goodsReceiptNoteLine.getQty();
+        return total;
+        
+    }
 
 }

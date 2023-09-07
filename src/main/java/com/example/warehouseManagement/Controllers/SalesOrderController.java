@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.warehouseManagement.Domains.SalesOrder;
+import com.example.warehouseManagement.Domains.SalesOrder.Status;
 import com.example.warehouseManagement.Domains.SalesOrderLine;
 import com.example.warehouseManagement.Services.CustomerService;
 import com.example.warehouseManagement.Services.ItemService;
@@ -75,7 +76,7 @@ public class SalesOrderController {
             HttpServletRequest request, Model model) {
         SalesOrder savedSalesOrder = salesOrderService.save(salesOrder);
         System.out.printf("Sales Order: %d added to dba\n", savedSalesOrder.getSalesOrderNumber());
-        return "redirect:/sales-order";
+        return "redirect:/sales-order?added";
     }
 
 
@@ -98,7 +99,7 @@ public class SalesOrderController {
         return "salesOrders/salesOrderDetails";
         }
         else {
-            return "redirect:/sales-order?orderNotFound";
+            return "redirect:/sales-order?notFound";
         }   
     }
 
@@ -106,11 +107,16 @@ public class SalesOrderController {
     public String deleteSalesOrder(@PathVariable(value = "orderId") Long orderId, Model model) {
         Optional<SalesOrder> order = salesOrderService.findById(orderId);
         if (order.isPresent()) {
-            salesOrderService.delete(order.get());
-        return "redirect:/sales-order";
+            if (order.get().getStatus() != Status.SHIPPED) {
+                salesOrderService.delete(order.get());
+                return "redirect:/sales-order";
+            }
+            else {
+                return "redirect:/sales-order/?failedToDelete";
+            }
         }
         else {
-            return "redirect:/sales-order/=?orderNotFound";
+            return "redirect:/sales-order/?notFound";
         }   
     }
 

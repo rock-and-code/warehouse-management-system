@@ -7,7 +7,7 @@
 <div class="container">
     <!-- Page headers -->
     <h1 class="my-3 text-center" th:text="|Purchase Order: ${purchaseOrder.purchaseOrderNumber}|">Purchase Order</h1>
-    <h3 class="my-3 text-center" th:text="|Customer: ${purchaseOrder.vendor.name}|">Vendor</h3>
+    <h3 class="my-3 text-center" th:text="|Vendor: ${purchaseOrder.vendor.name}|">Vendor</h3>
     <h3 class="my-3 text-center" th:text="|Date: ${#temporals.monthNameShort(purchaseOrder.date)} ${#temporals.format(purchaseOrder.date, ' dd, yyyy')}|">Date</h3>
     <!-- Customer list as table -->
     <table class="table">
