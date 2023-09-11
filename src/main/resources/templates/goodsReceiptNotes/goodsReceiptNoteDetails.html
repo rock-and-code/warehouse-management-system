@@ -6,7 +6,7 @@
 
 <div class="container">
     <!-- Page headers -->
-    <h1 class="my-3 text-center" th:text="|Good Receipt Note: ${goodsReceiptNote.goodsReceiptNoteNumber}|">Good Receipt Note</h1>
+    <h1 class="my-3 text-center" th:text="|Good Receipt Note: ${goodsReceiptNote.id}|">Good Receipt Note</h1>
     <h3 class="my-3 text-center" th:text="|Date: ${#temporals.monthNameShort(goodsReceiptNote.date)} ${#temporals.format(goodsReceiptNote.date, ' dd, yyyy')}|">Date</h3>
     <!-- Customer list as table -->
     <table class="table">

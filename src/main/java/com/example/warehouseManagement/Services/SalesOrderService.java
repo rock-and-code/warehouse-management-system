@@ -17,12 +17,6 @@ public interface SalesOrderService {
      */
     public Optional<SalesOrder> findById(Long id);
     /**
-     * Returns a Sales Order persisted in the dba by a given sales order number
-     * @param salesOrderNumber
-     * @return
-     */
-    public SalesOrder findBySalesOrderNumber(int salesOrderNumber);
-    /**
      * Returns a list of sales orders persisted in the dba by a given customer id
      * @param customer
      * @return

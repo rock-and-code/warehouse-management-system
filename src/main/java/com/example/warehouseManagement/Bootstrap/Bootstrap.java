@@ -18,11 +18,14 @@ import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.ItemCost;
 import com.example.warehouseManagement.Domains.ItemPool;
 import com.example.warehouseManagement.Domains.ItemPrice;
+import com.example.warehouseManagement.Domains.PickingJob;
+import com.example.warehouseManagement.Domains.PickingJob.PjStatus;
+import com.example.warehouseManagement.Domains.PickingJobLine;
 import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus;
 import com.example.warehouseManagement.Domains.PurchaseOrderLine;
 import com.example.warehouseManagement.Domains.SalesOrder;
-import com.example.warehouseManagement.Domains.SalesOrder.Status;
+import com.example.warehouseManagement.Domains.SalesOrder.SoStatus;
 import com.example.warehouseManagement.Domains.SalesOrderLine;
 import com.example.warehouseManagement.Domains.Stock;
 import com.example.warehouseManagement.Domains.Vendor;
@@ -36,6 +39,8 @@ import com.example.warehouseManagement.Repositories.GoodsReceiptNoteRepository;
 import com.example.warehouseManagement.Repositories.ItemCostRepository;
 import com.example.warehouseManagement.Repositories.ItemPriceRepository;
 import com.example.warehouseManagement.Repositories.ItemRepository;
+import com.example.warehouseManagement.Repositories.PickingJobLineRepository;
+import com.example.warehouseManagement.Repositories.PickingJobRepository;
 import com.example.warehouseManagement.Repositories.PurchaseOrderLineRepository;
 import com.example.warehouseManagement.Repositories.PurchaseOrderRepository;
 import com.example.warehouseManagement.Repositories.SaleOrderLineRepository;
@@ -62,6 +67,8 @@ public class Bootstrap implements CommandLineRunner{
     private final GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository;
     private final ItemPriceRepository itemPriceRepository;
     private final ItemCostRepository itemCostRepository;
+    private final PickingJobRepository pickingJobRepository;
+    private final PickingJobLineRepository pickingJobLineRepository;
 
     
     public Bootstrap(CustomerRepository customerRepository, ItemRepository itemRepository,
@@ -70,7 +77,8 @@ public class Bootstrap implements CommandLineRunner{
             PurchaseOrderLineRepository purchaseOrderLineRepository, WarehouseRepository warehouseRepository,
             WarehouseSectionRepository warehouseSectionRepository, StockRepository stockRepository,
             GoodsReceiptNoteRepository goodsReceiptNoteRepository, GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository,
-            ItemPriceRepository itemPriceRepository, ItemCostRepository itemCostRepository) {
+            ItemPriceRepository itemPriceRepository, ItemCostRepository itemCostRepository,
+            PickingJobRepository pickingJobRepository, PickingJobLineRepository pickingJobLineRepository) {
         this.customerRepository = customerRepository;
         this.itemRepository = itemRepository;
         this.vendorRepository = vendorRepository;
@@ -85,6 +93,8 @@ public class Bootstrap implements CommandLineRunner{
         this.goodsReceiptNoteLineRepository = goodsReceiptNoteLineRepository;
         this.itemPriceRepository = itemPriceRepository;
         this.itemCostRepository = itemCostRepository;
+        this.pickingJobRepository = pickingJobRepository;
+        this.pickingJobLineRepository = pickingJobLineRepository;
     }
 
 
@@ -162,18 +172,16 @@ public class Bootstrap implements CommandLineRunner{
                 int month = random.nextInt(1,12);
                 int day = (month==2) ? random.nextInt(1,28) : random.nextInt(1,30);
                 int year = 2023;
-                Long purchaseOrderNumber = random.nextLong(300000L  , 700000L);
                 LocalDate date = LocalDate.of(year, month, day);
                 int purchaseOrderLines = random.nextInt(3, 20);
                 int orderStatus = random.nextInt(3);
                 //adds savedCustomer to the purchase order
-                PurchaseOrder purchaseOrder = PurchaseOrder.builder().purchaseOrderNumber(purchaseOrderNumber).vendor(vendor).date(date).purchaseOrderLines(new ArrayList<>())
+                PurchaseOrder purchaseOrder = PurchaseOrder.builder().vendor(vendor).date(date).purchaseOrderLines(new ArrayList<>())
                     .status((orderStatus == 0 || orderStatus == 2) ? PoStatus.RECEIVED : PoStatus.IN_TRANSIT).goodsReceiptNotes(new ArrayList<>()).build();
             
                 //Adds the purchase order to the purchase order repository
                 PurchaseOrder po = purchaseOrderRepository.save(purchaseOrder);
 
-                po.setPurchaseOrderNumber(po.getId() + 100000L);
                 PurchaseOrder savedPurchaseOrder = purchaseOrderRepository.save(po);
 
                 //Each purchase order will generate between 3-20 sales order lines
@@ -216,6 +224,7 @@ public class Bootstrap implements CommandLineRunner{
 
         StringBuilder builder = new StringBuilder();
         // int sample = 50, counter = 0;
+        // Warehouse section label example: "AA-01-1-A" (AISLE-BAY-SLOT-LEVEL)
         builder.append("AA-01-1-A");
         for (int i=0; i<AISLES; i++) {
             //AISLES
@@ -230,7 +239,7 @@ public class Bootstrap implements CommandLineRunner{
                         //LEVELS
                         builder.replace(8, 9, levels.get(l));
                         String section = builder.toString();
-                        WarehouseSection warehouseSection = WarehouseSection.builder().sectionNumber(section).warehouse(warehouse).build();
+                        WarehouseSection warehouseSection = WarehouseSection.builder().sectionNumber(section).warehouse(savedWarehouse).build();
                         WarehouseSection savedWarehouseSection = warehouseSectionRepository.save(warehouseSection);
                         savedWarehouseSections.add(savedWarehouseSection);
                         // if (counter <= sample) {
@@ -241,9 +250,16 @@ public class Bootstrap implements CommandLineRunner{
                 }
             }
         }
+        //FLOOR SECTIONS USUALLY USED BY RECEIVING DEPARTMENT TO PLACE THE MERCHADISE BEFORE PUTTING IT AWAY IN A SPECIFIC WH SECTION
+        WarehouseSection floor = WarehouseSection.builder().sectionNumber("00-00-0-0").warehouse(savedWarehouse).build();
+        //PICKING SECTIONS USUALLY USED TO PLACE THE MERCHADISED PICKED TO BE DELIVERED TO A CUSTOMER FOR THE ACCOUNTING DEPARTEMENT TO BILL 
+        WarehouseSection picking = WarehouseSection.builder().sectionNumber("11-11-1-1").warehouse(savedWarehouse).build();
+    
+        WarehouseSection savedFloorSection = warehouseSectionRepository.save(floor);
+        WarehouseSection savedPickingSection = warehouseSectionRepository.save(picking);
 
-        savedWarehouse.setSections(savedWarehouseSections);
-
+        savedWarehouse.getSections().add(savedFloorSection);
+        savedWarehouse.getSections().add(savedPickingSection);
 
         //adds Goods receipt notes, goods receipt notes lines to add stock levels in the warehouse
         int WAREHOUSE_SECTIONS = savedWarehouseSections.size();
@@ -254,7 +270,6 @@ public class Bootstrap implements CommandLineRunner{
             LocalDate date = rPurchaseOrder.getDate().plusDays(plusDays);
             GoodsReceiptNote goodsReceiptNote = GoodsReceiptNote.builder().date(date).purchaseOrder(rPurchaseOrder).date(date).build();
             GoodsReceiptNote grn = goodsReceiptNoteRepository.save(goodsReceiptNote);
-            grn.setGoodsReceiptNoteNumber(grn.getId() + 100000L);
             GoodsReceiptNote savedGoodsReceiptNote = goodsReceiptNoteRepository.save(grn);
 
             for (PurchaseOrderLine pol : rPurchaseOrder.getPurchaseOrderLines()) {
@@ -278,18 +293,16 @@ public class Bootstrap implements CommandLineRunner{
                 int month = random.nextInt(1,12);
                 int day = (month==2) ? random.nextInt(1,28) : random.nextInt(1,30);
                 int year = 2023;
-                Long salesOrderNumber = random.nextLong(300000L  , 700000L);
                 LocalDate date = LocalDate.of(year, month, day);
                 int salesOrderLines = random.nextInt(3, 20);
                 int orderStatus = random.nextInt(3);
                 //adds savedCustomer to the savedSalesOrder
-                SalesOrder salesOrder = SalesOrder.builder().salesOrderNumber(salesOrderNumber).customer(customer).date(date).saleOrderLines(new ArrayList<>())
-                    .status((orderStatus == 0 || orderStatus == 2) ? Status.PENDING : Status.SHIPPED).build();
+                SalesOrder salesOrder = SalesOrder.builder().customer(customer).date(date).saleOrderLines(new ArrayList<>())
+                    .status((orderStatus == 0 || orderStatus == 2) ? SoStatus.PENDING : SoStatus.SHIPPED).build();
             
                 //Adds the sales order to the sales order repository
                 SalesOrder so = salesOrderRepository.save(salesOrder);
 
-                so.setSalesOrderNumber(so.getId()+100000L);
                 SalesOrder savedSalesOrder = salesOrderRepository.save(so);
 
                 //Each sales order will generate between 3-20 sales order lines
@@ -309,8 +322,23 @@ public class Bootstrap implements CommandLineRunner{
                 //Adds the sales order to customer
                 customer.getSalesOrders().add(savedSalesOrder);
 
+
+                PickingJob pickingJob = PickingJob.builder().salesOrder(savedSalesOrder).date(savedSalesOrder.getDate()).build();
+                PickingJob savedPickingJob = pickingJobRepository.save(pickingJob);
+                if (savedSalesOrder.getStatus() == SoStatus.SHIPPED)
+                    pickingJob.setStatus(PjStatus.FULFILLED);
+                for (SalesOrderLine salesOrderLine : savedSalesOrder.getSaleOrderLines()) {
+                    PickingJobLine pickingJobLine = PickingJobLine.builder().item(salesOrderLine.getItem())
+                        .qtyToPick(salesOrderLine.getQty()).pickingJob(savedPickingJob).build();    
+                    PickingJobLine savedPickingJobLine = pickingJobLineRepository.save(pickingJobLine);
+                    savedPickingJob.getPickingJobLines().add(savedPickingJobLine);
+                }
+                pickingJobRepository.save(savedPickingJob);
+
+                //TODO -> ADD INVOICES FOR FULFILLED PICKING JOBS
+
                 //Substracting stocks levels for sales orders marked as shipped 
-                if (savedSalesOrder.getStatus() == Status.SHIPPED) {
+                if (savedSalesOrder.getStatus() == SoStatus.SHIPPED) {
                     for (SalesOrderLine sol : savedSalesOrder.getSaleOrderLines()) {
                         int ordered = sol.getQty();
                         List<Stock> stocks = stockRepository.findByItem(sol.getItem());

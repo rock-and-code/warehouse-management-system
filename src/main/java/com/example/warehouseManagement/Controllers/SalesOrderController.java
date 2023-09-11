@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.warehouseManagement.Domains.SalesOrder;
-import com.example.warehouseManagement.Domains.SalesOrder.Status;
+import com.example.warehouseManagement.Domains.SalesOrder.SoStatus;
 import com.example.warehouseManagement.Domains.SalesOrderLine;
 import com.example.warehouseManagement.Services.CustomerService;
 import com.example.warehouseManagement.Services.ItemService;
@@ -74,8 +74,7 @@ public class SalesOrderController {
     @PostMapping(value = NEW_SALES_ORDER_PATH, params = "save")
     public String saveSaleOrder(@ModelAttribute SalesOrder salesOrder,
             HttpServletRequest request, Model model) {
-        SalesOrder savedSalesOrder = salesOrderService.save(salesOrder);
-        System.out.printf("Sales Order: %d added to dba\n", savedSalesOrder.getSalesOrderNumber());
+        salesOrderService.save(salesOrder);
         return "redirect:/sales-order?added";
     }
 
@@ -107,7 +106,7 @@ public class SalesOrderController {
     public String deleteSalesOrder(@PathVariable(value = "orderId") Long orderId, Model model) {
         Optional<SalesOrder> order = salesOrderService.findById(orderId);
         if (order.isPresent()) {
-            if (order.get().getStatus() != Status.SHIPPED) {
+            if (order.get().getStatus() != SoStatus.SHIPPED) {
                 salesOrderService.delete(order.get());
                 return "redirect:/sales-order";
             }

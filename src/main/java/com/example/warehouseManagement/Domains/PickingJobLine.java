@@ -16,27 +16,20 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Entity
-@Table(name="sales_order_line")
-public class SalesOrderLine {
+@Builder
+@Table(name = "picking_job_line")
+public class PickingJobLine {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long id;
-    @Column(name = "qty")
-    private int qty;
     @ManyToOne
-    @JoinColumn(name= "item_id")
+    @JoinColumn(name = "picking_job_id")
+    private PickingJob pickingJob;
+    @ManyToOne
+    @JoinColumn(name = "item_id")
     private Item item;
-    @ManyToOne
-    @JoinColumn(name= "sales_order_id") //Entity's column name
-    private SalesOrder salesOrder;
-    @ManyToOne
-    @JoinColumn(name = "item_price_id")
-    private ItemPrice itemPrice;
-    public double getSubtotal() {
-        return qty * itemPrice.getPrice();
-    }
-
+    @Column(name = "qty_to_pick")
+    private int qtyToPick;
 }

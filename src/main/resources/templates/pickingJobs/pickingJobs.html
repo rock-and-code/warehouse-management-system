@@ -27,26 +27,26 @@
         </div>
     </div>
     <!-- Page headers -->
-    <h1 class="my-3 text-center" th:text="|Purchase Orders|">Customer List</h1>
+    <h1 class="my-3 text-center" th:text="|Picking Jobs|">Picking JObs</h1>
     <!-- Customer list as table -->
     <table class="table">
         <thead>
             <tr>
                 <th scope="col">Date</th>
-                <th scope="col">Purchase Order</th>
-                <th scope="col">Total</th>
+                <th scope="col">Picking Job</th>
+                <th scope="col">Customer</th>
                 <th scope="col">Details</th>
                 <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
-            <tr th:each="purchaseOrder : ${purchaseOrders}">
-                <th scope="row" th:text="|${#temporals.monthNameShort(purchaseOrder.date)} ${#temporals.format(purchaseOrder.date, ' dd, yyyy')}|">1</th>
-                <td th:text="${purchaseOrder.id}">Mark</td>
-                <td th:text="${#numbers.formatCurrency(purchaseOrder.total)}">Otto</td>
-                <td><a th:href="@{/purchase-order/{orderId}(orderId=${purchaseOrder.id})}" class="btn btn-outline-secondary">Details</a></td>
+            <tr th:each="pickingJob : ${pickingJobs}">
+                <th scope="row" th:text="|${#temporals.monthNameShort(pickingJob.date)} ${#temporals.format(pickingJob.date, ' dd, yyyy')}|">1</th>
+                <td th:text="${pickingJob.id}">Mark</td>
+                <td th:text="${pickingJob.salesOrder.customer.name}">Otto</td>
+                <td><a th:href="@{/picking-job/{pickingJobId}(pickingJobId=${pickingJob.id})}" class="btn btn-outline-secondary">Details</a></td>
                 <td>
-                    <form th:action="@{/purchase-order/{orderId}(orderId=${purchaseOrder.id})}" method="post">
+                    <form th:action="@{/picking-job/{pickingJobId}(pickingJobId=${pickingJob.id})}" method="post">
                         <button type="submit" class="btn btn-dark" name="delete">Delete</button>
                     </form>
                 </td>

@@ -57,4 +57,13 @@ public class Item {
     @Column(name = "purchase_order_lines")
     @Builder.Default
     private List<PurchaseOrderLine> purchaseOrderLines = new ArrayList<>();
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "picking_job_lines")
+    @Builder.Default
+    private List<PickingJobLine> pickingJobLines = new ArrayList<>();
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "invoice_lines")
+    @Builder.Default
+    private List<InvoiceLine> invoiceLines = new ArrayList<>();
+    
 }

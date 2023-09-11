@@ -15,31 +15,23 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.TableGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 @Builder
 @Entity
 @Table(name="sales_order")
-@TableGenerator(name="tab", initialValue=100000, allocationSize=100)
 public class SalesOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long id;
-    @Column(name = "sales_order_number")
-    private Long salesOrderNumber;
     @Column(name = "date")
     @Builder.Default
     private LocalDate date =  LocalDate.now();
@@ -47,12 +39,20 @@ public class SalesOrder {
     @JoinColumn(name = "customer_id") //Foreing key to customer
     private Customer customer;
     @OneToMany(mappedBy = "salesOrder", cascade = CascadeType.ALL, fetch = FetchType.LAZY) //mappedBy foreign key to sales order line entity. It uses the Sales order entity property name
+    @Column(name = "picking_jobs")
+    @Builder.Default
+    private List<PickingJob> pickingJobs = new ArrayList<>();
+    @OneToMany(mappedBy = "salesOrder", cascade = CascadeType.ALL, fetch = FetchType.LAZY) //mappedBy foreign key to sales order line entity. It uses the Sales order entity property name
     @Column(name = "sales_order_lines")
     @Builder.Default
     private List<SalesOrderLine> saleOrderLines = new ArrayList<>();
+    @OneToMany(mappedBy = "salesOrder", cascade = CascadeType.ALL, fetch = FetchType.LAZY) //mappedBy foreign key to sales order line entity. It uses the Sales order entity property name
+    @Column(name = "invoices")
+    @Builder.Default
+    private List<Invoice> invoices = new ArrayList<>();
     @Column(name = "status")
     @Builder.Default
-    private Status status = Status.PENDING;
+    private SoStatus status = SoStatus.PENDING;
 
     //TC(M*N)
     public double getTotal() {
@@ -63,7 +63,7 @@ public class SalesOrder {
         return total;
     }
     
-    public enum Status {
+    public enum SoStatus {
         PENDING, //0
         SHIPPED //1
     }

@@ -15,11 +15,11 @@
             <!-- CUSTOMER ID -->
             <div class="my-3">
                 <label for="salesOrderNumber" class="form-label">Sales Order Number</label>
-                <select class="form-select" th:field="*{salesOrderNumber}" id="salesOrderNumber" aria-label="Default select example"
+                <select class="form-select" th:field="*{id}" id="salesOrderNumber" aria-label="Default select example"
                     required>
                     <!-- <option value="" selected disable>Choose...</option> -->
-                    <option th:each="salesOrder: ${salesOrders}" th:text="|${salesOrder.salesOrderNumber} - ${salesOrder.customer.name}|"
-                        th:value="${salesOrder.salesOrderNumber}">Two
+                    <option th:each="salesOrder: ${salesOrders}" th:text="|${salesOrder.id} - ${salesOrder.customer.name}|"
+                        th:value="${salesOrder.id}">Two
                     </option>
                 </select>
                 <div class="invalid-feedback">

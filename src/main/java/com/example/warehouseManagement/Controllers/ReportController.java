@@ -66,8 +66,8 @@ public class ReportController {
     @PostMapping(value = SALES_ORDER_BY_DETAILS_PATH)
     public String printSalesOrderDetails(@ModelAttribute SalesOrderByNumberDto salesOrderByNumberDto,
             Model model) {
-        int salesNumber = salesOrderByNumberDto.getSalesOrderNumber();
-        model.addAttribute("salesOrder", salesOrderService.findBySalesOrderNumber(salesNumber));
+        Long salesNumber = salesOrderByNumberDto.getId();
+        model.addAttribute("salesOrder", salesOrderService.findById(salesNumber).get());
         return "reports/printSalesOrderDetails";
     }
 

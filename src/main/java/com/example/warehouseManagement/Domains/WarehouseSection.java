@@ -26,7 +26,9 @@ import lombok.NoArgsConstructor;
 public class WarehouseSection {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private Long id;
+    @Column(name = "section_number")
     private String sectionNumber;
     @ManyToOne
     @JoinColumn(name = "warehouse_id")

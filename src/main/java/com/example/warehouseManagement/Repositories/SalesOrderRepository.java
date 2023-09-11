@@ -16,12 +16,6 @@ import com.example.warehouseManagement.Domains.DTOs.SalesOrderDto;
 public interface SalesOrderRepository extends CrudRepository<SalesOrder, Long>{
     
     /**
-     * Returns a sales order by its sales order number
-     * @param salesOrderNumber
-     * @return
-     */
-    public SalesOrder findBySalesOrderNumber(int salesOrderNumber);
-    /**
      * Returns a list of sales order by a customer
      * @param customer
      * @return
@@ -33,14 +27,14 @@ public interface SalesOrderRepository extends CrudRepository<SalesOrder, Long>{
      * @return
      */
     @Query(value = "SELECT \n" +
-      "sales_order.date AS \"date\", sales_order.sales_order_number AS \"salesOrder\", \n" +
+      "sales_order.date AS \"date\", sales_order.id AS \"salesOrder\", \n" +
       "ROUND(SUM(sales_order_line.qty * item_price.price),2) AS \"total\" \n"+ 
       "FROM customer AS C \n" +
       "INNER JOIN sales_order ON sales_order.customer_id = C.id \n" +
       "INNER JOIN sales_order_line ON sales_order_line.sales_order_id = sales_order.id \n" + 
       "INNER JOIN item_price ON item_price.id = sales_order_line.item_price_id \n" + 
       "WHERE C.id = :customerId \n" +
-      "GROUP BY sales_order.sales_order_number \n" +
+      "GROUP BY sales_order.id \n" +
       "ORDER BY sales_order.date DESC", nativeQuery = true)
     public List<SalesOrderDto> findAllByCustomer(@Param("customerId") Long customerId);
 
@@ -52,12 +46,12 @@ public interface SalesOrderRepository extends CrudRepository<SalesOrder, Long>{
     @Query(value = "SELECT \n" +
       "so.id AS \"id\", \n" +
       "so.date AS \"date\", \n" +
-      "so.sales_order_number AS \"salesOrder\", \n" +
+      "so.id AS \"salesOrder\", \n" +
       "ROUND(SUM(sales_order_line.qty * item_price.price),2) AS \"total\" \n" +
       "FROM sales_order AS so \n" + 
       "INNER JOIN sales_order_line ON so.id = sales_order_line.sales_order_id \n" +
       "INNER JOIN item_price ON item_price.id = sales_order_line.item_price_id \n" + 
-      "GROUP BY so.sales_order_number \n" +
+      "GROUP BY so.id \n" +
       "ORDER BY so.date", nativeQuery = true)
     public List<SalesOrderDto> findAllSalesOrder();
     
@@ -67,7 +61,7 @@ public interface SalesOrderRepository extends CrudRepository<SalesOrder, Long>{
      */
     @Query(value = "SELECT \n" +
       "so.date as \"date\", \n" +
-      "so.sales_order_number as \"salesOrderNumber\", \n" +
+      "so.id as \"salesOrderNumber\", \n" +
       "ROUND(SUM(sales_order_line.qty * item_price.price),2) AS \"total\" \n" +
       "FROM sales_order AS so \n" +
       "INNER JOIN sales_order_line ON sales_order_line.sales_order_id = so.id \n" +
@@ -83,7 +77,7 @@ public interface SalesOrderRepository extends CrudRepository<SalesOrder, Long>{
     @Query(value = "SELECT \n" +
       "TO_CHAR(so.date, 'Mon dd, yyyy') AS \"date\", \n" +
       "customer.name as \"customer\", \n" +
-      "so.sales_order_number AS \"salesOrder\", \n" +
+      "so.id AS \"salesOrder\", \n" +
       "ROUND(SUM(sales_order_line.qty * item_price.price),2) AS \"total\", \n" +
       "DATEDIFF(DAY,CURRENT_DATE(), date) AS \"delay\" \n" +
       "FROM SALES_ORDER as so \n" +
@@ -91,7 +85,7 @@ public interface SalesOrderRepository extends CrudRepository<SalesOrder, Long>{
       "INNER JOIN item_price ON sales_order_line.item_price_id = item_price.id \n" +
       "INNER JOIN customer on so.customer_id = customer.id \n" +
       "WHERE so.status = 0 AND so.date LIKE CONCAT(:year, '%') \n" +
-      "GROUP BY so.sales_order_number \n" +
+      "GROUP BY so.id \n" +
       "ORDER BY \"date\" ASC", nativeQuery = true)
     public List<SalesOrder> findAllPendingToShipOrdersByYear(@Param("year") int year);
 
@@ -102,7 +96,7 @@ public interface SalesOrderRepository extends CrudRepository<SalesOrder, Long>{
     @Query(value = "SELECT \n" +
       "TO_CHAR(so.date, 'Mon dd, yyyy') AS \"date\", \n" +
       "customer.name as \"customer\", \n" +
-      "so.sales_order_number AS \"salesOrder\", \n" +
+      "so.id AS \"salesOrder\", \n" +
       "ROUND(SUM(sales_order_line.qty * item_price.price),2) AS \"total\", \n" +
       "DATEDIFF(DAY,CURRENT_DATE(), date) AS \"delay\" \n" +
       "FROM SALES_ORDER as so \n" +
@@ -110,7 +104,7 @@ public interface SalesOrderRepository extends CrudRepository<SalesOrder, Long>{
       "INNER JOIN item_price ON sales_order_line.item_price_id = item_price.id \n" +
       "INNER JOIN customer on so.customer_id = customer.id \n" +
       "WHERE so.status = 0 AND so.date LIKE CONCAT(:year, '-', :month, '-', '0', '%') \n" + 
-      "GROUP BY so.sales_order_number \n" +
+      "GROUP BY so.id \n" +
       "ORDER BY \"date\" ASC", nativeQuery = true)
             //SELECT * FROM SALES_ORDER AS so WHERE so.status = 0 AND DATE LIKE '2023%';
     public List<PendingSalesOrderDto> findAllPendingToShipOrdersByYearAndMonth(@Param("year") int year,

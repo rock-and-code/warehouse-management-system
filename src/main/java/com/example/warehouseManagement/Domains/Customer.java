@@ -15,15 +15,11 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 @Builder
 @Entity
 @Table(name="customer")
@@ -44,7 +40,11 @@ public class Customer {
     private int zipcode;
     @Column(name = "contact_info")
     private String contactInfo;
-    //Specify the field in the sales order table to map the relationship with
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY) //Fetch when needed
+    @Column(name = "invoices")
+    @Builder.Default
+    List<Invoice> invoices = new ArrayList<>();
+     //Specify the field in the sales order table to map the relationship with
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY) //Fetch when needed
     @Column(name = "sales_orders")
     @Builder.Default

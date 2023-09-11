@@ -31,8 +31,6 @@ public class PurchaseOrder {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long id;
-    @Column(name = "purchase_order_number")
-    private Long purchaseOrderNumber;
     @Column(name = "date")
     @Builder.Default
     private LocalDate date = LocalDate.now();

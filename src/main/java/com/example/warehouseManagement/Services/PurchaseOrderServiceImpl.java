@@ -68,7 +68,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             pol.setItemCost(itemCostRepository.findCurrentItemCostByItemId(pol.getItem().getId()));
         }
         purchaseOrderLineRepository.saveAll(po.getPurchaseOrderLines());
-        po.setPurchaseOrderNumber(po.getId() + 100000L);
         return purchaseOrderRepository.save(po);
     }
 

@@ -20,33 +20,32 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
-@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "goods_receipt_note")
-public class GoodsReceiptNote {
+@Builder
+@Table(name = "picking_job")
+public class PickingJob {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long id;
-    @ManyToOne
-    @JoinColumn(name = "purchase_order_id") //Foreign key to purchase order
-    private PurchaseOrder purchaseOrder;
-    @OneToMany(mappedBy = "goodsReceiptNote", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Column(name = "goods_receipt_note_lines")
     @Builder.Default
-    private List<GoodsReceiptNoteLine> goodsReceiptNoteLines = new ArrayList<>();
     @Column(name = "date")
-    @Builder.Default
     private LocalDate date = LocalDate.now();
-    public int getTotalQty() {
-        int total = 0;
-        for (GoodsReceiptNoteLine goodsReceiptNoteLine : goodsReceiptNoteLines) 
-            total += goodsReceiptNoteLine.getQty();
-        return total;
-        
-    }
+    @ManyToOne
+    @JoinColumn(name = "sales_order_id")
+    private SalesOrder salesOrder;
+    @OneToMany(mappedBy = "pickingJob", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "picking_job_lines")
+    @Builder.Default
+    private List<PickingJobLine> pickingJobLines = new ArrayList<>();
+    @Builder.Default
+    private PjStatus status = PjStatus.PENDING;
 
+    public enum PjStatus {
+        PENDING, //0
+        FULFILLED //1
+    }
 }

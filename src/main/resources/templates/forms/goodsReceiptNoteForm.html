@@ -21,7 +21,7 @@
                         <select class="form-select" th:field="*{purchaseOrder.id}" aria-label="Default select example"
                             th:errorclass="fieldError" id="purchaseOrder" required name="purchaseOrder">
                             <option value="" selected disable hidden>Choose...</option>
-                            <option th:each="purchaseOrder: ${purchaseOrders}" th:text="|${purchaseOrder.purchaseOrderNumber}|"
+                            <option th:each="purchaseOrder: ${purchaseOrders}" th:text="|${purchaseOrder.id}|"
                                 th:value="${purchaseOrder.id}">Two
                             </option>
                         </select>
@@ -32,7 +32,7 @@
                     <!-- DATE INPUTS FIELDS (DISABLED SINCE THE DATE WILL BE AUTOMATICALLY ASSIGNED AS)-->
                     <div class="col-md-6">
                         <label for="date" class="form-label">Date</label>
-                        <input class="form-control" type="text" id="date" th:field="*{date}" disabled name="date">
+                        <input class="form-control" type="text" id="date" th:field="*{date}" disabled readonly name="date">
                     </div>
 
                     <!-- GOODS RECEIPT NOTE LINES -->

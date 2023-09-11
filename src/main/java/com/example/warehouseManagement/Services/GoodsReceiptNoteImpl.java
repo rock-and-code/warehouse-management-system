@@ -61,7 +61,6 @@ public class GoodsReceiptNoteImpl implements GoodsReceiptNoteService {
     public GoodsReceiptNote save(GoodsReceiptNote goodsReceiptNote) {
         GoodsReceiptNote savedGoodsReceiptNote = goodsReceiptNoteRepository.save(goodsReceiptNote);
         goodsReceiptNoteLineRepository.saveAll(savedGoodsReceiptNote.getGoodsReceiptNoteLines());
-        savedGoodsReceiptNote.setGoodsReceiptNoteNumber(savedGoodsReceiptNote.getId() + 100000L);
         return goodsReceiptNoteRepository.save(savedGoodsReceiptNote);
     }
 

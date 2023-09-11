@@ -50,12 +50,12 @@ public interface PurchaseOrderRepository extends CrudRepository<PurchaseOrder, L
     @Query(value = "SELECT \n" +
     "po.id AS \"id\", \n" + 
     "po.date AS \"date\", \n" +
-    "po.purchase_order_number AS \"purchaseOrder\", \n" +
+    "po.id AS \"purchaseOrder\", \n" +
     "ROUND(SUM(purchase_order_line.qty * item_cost.cost),2) AS total \n" +
     "FROM purchase_order po \n" +
     "INNER JOIN purchase_order_line ON po.id = purchase_order_line.purchase_order_id \n" +
     "INNER JOIN item_cost ON item_cost.id = purchase_order_line.item_cost_id \n" + 
-    "GROUP BY po.purchase_order_number \n" +
+    "GROUP BY po.id \n" +
     "ORDER BY po.date", nativeQuery = true)
     public List<PurchaseOrderDto> findAllPurchaseOrder();
     

@@ -74,8 +74,7 @@ public class PurchaseOrderController {
     @PostMapping(value = NEW_PURCHASE_ORDER_PATH, params = "save")
     public String savePurchaseOrder(@ModelAttribute PurchaseOrder purchaseOrder,
             HttpServletRequest request, Model model) {
-        PurchaseOrder savedPurchaseOrder = purchaseOrderService.save(purchaseOrder);
-        System.out.printf("Sales Order: %d added to dba\n", savedPurchaseOrder.getPurchaseOrderNumber());
+        purchaseOrderService.save(purchaseOrder);
         return "redirect:/purchase-order";
     }
 
