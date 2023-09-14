@@ -16,25 +16,20 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
 @Builder
-@Table(name = "picking_job_line")
-public class PickingJobLine {
+@Entity
+@Table(name = "backorder")
+public class Backorder {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "picking_job_id")
-    private PickingJob pickingJob;
+    @JoinColumn(name = "sales_order_id")
+    private SalesOrder salesOrder;
+    @Column(name = "qty")
+    private int qty;
     @ManyToOne
     @JoinColumn(name = "item_id")
     private Item item;
-    @Column(name = "qty_to_pick")
-    private int qtyToPick;
-    @Column(name = "qty_picked")
-    private int qtyPicked;
-    @ManyToOne
-    @JoinColumn(name = "warehouse_section_id")
-    private WarehouseSection warehouseSection;
 }

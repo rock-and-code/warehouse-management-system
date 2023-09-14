@@ -50,6 +50,10 @@ public class SalesOrder {
     @Column(name = "invoices")
     @Builder.Default
     private List<Invoice> invoices = new ArrayList<>();
+    @OneToMany(mappedBy = "salesOrder", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "backorders")
+    @Builder.Default
+    private List<Backorder> backorders = new ArrayList<>();
     @Column(name = "status")
     @Builder.Default
     private SoStatus status = SoStatus.PENDING;

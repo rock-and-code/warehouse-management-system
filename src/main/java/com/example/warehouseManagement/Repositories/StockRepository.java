@@ -135,7 +135,7 @@ public interface StockRepository extends CrudRepository<Stock, Long> {
         "       INNER JOIN item i ON purchase_order_line.item_id = i.id\n" + //
         "       WHERE i.vendor_id = item.vendor_id\n" + //
         "       AND po.status = 1\n" + //
-        "       AND i.id = item.id\n" + // po.status = 1 (PENDING TO BE RECEIVED THUS IN TRANSIT)
+        "       AND i.id = item.id\n" + // po.status = 1 (IN-TRANSIT)
         "       GROUP BY i.id)AS REAL) / (SELECT\n" + //
         "        SUM(sales_order_line.qty) / EXTRACT(WEEK FROM CURRENT_DATE())\n" + //
         "        FROM sales_order so\n" + //
@@ -147,6 +147,41 @@ public interface StockRepository extends CrudRepository<Stock, Long> {
         "    WHERE item.vendor_id = :vendorId\n" + //
         "    GROUP BY item.id", nativeQuery = true)
     public List<StockLevelReportItemDto> findStockReportsItemsByVendorId(@Param("vendorId") Long vendorId);
+
+    @Query(value = "SELECT TOP 1 * FROM STOCK s \n" +
+      "WHERE s.item_id = :itemId AND s.warehouse_section_id = :warehouseSectionId\n" + 
+      "ORDER by s.qty_on_hand DESC", nativeQuery = true)
+    public Stock findByWarehouseSectionAndItemId(@Param("warehouseSectionId") Long warehouseSectionId, @Param("itemId") Long itemId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE STOCK s \n" +
+      "SET s.qty_on_hand = :newQtyOnHand \n" +
+      "WHERE s.warehouse_section_id = :warehouseSectionId AND s.item_id = :itemId", nativeQuery = true)
+    public void updateStockByWarehouseSectionAndItemId(@Param("newQtyOnHand") int newQtyOnHand, @Param("warehouseSectionId") Long warehouseSectionId, @Param("itemId") Long itemId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE STOCK s \n" +
+      "WHERE s.warehouse_section_id = :warehouseSectionId AND s.item_id = :itemId", nativeQuery = true)
+    public void deleteStockByWarehouseSectionAndItemId(@Param("warehouseSectionId") Long warehouseSectionId, @Param("itemId") Long itemId);
+
+    /**
+     * 
+     DELETE  STOCK s
+WHERE s.item_id = 10 AND s.warehouse_section_id = 734
+      
+     SELECT * FROM STOCK s
+WHERE s.item_id = 10 AND s.warehouse_section_id = 734
+
+UPDATE STOCK s
+SET s.qty_on_hand = 1
+WHERE s.warehouse_section_id 734 AND s.item_id = 10;
+
+
+
+
+     */
 
     /**
      * SQL STATEMENT FOR STOCK LEVELS BY VENDOR 

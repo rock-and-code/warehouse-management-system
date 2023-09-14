@@ -1,0 +1,81 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <!-- Page headers -->
+    <h1 class="my-3 text-center" th:text="|Customer: ${pickingJob.salesOrder.customer.name}|">Customer</h1>
+    <!-- Customer list as table -->
+    <form action="#" th:action="@{/picking-job/fulfill-job/{pickingJobId}(pickingJobId=${pickingJob.id})}"
+        th:object="${pickingJobDto}" method="post" class="row g-3 needs-validation" novalidate>
+        <table class="table">
+            <div class="col-md-6">
+                <label for="salesOrderId" class="form-label">Sales Order</label>
+                <input class="form-control" type="text" id="salesOrderId" th:field="*{salesOrderId}" disabled readonly
+                    name="salesOrder">
+            </div>
+            <div class="col-md-6">
+                <label for="date" class="form-label">Date</label>
+                <input class="form-control" type="text" id="date" th:field="*{date}" disabled readonly name="date">
+            </div>
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">To pick</th>
+                    <th scope="col">Bin</th>
+                    <th scope="col">Qty</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="pickingJobLine, pjStat : ${pickingJob.pickingJobLines}">
+                    <th scope="row" th:text="${counter.incrementAndGet()}">1</th>
+                    <td th:text="${pickingJobLine.item.sku}">101035</td>
+                    <td th:text="${pickingJobLine.item.description}">Iphone 14</td>
+                    <td th:text="${pickingJobLine.qtyToPick}">3</td>
+                    <td th:if="${warehouseSections[__${pjStat.index}__].size() > 0}">
+                        <select class="form-select"
+                            th:field="*{pickingJobDtoLines[__${pjStat.index}__].wareHouseSectionId}"
+                            aria-label="Default select example" th:errorclass="fieldError" id="warehouseSectionId"
+                            required name="warehouseSectionId">
+                            <option value="" selected disable hidden>Choose...</option>
+                            <option th:each="warehouseSection: ${warehouseSections[__${pjStat.index}__]}"
+                                th:text="|${warehouseSection.getWarehouseSection()}|"
+                                th:value="${warehouseSection.getId()}">Two
+                            </option>
+                        </select>
+                    </td>
+                    <td th:unless="${warehouseSections[__${pjStat.index}__].size() > 0}">
+                        <select class="form-select"
+                            th:field="*{pickingJobDtoLines[__${pjStat.index}__].wareHouseSectionId}"
+                            aria-label="Default select example" th:errorclass="fieldError" id="warehouseSectionId"
+                            required name="warehouseSectionId">
+                            <option value="" hidden readonly>Out-of-stock</option>
+                            <option th:value="${0L}" th:text="Out-of-stock">Two
+                            </option>
+                        </select>
+                    </td>
+                    <td th:if="${warehouseSections[__${pjStat.index}__].size() > 0}">
+                        <input type="number" min="1" step="1"
+                            th:field="*{pickingJobDtoLines[__${pjStat.index}__].qtyPicked}" class="form-control"
+                            id="qtyPicked" value="1">
+                    </td>
+                    <td th:unless="${warehouseSections[__${pjStat.index}__].size() > 0}">
+                        <input type="number" min="1" step="1" disabled readonly
+                            th:field="*{pickingJobDtoLines[__${pjStat.index}__].qtyPicked}" class="form-control"
+                            id="qtyPicked" value="0">
+                    </td>
+
+                    <!-- TODO: Adds button to delete sales order (first: implement sales order CRUD controll) -->
+                </tr>
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-dark col-12">Fulfill Order</button>
+    </form>
+</div>
+
+<!-- Header fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>

@@ -37,4 +37,8 @@ public class WarehouseSection {
     @Column(name = "stocks")
     @Builder.Default
     private List<Stock> stocks = new ArrayList<>();
+    @OneToMany(mappedBy = "warehouseSection")
+    @Column(name = "picking_job_lines_id")
+    @Builder.Default
+    private List<PickingJobLine> pickingJobLinesw = new ArrayList<>();
 }

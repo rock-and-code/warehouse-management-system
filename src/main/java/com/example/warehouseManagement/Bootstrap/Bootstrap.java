@@ -10,10 +10,13 @@ import java.util.Random;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import com.example.warehouseManagement.Domains.Backorder;
 import com.example.warehouseManagement.Domains.Customer;
 import com.example.warehouseManagement.Domains.CustomerPool;
 import com.example.warehouseManagement.Domains.GoodsReceiptNote;
 import com.example.warehouseManagement.Domains.GoodsReceiptNoteLine;
+import com.example.warehouseManagement.Domains.Invoice;
+import com.example.warehouseManagement.Domains.InvoiceLine;
 import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.ItemCost;
 import com.example.warehouseManagement.Domains.ItemPool;
@@ -33,9 +36,12 @@ import com.example.warehouseManagement.Domains.VendorPool;
 import com.example.warehouseManagement.Domains.Warehouse;
 import com.example.warehouseManagement.Domains.WarehouseSection;
 import com.example.warehouseManagement.Domains.DTOs.ItemInfoDto;
+import com.example.warehouseManagement.Repositories.BackorderRepository;
 import com.example.warehouseManagement.Repositories.CustomerRepository;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteLineRepository;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteRepository;
+import com.example.warehouseManagement.Repositories.InvoiceLineRepository;
+import com.example.warehouseManagement.Repositories.InvoiceRepository;
 import com.example.warehouseManagement.Repositories.ItemCostRepository;
 import com.example.warehouseManagement.Repositories.ItemPriceRepository;
 import com.example.warehouseManagement.Repositories.ItemRepository;
@@ -69,6 +75,9 @@ public class Bootstrap implements CommandLineRunner{
     private final ItemCostRepository itemCostRepository;
     private final PickingJobRepository pickingJobRepository;
     private final PickingJobLineRepository pickingJobLineRepository;
+    private final InvoiceRepository invoiceRepository;
+    private final InvoiceLineRepository invoiceLineRepository;
+    private final BackorderRepository backorderRepository;
 
     
     public Bootstrap(CustomerRepository customerRepository, ItemRepository itemRepository,
@@ -78,7 +87,9 @@ public class Bootstrap implements CommandLineRunner{
             WarehouseSectionRepository warehouseSectionRepository, StockRepository stockRepository,
             GoodsReceiptNoteRepository goodsReceiptNoteRepository, GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository,
             ItemPriceRepository itemPriceRepository, ItemCostRepository itemCostRepository,
-            PickingJobRepository pickingJobRepository, PickingJobLineRepository pickingJobLineRepository) {
+            PickingJobRepository pickingJobRepository, PickingJobLineRepository pickingJobLineRepository,
+            InvoiceRepository invoiceRepository, InvoiceLineRepository invoiceLineRepository,
+            BackorderRepository backorderRepository) {
         this.customerRepository = customerRepository;
         this.itemRepository = itemRepository;
         this.vendorRepository = vendorRepository;
@@ -95,6 +106,9 @@ public class Bootstrap implements CommandLineRunner{
         this.itemCostRepository = itemCostRepository;
         this.pickingJobRepository = pickingJobRepository;
         this.pickingJobLineRepository = pickingJobLineRepository;
+        this.invoiceRepository = invoiceRepository;
+        this.invoiceLineRepository = invoiceLineRepository;
+        this.backorderRepository = backorderRepository;
     }
 
 
@@ -109,7 +123,7 @@ public class Bootstrap implements CommandLineRunner{
 
         //Variables
         Random random = new Random();
-        int VENDORS = 5, CUSTOMERS = 10, SALES_ORDER = 20, PURCHASE_ORDER = 20;
+        int VENDORS = 5, CUSTOMERS = 10, SALES_ORDER = 20, PURCHASE_ORDER = 30;
         List<Vendor> savedVendors = new ArrayList<>();
         List<Customer> savedCustomers = new ArrayList<>();
         List<Item> savedItems = new ArrayList<>();
@@ -253,13 +267,13 @@ public class Bootstrap implements CommandLineRunner{
         //FLOOR SECTIONS USUALLY USED BY RECEIVING DEPARTMENT TO PLACE THE MERCHADISE BEFORE PUTTING IT AWAY IN A SPECIFIC WH SECTION
         WarehouseSection floor = WarehouseSection.builder().sectionNumber("00-00-0-0").warehouse(savedWarehouse).build();
         //PICKING SECTIONS USUALLY USED TO PLACE THE MERCHADISED PICKED TO BE DELIVERED TO A CUSTOMER FOR THE ACCOUNTING DEPARTEMENT TO BILL 
-        WarehouseSection picking = WarehouseSection.builder().sectionNumber("11-11-1-1").warehouse(savedWarehouse).build();
+        //WarehouseSection picking = WarehouseSection.builder().sectionNumber("11-11-1-1").warehouse(savedWarehouse).build();
     
         WarehouseSection savedFloorSection = warehouseSectionRepository.save(floor);
-        WarehouseSection savedPickingSection = warehouseSectionRepository.save(picking);
+        //WarehouseSection savedPickingSection = warehouseSectionRepository.save(picking);
 
         savedWarehouse.getSections().add(savedFloorSection);
-        savedWarehouse.getSections().add(savedPickingSection);
+        //savedWarehouse.getSections().add(savedPickingSection);
 
         //adds Goods receipt notes, goods receipt notes lines to add stock levels in the warehouse
         int WAREHOUSE_SECTIONS = savedWarehouseSections.size();
@@ -339,21 +353,39 @@ public class Bootstrap implements CommandLineRunner{
 
                 //Substracting stocks levels for sales orders marked as shipped 
                 if (savedSalesOrder.getStatus() == SoStatus.SHIPPED) {
+                    Invoice invoice = Invoice.builder().date(savedSalesOrder.getDate().plusDays(random.nextLong(1,5)))
+                        .customer(savedSalesOrder.getCustomer()).salesOrder(savedSalesOrder).build();
+                    Invoice savedInvoice = invoiceRepository.save(invoice);
                     for (SalesOrderLine sol : savedSalesOrder.getSaleOrderLines()) {
                         int ordered = sol.getQty();
+                        int picked = 0;
                         List<Stock> stocks = stockRepository.findByItem(sol.getItem());
                         for (Stock stock : stocks) {
                             if (stock.getQtyOnHand() > ordered) {
                                 stock.setQtyOnHand(stock.getQtyOnHand() - ordered);
                                 stockRepository.save(stock);
+                                picked += ordered;
                                 break;
                             } else {
                                 ordered -= stock.getQtyOnHand();
+                                picked += stock.getQtyOnHand();
                                 stockRepository.delete(stock);
                             }
                         }
+                        InvoiceLine invoiceLine = InvoiceLine.builder().invoice(savedInvoice).item(sol.getItem()).qty(picked).build();
+                        InvoiceLine savedInvoiceLine = invoiceLineRepository.save(invoiceLine);
+                        savedInvoice.getInvoiceLines().add(savedInvoiceLine);
+                        //Recording backorders
+                        if (ordered > 0) {
+                            Backorder backorder = Backorder.builder().qty(ordered).item(sol.getItem())
+                                .salesOrder(sol.getSalesOrder()).build();
+                            Backorder savedBackorder = backorderRepository.save(backorder);
+                            savedSalesOrder.getBackorders().add(savedBackorder);
+                            salesOrderRepository.save(savedSalesOrder);
+                        }
+
                     }
-                    //TODO -> if ordered > 0 place remaining as back order (implement back orders table)
+                    invoiceRepository.save(savedInvoice);
                 }
             }
          }
@@ -370,6 +402,9 @@ public class Bootstrap implements CommandLineRunner{
         System.out.printf("Warehouse Sections: %d\n", warehouseSectionRepository.count());
         System.out.printf("Goods Receipt Notes: %d\n", goodsReceiptNoteRepository.count());
         System.out.printf("Stock: %d\n", stockRepository.count());
+        System.out.printf("Picking Jobs: %d\n", pickingJobRepository.count());
+        System.out.printf("Invocies: %d\n", invoiceRepository.count());
+        System.out.printf("Backorders: %d\n", backorderRepository.count());
         
     }
     

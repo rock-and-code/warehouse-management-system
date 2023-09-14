@@ -21,23 +21,24 @@ public interface WarehouseSectionRepository extends CrudRepository<WarehouseSect
     public List<WarehouseSection> findByStocksIn(List<Stock> stocks);
 
     @Query(value = "SELECT\n" + //
-            "  warehouse_section.section_number AS \"Bin\",\n" + //
-            "  s.qty_on_hand AS \"Qty on hand\",\n" + //
-            "  item.sku AS \"Sku\"\n" + //
+            "  warehouse_section.id AS \"id\",\n" +
+            "  warehouse_section.section_number AS \"warehouseSection\",\n"+
+            "  warehouse_section.warehouse_id AS \"warehouseId\",\n" + //
+            "  s.qty_on_hand AS \"qtyOnHand\"\n" + //
             "FROM STOCK s\n" + //
-            "INNER JOIN warehouse_section ON s.warehouse_section_id\n" + //
+            "INNER JOIN warehouse_section ON s.warehouse_section_id = warehouse_section.id\n" + //
             "INNER JOIN item on s.item_id  = item.id\n" + //
             "WHERE s.item_id = :itemId\n" + //
-            "AND warehouse_section.id= s.warehouse_section_id\n" + //
             "ORDER BY s.qty_on_hand DESC", nativeQuery = true)
-    public List<WarehouseSection> findByItemId(@Param("itemId") Long itemId);
+    public List<WarehouseSectionDto> findByItemId(@Param("itemId") Long itemId);
 
     @Query(value = "SELECT TOP 1\n" + //
             "  warehouse_section.id AS \"id\",\n" +
             "  warehouse_section.section_number AS \"warehouseSection\",\n"+
-            "  warehouse_section.warehouse_id AS \"warehouseId\"\n" + //
+            "  warehouse_section.warehouse_id AS \"warehouseId\",\n" + //
+            "  s.qty_on_hand AS \"qtyOnHand\"\n" + //
             "FROM STOCK s\n" + //
-            "INNER JOIN warehouse_section ON s.warehouse_section_id\n" + //
+            "INNER JOIN warehouse_section ON s.warehouse_section_id = warehouse_section.id\n" + //
             "INNER JOIN item on s.item_id  = item.id\n" + //
             "WHERE s.item_id = :itemId\n" + //
             "AND warehouse_section.id= s.warehouse_section_id\n" + //

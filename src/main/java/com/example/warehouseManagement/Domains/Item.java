@@ -65,5 +65,9 @@ public class Item {
     @Column(name = "invoice_lines")
     @Builder.Default
     private List<InvoiceLine> invoiceLines = new ArrayList<>();
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "backorders")
+    @Builder.Default
+    private List<Backorder> backorders = new ArrayList<>();
     
 }

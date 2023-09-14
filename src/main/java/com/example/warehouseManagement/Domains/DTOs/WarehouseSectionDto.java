@@ -4,4 +4,5 @@ public interface WarehouseSectionDto {
     Long getId();
     String getWarehouseSection();
     Long getWarehouseId();
+    Integer getQtyOnHand();
 }

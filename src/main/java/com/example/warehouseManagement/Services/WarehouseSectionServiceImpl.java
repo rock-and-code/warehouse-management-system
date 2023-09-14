@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import com.example.warehouseManagement.Domains.SalesOrder;
 import com.example.warehouseManagement.Domains.SalesOrderLine;
-import com.example.warehouseManagement.Domains.WarehouseSection;
 import com.example.warehouseManagement.Domains.DTOs.WarehouseSectionDto;
 import com.example.warehouseManagement.Repositories.WarehouseSectionRepository;
 
@@ -20,8 +19,8 @@ public class WarehouseSectionServiceImpl implements WarehouseSectionService {
     }
 
     @Override
-    public List<List<WarehouseSection>> findBySalesOrder(SalesOrder salesOrder) {
-        List<List<WarehouseSection>> warehouseSectionList = new ArrayList<>();
+    public List<List<WarehouseSectionDto>> findBySalesOrder(SalesOrder salesOrder) {
+        List<List<WarehouseSectionDto>> warehouseSectionList = new ArrayList<>();
         for (SalesOrderLine salesOrderLine : salesOrder.getSaleOrderLines())
             warehouseSectionList.add(warehouseSectionRepository.findByItemId(salesOrderLine.getItem().getId()));
         return warehouseSectionList;

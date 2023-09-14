@@ -1,5 +1,6 @@
 package com.example.warehouseManagement.Domains;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,9 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long id;
+    @Column(name = "date")
+    @Builder.Default
+    private LocalDate date = LocalDate.now();
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;

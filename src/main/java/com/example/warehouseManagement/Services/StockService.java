@@ -2,6 +2,7 @@ package com.example.warehouseManagement.Services;
 
 import java.util.List;
 
+import com.example.warehouseManagement.Domains.PickingJob;
 import com.example.warehouseManagement.Domains.DTOs.StockLevelReportItemDto;
 import com.example.warehouseManagement.Domains.DTOs.TopFiveMoversDto;
 
@@ -18,4 +19,6 @@ public interface StockService {
      * @retur
      */
     public List<StockLevelReportItemDto> findStockReportsItemsByVendorId(Long vendorId);
+
+    public void pickStock(PickingJob pickingJob);
 }
