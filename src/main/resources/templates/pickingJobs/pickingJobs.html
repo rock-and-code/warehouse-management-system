@@ -37,7 +37,7 @@
                 <th scope="col">Customer</th>
                 <th scope="col">Details</th>
                 <th scope="col">Fulfill</th>
-                <th scope="col"></th>
+                <!-- <th scope="col"></th> -->
             </tr>
         </thead>
         <tbody>
@@ -47,11 +47,11 @@
                 <td th:text="${pickingJob.salesOrder.customer.name}">Otto</td>
                 <td><a th:href="@{/picking-job/{pickingJobId}(pickingJobId=${pickingJob.id})}" class="btn btn-outline-secondary">Details</a></td>
                 <td><a th:href="@{/picking-job/fulfill-job/{pickingJobId}(pickingJobId=${pickingJob.id})}" class="btn btn-outline-primary">Fulfill</a></td>
-                <td>
+                <!-- <td>
                     <form th:action="@{/picking-job/{pickingJobId}(pickingJobId=${pickingJob.id})}" method="post">
                         <button type="submit" class="btn btn-dark" name="delete">Delete</button>
                     </form>
-                </td>
+                </td> -->
                 <!-- TODO: Adds button to delete sales order (first: implement sales order CRUD controll) -->
             </tr>
         </tbody>

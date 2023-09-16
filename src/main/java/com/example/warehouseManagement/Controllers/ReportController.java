@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.example.warehouseManagement.Domains.DTOs.BackorderReportByYearDto;
 import com.example.warehouseManagement.Domains.DTOs.PendingSalesOrderByYearAndMonthDto;
 import com.example.warehouseManagement.Domains.DTOs.SalesOrderByCustomerDto;
 import com.example.warehouseManagement.Domains.DTOs.SalesOrderByNumberDto;
 import com.example.warehouseManagement.Domains.DTOs.StockLevelReportByVendorDto;
+import com.example.warehouseManagement.Services.BackorderService;
 import com.example.warehouseManagement.Services.CustomerService;
 import com.example.warehouseManagement.Services.SalesOrderService;
 import com.example.warehouseManagement.Services.StockService;
@@ -27,17 +29,20 @@ public class ReportController {
     private static final String SALES_ORDER_BY_DETAILS_PATH = "/sales-order-details";
     private static final String PENDING_SALES_ORDERS_PATH = "/pending-sales-orders-by-year-month";
     private static final String STOCK_LEVEL_REPORT_BY_VENDOR_PATH = "/stock-level-report-by-vendor";
+    private static final String BACKORDERS_REPORT_BY_YEAR_PATH = "/back-order-report-by-year";
     private final SalesOrderService salesOrderService;
     private final CustomerService customerService;
     private final StockService stockService;
     private final VendorService vendorService;
+    private final BackorderService backorderService;
 
     public ReportController(SalesOrderService salesOrderService, CustomerService customerService,
-            StockService stockService, VendorService vendorService) {
+            StockService stockService, VendorService vendorService, BackorderService backorderService) {
         this.salesOrderService = salesOrderService;
         this.customerService = customerService;
         this.stockService = stockService;
         this.vendorService = vendorService;
+        this.backorderService = backorderService;
     }
 
     @GetMapping(value = SALES_ORDER_BY_CUSTOMER_PATH)
@@ -101,7 +106,6 @@ public class ReportController {
         return "reports/printPendingSalesOrderByYearAndMonth";
     }
 
-
     @GetMapping(value = STOCK_LEVEL_REPORT_BY_VENDOR_PATH)
     public String getStockLevelReport(Model model) {
         model.addAttribute("stockLevelReportByVendor", new StockLevelReportByVendorDto());
@@ -117,6 +121,23 @@ public class ReportController {
         model.addAttribute("stockLevelReportItems", stockService.findStockReportsItemsByVendorId(vendorId));
         return "reports/printStockLevelReportByVendor";
     }
+
+    @GetMapping(value = BACKORDERS_REPORT_BY_YEAR_PATH)
+    public String getBackordersReport(Model model) {
+        model.addAttribute("backorderReportByYearDto", new BackorderReportByYearDto());
+        return "reports/backorderReportByYear";
+    }
+
+    @PostMapping(value = BACKORDERS_REPORT_BY_YEAR_PATH)
+    public String printBackorderReport(@ModelAttribute BackorderReportByYearDto backorderReportByYear,
+            Model model) {
+        int year = backorderReportByYear.getYear();
+        model.addAttribute("year", year);
+        model.addAttribute("backorders", backorderService.findBackordersByYear(year));
+        return "reports/printBackorderReportByYear";
+    }
+
+    
     
 }
 

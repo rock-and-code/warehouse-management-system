@@ -5,6 +5,20 @@
 <div th:insert="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON NOT FOUND PO -->
+    <div th:if="${param.notFound}">
+        <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+            Goods Receipt Note not found
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESSFUL ADDED PO -->
+    <div th:if="${param.added}">
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            Shipment Received
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
     <!-- Page headers -->
     <h1 class="my-3 text-center" th:text="|Goods Receipt Notes|">Customer List</h1>
     <!-- Customer list as table -->
@@ -15,6 +29,7 @@
                 <th scope="col">Goods Receipt Note</th>
                 <th scope="col">Qty Received</th>
                 <th scope="col">Details</th>
+                <th scope="col">Fulfill</th>
             </tr>
         </thead>
         <tbody>
@@ -23,6 +38,7 @@
                 <td th:text="${goodsReceiptNote.id}">Mark</td>
                 <td th:text="${goodsReceiptNote.getTotalQty()}">Otto</td>
                 <td><a th:href="@{/goods-receipt-note/{goodReceiptNoteId}(goodReceiptNoteId=${goodsReceiptNote.id})}" class="btn btn-outline-secondary">Details</a></td>
+                <td><a th:href="@{/goods-receipt-note/fulfill/{goodReceiptNoteId}(goodReceiptNoteId=${goodsReceiptNote.id})}" class="btn btn-outline-primary">Fulfill</a></td>
                 <!-- <td>
                     <form th:action="@{/goods-receipt-note/{goodReceiptNoteId}(goodReceiptNoteId=${goodsReceiptNote.id})}" method="post">
                         <button type="submit" class="btn btn-danger" name="delete">Delete</button>

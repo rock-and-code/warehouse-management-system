@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.warehouseManagement.Domains.GoodsReceiptNote;
+import com.example.warehouseManagement.Domains.DTOs.GoodsReceiptNoteDto;
 
 public interface GoodsReceiptNoteService {
     /**
@@ -40,5 +41,9 @@ public interface GoodsReceiptNoteService {
      * @param goodsReceiptNote
      */
     public void delete(GoodsReceiptNote goodsReceiptNote);
+
+    public List<GoodsReceiptNote> findAllPending();
+
+    public void fulfill(GoodsReceiptNote goodsReceiptNote, GoodsReceiptNoteDto goodsReceiptNoteDto);
 }
 

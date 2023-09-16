@@ -6,19 +6,31 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.example.warehouseManagement.Domains.GoodsReceiptNote;
+import com.example.warehouseManagement.Domains.GoodsReceiptNote.GrnStatus;
+import com.example.warehouseManagement.Domains.Item;
+import com.example.warehouseManagement.Domains.Stock;
+import com.example.warehouseManagement.Domains.WarehouseSection;
+import com.example.warehouseManagement.Domains.DTOs.GoodsReceiptNoteDto;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteLineRepository;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteRepository;
+import com.example.warehouseManagement.Repositories.StockRepository;
+import com.example.warehouseManagement.Repositories.WarehouseSectionRepository;
 
 @Service
 public class GoodsReceiptNoteImpl implements GoodsReceiptNoteService {
     private final GoodsReceiptNoteRepository goodsReceiptNoteRepository;
     private final GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository;
+    private final StockRepository stockRepository;
+    private final WarehouseSectionRepository warehouseSectionRepository;
     
     
     public GoodsReceiptNoteImpl(GoodsReceiptNoteRepository goodsReceiptNoteRepository,
-            GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository) {
+            GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository,
+            StockRepository stockRepository, WarehouseSectionRepository warehouseSectionRepository) {
         this.goodsReceiptNoteRepository = goodsReceiptNoteRepository;
         this.goodsReceiptNoteLineRepository = goodsReceiptNoteLineRepository;
+        this.stockRepository = stockRepository;
+        this.warehouseSectionRepository = warehouseSectionRepository;
     }
 
     /**
@@ -70,6 +82,27 @@ public class GoodsReceiptNoteImpl implements GoodsReceiptNoteService {
     @Override
     public void delete(GoodsReceiptNote goodsReceiptNote) {
         goodsReceiptNoteRepository.delete(goodsReceiptNote);
+    }
+
+    @Override
+    public void fulfill(GoodsReceiptNote goodsReceiptNote, GoodsReceiptNoteDto goodsReceiptNoteDto) {
+        goodsReceiptNote.setStatus(GrnStatus.RECEIVED);
+        for (int i=0; i<goodsReceiptNoteDto.getGoodsReceiptNoteLines().size(); i++) {
+            int qty = goodsReceiptNoteDto.getGoodsReceiptNoteLines().get(i).getQty();
+            Long warehouseSectionId = goodsReceiptNoteDto.getGoodsReceiptNoteLines().get(i).getWarehouseSectionId();
+            Optional<WarehouseSection> warehouseSection = warehouseSectionRepository.findById(warehouseSectionId);
+            Item item = goodsReceiptNote.getGoodsReceiptNoteLines().get(i).getItem();
+            //TODO: ADD LOGIC TO HANDLE DAMAGES (ASSIGN A WAREHOUSE SECTION FOR DAMAGES PRODUCTS)
+            //boolean damaged = (goodsReceiptNoteDto.getGoodsReceiptNoteLines().get(i).getDamaged() == 0) ? false : true;
+            Stock stock = Stock.builder().qtyOnHand(qty).item(item).warehouseSection(warehouseSection.get()).build();
+            stockRepository.save(stock);
+        }
+        goodsReceiptNoteRepository.save(goodsReceiptNote);
+    }
+
+    @Override
+    public List<GoodsReceiptNote> findAllPending() {
+        return goodsReceiptNoteRepository.findAllPending();
     }
     
 }

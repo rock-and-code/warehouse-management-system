@@ -1,0 +1,33 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <!-- Page headers -->
+    <h1 class="my-3 text-center" th:text="|For year: ${year}|">For year: 2023</h1>
+    <!-- Customer list as table -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Customer</th>
+                <th scope="col">Sales Order</th>
+                <th scope="col">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="backorder : ${backorders}">
+                <th scope="row" th:text="|${#temporals.monthNameShort(backorder.date)} ${#temporals.format(backorder.date, ' dd, yyyy')}|">1</th>
+                <td th:text="${backorder.customer}">Mark</td>
+                <td th:text="${backorder.salesOrder}">Mark</td>
+                <td th:text="${#numbers.formatCurrency(backorder.total)}">Otto</td>
+                <!-- TODO: Adds button to delete sales order (first: implement sales order CRUD controll) -->
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Header fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>

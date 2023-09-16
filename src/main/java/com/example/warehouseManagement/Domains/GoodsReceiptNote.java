@@ -41,12 +41,18 @@ public class GoodsReceiptNote {
     @Column(name = "date")
     @Builder.Default
     private LocalDate date = LocalDate.now();
+    @Builder.Default
+    private GrnStatus status = GrnStatus.PENDING;
     public int getTotalQty() {
         int total = 0;
         for (GoodsReceiptNoteLine goodsReceiptNoteLine : goodsReceiptNoteLines) 
             total += goodsReceiptNoteLine.getQty();
         return total;
-        
+    }
+
+    public enum GrnStatus {
+        PENDING, //0
+        RECEIVED //1
     }
 
 }

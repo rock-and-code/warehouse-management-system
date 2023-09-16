@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.warehouseManagement.Domains.SalesOrder;
 import com.example.warehouseManagement.Domains.SalesOrderLine;
+import com.example.warehouseManagement.Domains.WarehouseSection;
 import com.example.warehouseManagement.Domains.DTOs.WarehouseSectionDto;
 import com.example.warehouseManagement.Repositories.WarehouseSectionRepository;
 
@@ -32,6 +33,11 @@ public class WarehouseSectionServiceImpl implements WarehouseSectionService {
         for (SalesOrderLine salesOrderLine : salesOrder.getSaleOrderLines())
             warehouseSectionList.add(warehouseSectionRepository.findSectionWithHighestQtyOnHandByItemId(salesOrderLine.getItem().getId()));
         return warehouseSectionList;
+    }
+
+    @Override
+    public Iterable<WarehouseSection> findAll() {
+        return warehouseSectionRepository.findAll();
     }
     
 }

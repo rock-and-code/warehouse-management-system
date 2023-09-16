@@ -12,6 +12,20 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
+     <!-- ALERTS TO PROVIDE USER FEEDBACK ON UNSUCCESSFUL CUSTOMER DELETION -->
+     <div th:if="${param.failedToDelete}">
+        <div class="alert alert-danger alert-dismissible fade show my-3" role="alert">
+            Cannot delete billed customer
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON CUSTOMER NOT FOUND -->
+    <div th:if="${param.notFound}">
+        <div class="alert alert-info alert-dismissible fade show my-3" role="alert">
+            Customer not found
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
     <!-- Page headers -->
     <h1 class="my-3">Customer List</h1>
     <!-- Customer list as table -->

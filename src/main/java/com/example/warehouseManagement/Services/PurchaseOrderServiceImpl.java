@@ -5,9 +5,14 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.example.warehouseManagement.Domains.GoodsReceiptNote;
+import com.example.warehouseManagement.Domains.GoodsReceiptNote.GrnStatus;
+import com.example.warehouseManagement.Domains.GoodsReceiptNoteLine;
 import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.PurchaseOrderLine;
 import com.example.warehouseManagement.Domains.DTOs.PurchaseOrderDto;
+import com.example.warehouseManagement.Repositories.GoodsReceiptNoteLineRepository;
+import com.example.warehouseManagement.Repositories.GoodsReceiptNoteRepository;
 import com.example.warehouseManagement.Repositories.ItemCostRepository;
 import com.example.warehouseManagement.Repositories.PurchaseOrderLineRepository;
 import com.example.warehouseManagement.Repositories.PurchaseOrderRepository;
@@ -17,12 +22,19 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final PurchaseOrderLineRepository purchaseOrderLineRepository;
     private final ItemCostRepository itemCostRepository;
-    
-    public PurchaseOrderServiceImpl(PurchaseOrderRepository purchaseOrderRepository, PurchaseOrderLineRepository purchaseOrderLineRepository,
-            ItemCostRepository itemCostRepository) {
+    private final GoodsReceiptNoteRepository goodsReceiptNoteRepository;
+    private final GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository;
+
+    public PurchaseOrderServiceImpl(PurchaseOrderRepository purchaseOrderRepository,
+            PurchaseOrderLineRepository purchaseOrderLineRepository,
+            ItemCostRepository itemCostRepository,
+            GoodsReceiptNoteRepository goodsReceiptNoteRepository,
+            GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository) {
         this.purchaseOrderLineRepository = purchaseOrderLineRepository;
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.itemCostRepository = itemCostRepository;
+        this.goodsReceiptNoteRepository = goodsReceiptNoteRepository;
+        this.goodsReceiptNoteLineRepository = goodsReceiptNoteLineRepository;
     }
 
     /**
@@ -63,10 +75,23 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public PurchaseOrder save(PurchaseOrder purchaseOrder) {
         PurchaseOrder po = purchaseOrderRepository.save(purchaseOrder);
+        // Adds goods receipt note
+        GoodsReceiptNote goodsReceiptNote = GoodsReceiptNote.builder().date(po.getDate())
+                .purchaseOrder(po).date(po.getDate()).status(GrnStatus.PENDING).build();
+        GoodsReceiptNote savedGoodsReceiptNote = goodsReceiptNoteRepository.save(goodsReceiptNote);
         for (PurchaseOrderLine pol : po.getPurchaseOrderLines()) {
             pol.setPurchaseOrder(purchaseOrder);
             pol.setItemCost(itemCostRepository.findCurrentItemCostByItemId(pol.getItem().getId()));
+            // Adding Goods receipt lines
+            GoodsReceiptNoteLine goodsReceiptNoteLine = GoodsReceiptNoteLine.builder()
+                    .goodsReceiptNote(savedGoodsReceiptNote)
+                    .qty(pol.getQty()).item(pol.getItem()).build();
+            GoodsReceiptNoteLine savedGoodsReceiptNoteLine = goodsReceiptNoteLineRepository
+                    .save(goodsReceiptNoteLine);
+            savedGoodsReceiptNote.getGoodsReceiptNoteLines().add(savedGoodsReceiptNoteLine);
+            po.getGoodsReceiptNotes().add(savedGoodsReceiptNote);
         }
+        goodsReceiptNoteRepository.save(savedGoodsReceiptNote);
         purchaseOrderLineRepository.saveAll(po.getPurchaseOrderLines());
         return purchaseOrderRepository.save(po);
     }
@@ -83,5 +108,5 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     public List<PurchaseOrderDto> findAllPurchaseOrder() {
         return purchaseOrderRepository.findAllPurchaseOrder();
     }
-    
+
 }

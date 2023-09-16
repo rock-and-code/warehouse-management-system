@@ -1,0 +1,75 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <!-- Page headers -->
+    <h1 class="my-3 text-center" th:text="|Vendor: ${goodsReceiptNote.purchaseOrder.vendor.name}|">Vendor</h1>
+    <!-- Customer list as table -->
+    <form action="#" th:action="@{/goods-receipt-note/fulfill/{goodsReceiptNoteId}(goodsReceiptNoteId=${goodsReceiptNote.id})}"
+        th:object="${goodsReceiptNoteDto}" method="post" class="row g-3 needs-validation" novalidate>
+        <table class="table">
+            <div class="col-md-6">
+                <label for="purchaseOrderId" class="form-label">Purchase Order</label>
+                <input class="form-control" type="text" id="purchaseOrderId" th:field="*{purchaseOrderId}" disabled readonly
+                    name="salesOrder">
+            </div>
+            <div class="col-md-6">
+                <label for="date" class="form-label">Date</label>
+                <input class="form-control" type="text" id="date" th:field="*{date}" disabled readonly name="date">
+            </div>
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">To Receive</th>
+                    <th scope="col">Bin</th>
+                    <th scope="col">Damaged?</th>
+                    <th scope="col">Qty</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="goodsReceiptNoteLine, grnStat : ${goodsReceiptNote.goodsReceiptNoteLines}">
+                    <th scope="row" th:text="${counter.incrementAndGet()}">1</th>
+                    <td th:text="${goodsReceiptNoteLine.item.sku}">101035</td>
+                    <td th:text="${goodsReceiptNoteLine.item.description}">Iphone 14</td>
+                    <td th:text="${goodsReceiptNoteLine.qty}">3</td>
+                    <td th:if="${selectedWarehouseSections.size() > 0}">
+                        <select class="form-select"
+                            th:field="*{goodsReceiptNoteLines[__${grnStat.index}__].warehouseSectionId}"
+                            aria-label="Default select example" th:errorclass="fieldError" id="warehouseSectionId"
+                            required name="warehouseSectionId">
+                            <option value="" selected disable hidden>Choose...</option>
+                            <option th:each="warehouseSection: ${warehouseSections}"
+                                th:text="|${warehouseSection.sectionNumber}|"
+                                th:value="${warehouseSection.id}">Two
+                            </option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select"
+                            th:field="*{goodsReceiptNoteLines[__${grnStat.index}__].damaged}"
+                            aria-label="Default select example" th:errorclass="fieldError" id="damaged"
+                            required name="damaged">
+                            <option th:value="${1}">True</option>
+                            <option th:value="${0}" selected>False</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" min="1" step="1"
+                            th:field="*{goodsReceiptNoteLines[__${grnStat.index}__].qty}" class="form-control"
+                            id="qty" value="1">
+                    </td>
+                    <!-- TODO: Adds button to delete sales order (first: implement sales order CRUD controll) -->
+                </tr>
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-dark col-12">Fulfill Order</button>
+    </form>
+</div>
+
+<!-- Header fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>

@@ -28,5 +28,8 @@ public interface GoodsReceiptNoteRepository extends CrudRepository<GoodsReceiptN
         // SELECT * FROM goods_receipt_note
         // INNER JOIN vendor on goods_receipt_note.vendor_id = vendor.id
         // WHERE goods_receipt_note.vendor_id = :vendorId;
+
+    @Query(value = "SELECT * FROM goods_receipt_note grn WHERE grn.status = 1", nativeQuery = true)
+    List<GoodsReceiptNote> findAllPending();
     
 }

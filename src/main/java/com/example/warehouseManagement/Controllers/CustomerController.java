@@ -44,14 +44,22 @@ public class CustomerController {
         return "customers/details";
     }
 
-    @PostMapping(value = CUSTOMER_PATH_ID)
+    @PostMapping(value = CUSTOMER_PATH_ID, params = "delete")
     public String deleteCustomer(@PathVariable(name = "customerId", required = false) Long id, Model model) {
         Optional<Customer> customer = customerService.findById(id);
 
-        if (!customer.isPresent())
-            return "redirect:/customers";
-        customerService.delete(customer.get());
-        return "redirect:/customers?customerDeleted";
+        if (!customer.isPresent()) {
+            if (customer.get().getInvoices().size() > 0) {
+                return "redirect:/customers?failedToDelete";
+            }
+            else {
+                customerService.delete(customer.get());
+                return "redirect:/customers/customerDeleted";
+            }
+        }
+        else {
+            return "redirect:/customers?notFound";
+        }
     }
     
 }
