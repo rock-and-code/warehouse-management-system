@@ -20,6 +20,9 @@ import com.example.warehouseManagement.Services.StockService;
 import com.example.warehouseManagement.Services.WarehouseSectionService;
 import com.example.warehouseManagement.Util.Counter;
 
+/**
+ * Controller for picking jobs.
+ */
 @Controller
 @RequestMapping(value = "/")
 public class PickingJobController {
@@ -31,6 +34,14 @@ public class PickingJobController {
     private final StockService stockService;
     private final InvoiceService invoiceService;
 
+    /**
+     * Constructor.
+     *
+     * @param pickingJobService       the picking job service
+     * @param warehouseSectionService the warehouse section service
+     * @param stockService            the stock service
+     * @param invoiceService          the invoice service
+     */
     public PickingJobController(PickingJobService pickingJobService,
             PurchaseOrderService purchaseOrderService,
             WarehouseSectionService warehouseSectionService,
@@ -41,7 +52,12 @@ public class PickingJobController {
         this.invoiceService = invoiceService;
     }
 
-     // Handle GET request to fetch all picking jobs
+    /**
+     * Handles a GET request to fetch all picking jobs.
+     *
+     * @param model the Model object to populate with data for the view
+     * @return the name of the view template to render
+     */
     @GetMapping(value = PICKING_JOB_PATH)
     public String getAllPickingJobs(Model model) {
         model.addAttribute("title", "Picking Jobs");
@@ -49,7 +65,13 @@ public class PickingJobController {
         return "pickingJobs/pickingJobs";
     }
 
-    // Handle GET request to fetch details of a specific picking job
+    /**
+     * Handles a GET request to fetch details of a specific picking job.
+     *
+     * @param id    the ID of the picking job
+     * @param model the Model object to populate with data for the view
+     * @return the name of the view template to render
+     */
     @GetMapping(value = PICKING_JOB_ID_PATH)
     public String getPickingJobDetails(@PathVariable(value = "pickingJobId", required = false) Long id, Model model) {
         Optional<PickingJob> pickingJob = pickingJobService.findById(id);
@@ -65,67 +87,97 @@ public class PickingJobController {
         }
     }
 
-    // Handle GET request to initiate the picking process for a specific job
+    /**
+     * Handles GET request to initiate the picking process for a specific job.
+     *
+     * @param id    the ID of the picking job to start picking
+     * @param model the Model object to populate with data for the view
+     * @return the name of the view template to render
+     */
     @GetMapping(value = FULFILL_PICKING_JOB)
     public String startPickingProcess(@PathVariable(value = "pickingJobId", required = true) Long id, Model model) {
+        // Retrieves the picking job with the specified ID from the database.
         Optional<PickingJob> pickingJob = pickingJobService.findById(id);
+        // If the picking job is found, creates a new picking job DTO and populates it
+        // with the picking job data. Otherwise, redirects to the picking job list page
+        // with an error message.
         if (pickingJob.isPresent()) {
             PickingJobDto pickingJobDto = new PickingJobDto();
             pickingJobDto.setDate(pickingJob.get().getDate());
             pickingJobDto.setSalesOrderId(pickingJob.get().getSalesOrder().getId());
             for (int i = 0; i < pickingJob.get().getPickingJobLines().size(); i++)
                 pickingJobDto.getPickingJobDtoLines().add(new PickingJobLineDto());
+
+            // Updates the model with the picking job DTO, the warehouse sections,
+            // the title, and the picking job.
             model.addAttribute("pickingJobDto", pickingJobDto);
             model.addAttribute("warehouseSections",
                     warehouseSectionService.findBySalesOrder(pickingJob.get().getSalesOrder()));
             model.addAttribute("title", "Picking Order");
             model.addAttribute("pickingJob", pickingJob.get());
             model.addAttribute("counter", new Counter());
+            // Returns the name of the view template for the fulfill picking job form.
             return "forms/fulfillPickingJobForm";
         } else {
             return "redirect:/picking-job?notFound";
         }
     }
 
-    // Handle POST request to fulfill a picking job
+    /**
+     * Handles a POST request to fulfill a picking job.
+     *
+     * @param id            the ID of the picking job to fulfill
+     * @param pickingJobDto the picking job DTO containing the fulfillment
+     *                      information
+     * @param model         the Model object to populate with data for the view
+     * @return the name of the view template to render
+     */
     @PostMapping(value = FULFILL_PICKING_JOB)
-    public String fulfillPickingJob(@PathVariable(value = "pickingJobId", required = true) Long id, 
-        @ModelAttribute PickingJobDto pickingJobDto, Model model) {
-        Optional<PickingJob> pickingJob = pickingJobService.findById(id); 
+    public String fulfillPickingJob(@PathVariable(value = "pickingJobId", required = true) Long id,
+            @ModelAttribute PickingJobDto pickingJobDto, Model model) {
+        // Retrieves the picking job with the specified ID from the database.
+        Optional<PickingJob> pickingJob = pickingJobService.findById(id);
+        // If the picking job is found, fulfills it with the provided DTO. Otherwise,
+        // redirects to the picking job list page with an error message.
         if (pickingJob.isPresent()) {
             // Fulfill the picking job with the provided DTO
             PickingJob updatedPickingJob = pickingJobService.fulfill(pickingJob.get(), pickingJobDto);
             // Update stock levels after fulfilling the picking job
             stockService.pickStock(updatedPickingJob);
-             // Create an invoice based on the picking job
+            // Create an invoice based on the picking job
             invoiceService.createByPickingJob(pickingJob.get());
+            // Redirect to the picking job list page with an error message.
             return "redirect:/picking-job";
         } else {
+            // Redirect to the picking job list page with an error message.
             return "redirect:/picking-job?notFound";
         }
     }
 }
 
-
 /**
-@GetMapping(value = FULFILL_PICKING_JOB)
-    public String startPickingProcess(@PathVariable(value = "pickingJobId", required = true) Long id, Model model) {
-        Optional<PickingJob> pickingJob = pickingJobService.findById(id);
-        if (pickingJob.isPresent()) {
-            PickingJobDto pickingJobDto = new PickingJobDto();
-            pickingJobDto.setDate(pickingJob.get().getDate());
-            pickingJobDto.setSalesOrderId(pickingJob.get().getSalesOrder().getId());
-            for (int i = 0; i < pickingJob.get().getPickingJobLines().size(); i++)
-                pickingJobDto.getPickingJobDtoLines().add(new PickingJobLineDto());
-            model.addAttribute("pickingJobDto", pickingJobDto);
-            model.addAttribute("warehouseSections",
-                    warehouseSectionService.findBySalesOrder(pickingJob.get().getSalesOrder()));
-            model.addAttribute("title", "Picking Order");
-            model.addAttribute("pickingJob", pickingJob.get());
-            model.addAttribute("counter", new Counter());
-            return "forms/fulfillPickingJobForm";
-        } else {
-            return "redirect:/picking-job?notFound";
-        }
-    }
+ * @GetMapping(value = FULFILL_PICKING_JOB)
+ *                   public String startPickingProcess(@PathVariable(value =
+ *                   "pickingJobId", required = true) Long id, Model model) {
+ *                   Optional<PickingJob> pickingJob =
+ *                   pickingJobService.findById(id);
+ *                   if (pickingJob.isPresent()) {
+ *                   PickingJobDto pickingJobDto = new PickingJobDto();
+ *                   pickingJobDto.setDate(pickingJob.get().getDate());
+ *                   pickingJobDto.setSalesOrderId(pickingJob.get().getSalesOrder().getId());
+ *                   for (int i = 0; i <
+ *                   pickingJob.get().getPickingJobLines().size(); i++)
+ *                   pickingJobDto.getPickingJobDtoLines().add(new
+ *                   PickingJobLineDto());
+ *                   model.addAttribute("pickingJobDto", pickingJobDto);
+ *                   model.addAttribute("warehouseSections",
+ *                   warehouseSectionService.findBySalesOrder(pickingJob.get().getSalesOrder()));
+ *                   model.addAttribute("title", "Picking Order");
+ *                   model.addAttribute("pickingJob", pickingJob.get());
+ *                   model.addAttribute("counter", new Counter());
+ *                   return "forms/fulfillPickingJobForm";
+ *                   } else {
+ *                   return "redirect:/picking-job?notFound";
+ *                   }
+ *                   }
  */

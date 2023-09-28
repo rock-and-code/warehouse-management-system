@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.example.warehouseManagement.Services.SalesOrderService;
 import com.example.warehouseManagement.Services.StockService;
 
+/**
+ * Controller to handle dashboard requests.
+ */
 @Controller
 @RequestMapping(value = "/")
 public class DashBoardController {
@@ -16,12 +19,23 @@ public class DashBoardController {
     private final SalesOrderService salesOrderService;
     private final StockService stockService;
 
+    /**
+     * Constructor to inject the necessary dependencies.
+     *
+     * @param salesOrderService the SalesOrderService dependency
+     * @param stockService the StockService dependency
+     */
     public DashBoardController(SalesOrderService salesOrderService, StockService stockService) {
         this.salesOrderService = salesOrderService;
         this.stockService = stockService;
     }
 
-    // Handling GET requests for the dashboard
+    /**
+     * Handles GET requests for the dashboard.
+     *
+     * @param model the Model object to populate with data for the view
+     * @return the name of the view template to render
+     */
     @GetMapping(value = "/")
     public String getDashBoard(Model model) {
         // Adding attributes to the model for use in the view

@@ -31,6 +31,12 @@ public class PurchaseOrderController {
     private final VendorService vendorService;
     private final ItemService itemService;
 
+    /**
+     * Constructor
+     * @param purchaseOrderService the purchaseOrderService to use
+     * @param vendorService the vendorService to use
+     * @param itemService the itemService to use
+     */
     public PurchaseOrderController(PurchaseOrderService purchaseOrderService, VendorService vendorService,
             ItemService itemService) {
         this.purchaseOrderService = purchaseOrderService;
@@ -38,7 +44,13 @@ public class PurchaseOrderController {
         this.itemService = itemService;
     }
 
-    // Handle GET request to create a new purchase order
+    /**
+     * Handles a GET request to create a new purchase order.
+     *
+     * @param model the Model object to populate with data for the view
+     * @return the name of the view template to render
+     */
+
     @GetMapping(value = NEW_PURCHASE_ORDER_PATH)
     public String newPurchaseOrder(@ModelAttribute PurchaseOrder purchaseOrder, Model model) {
         model.addAttribute("purchaseOrder", purchaseOrder);
@@ -47,7 +59,14 @@ public class PurchaseOrderController {
         return "forms/purchaseOrderForm";
     }
 
-    // Handle POST request to add a new line to the purchase order
+    /**
+     * Handles a POST request to add a new line to the purchase order.
+     *
+     * @param purchaseOrder the purchase order
+     * @param request       the HttpServletRequest object
+     * @param model         the Model object to populate with data for the view
+     * @return the name of the view template to render
+     */
     @PostMapping(value = NEW_PURCHASE_ORDER_PATH, params = "addRow")
     public String addPurchaseOrderLine(@ModelAttribute PurchaseOrder purchaseOrder,
             HttpServletRequest request, Model model) {
@@ -60,7 +79,14 @@ public class PurchaseOrderController {
         return "forms/purchaseOrderForm";
     }
 
-    // Handle POST request to remove a line from the purchase order
+    /**
+     * Handles a POST request to remove a line from the purchase order.
+     *
+     * @param purchaseOrder the purchase order
+     * @param request       the HttpServletRequest object
+     * @param model         the Model object to populate with data for the view
+     * @return the name of the view template to render
+     */
     @PostMapping(value = NEW_PURCHASE_ORDER_PATH, params = "removeRow")
     public String removePurchaseOrderLine(@ModelAttribute PurchaseOrder purchaseOrder,
             HttpServletRequest request, Model model) {
@@ -75,58 +101,94 @@ public class PurchaseOrderController {
         return "forms/purchaseOrderForm";
     }
 
-    // Handle POST request to save the purchase order
+    /**
+     * Handles a POST request to save the purchase order.
+     *
+     * @param purchaseOrder the purchase order to save
+     * @param request       the HttpServletRequest object
+     * @param model         the Model object to populate with data for the view
+     * @return the name of the view template to render
+     */
     @PostMapping(value = NEW_PURCHASE_ORDER_PATH, params = "save")
     public String savePurchaseOrder(@ModelAttribute PurchaseOrder purchaseOrder,
             HttpServletRequest request, Model model) {
-        // Save the purchase order
+        // Save the purchase order to the database
         purchaseOrderService.save(purchaseOrder);
+        // Redirects to the purchase order list page.
         return "redirect:/purchase-order";
     }
 
-    // Handle GET request to fetch all purchase orders
+    /**
+     * Handles a GET request to fetch all purchase orders.
+     *
+     * @param model the Model object to populate with data for the view
+     * @return the name of the view template to render
+     */
     @GetMapping(value = PURCHASE_ORDER_PATH)
     public String getAllPurchaseOrders(Model model) {
-        //TODO: -> Add pagination (25 records per page)
+        // TODO: -> Add pagination (25 records per page)
+        // Set the tittle, add the list of vendors and a list of purchase orders to the
+        // model
         model.addAttribute("title", "Purchase Orders");
         model.addAttribute("vendors", vendorService.findAll());
         model.addAttribute("purchaseOrders", purchaseOrderService.findAllPurchaseOrder());
+        // Returns the name of the view template to render.
         return "purchaseOrders/purchaseOrders";
     }
 
-    // Handle GET request to fetch details of a specific purchase order
+    /**
+     * Handles a GET request to fetch details of a specific purchase order.
+     *
+     * @param orderId the ID of the purchase order to fetch details of
+     * @param model   the Model object to populate with data for the view
+     * @return the name of the view template to render
+     */
     @GetMapping(value = PURCHASE_ORDER_ID_PATH)
     public String getPurchaseOrderDetails(@PathVariable(value = "orderId") Long orderId, Model model) {
+        // Finds the purchase order with the specified ID.
         Optional<PurchaseOrder> order = purchaseOrderService.findById(orderId);
+        // If the purchase order is found, sets the title, purchase order, and counter
+        // to
+        // the model and returns the name of the view template to render.
         if (order.isPresent()) {
             model.addAttribute("title", "Purchase Order Details");
             model.addAttribute("purchaseOrder", order.get());
             model.addAttribute("counter", new Counter());
-        return "purchaseOrders/purchaseOrderDetails";
-        }
-        else {
+            return "purchaseOrders/purchaseOrderDetails";
+        } else {
+            // If the purchase order is not found, redirects to the purchase order list page
+            // with a not found error message.
             return "redirect:/purchase-order?notFound";
-        }   
+        }
     }
 
-    // Handle POST request to delete a purchase order
+    /**
+     * Handles a POST request to delete a purchase order.
+     *
+     * @param orderId the ID of the purchase order to delete
+     * @param model   the Model object to populate with data for the view
+     * @return the name of the view template to render
+     */
     @PostMapping(value = PURCHASE_ORDER_ID_PATH, params = "delete")
     public String deletePurchaseOrder(@PathVariable(value = "orderId") Long orderId, Model model) {
+        // Finds the purchase order with the specified ID.
         Optional<PurchaseOrder> order = purchaseOrderService.findById(orderId);
+        // If the purchase order is found, deletes it if its status is not received.
         if (order.isPresent()) {
             if (order.get().getStatus() != PoStatus.RECEIVED) {
-                // Delete the purchase order if its status is not received
+                // Deletes the purchase order from the database.
                 purchaseOrderService.delete(order.get());
+                // Redirects to the purchase order list page.
                 return "redirect:/purchase-order";
-            }
-            else {
+            } else {
+                // Redirects to the purchase order list page with a failed to delete error
+                // message.
                 return "redirect:/purchase-order?failedToDelete";
             }
-        }
-        else {
+        } else {
+            // Redirects to the purchase order list page with a not found error message.
             return "redirect:/purchase-order?notFound";
-        }   
+        }
     }
 
 }
-
