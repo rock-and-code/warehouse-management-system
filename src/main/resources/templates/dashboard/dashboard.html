@@ -5,58 +5,81 @@
 <div th:insert="~{fragments/navbar :: navbar}"></div>
 
 <h1 class="my-3 text-center" th:text="|Dash Board|">Customer List</h1>
+
+<!-- Charts CSS CDN-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/charts.css/dist/charts.min.css">
+
+<!-- Boostrap Grid Structure -->
 <div class="container">
+
   <div class="row">
-    <!-- Last Three Months Div -->
-    <div class="col">
-      <h5 class="my-3 text-center" th:text="|Last Three Months Sales|">Customer List</h5>
-      <!-- Customer list as table -->
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Total Sales</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr th:each="monthSales : ${lastThreeMonthsSales.lastThreeMonthsSales}">
-            <th scope="row" th:text="${monthSales.getMonth()}">January</th>
-            <td th:text="${#numbers.formatCurrency(monthSales.getTotal())}">$100,000</td>
-          </tr>
-        </tbody>
-      </table>
-      <p class="my-3 text-center"
-        th:text="|Three Months Avg Sales: ${#numbers.formatCurrency(lastThreeMonthsSales.getThreeMonthsAverageSales())}|">
+    <!-- Last three months sales bars graph card -->
+    <div class="card p-1 flex-grow-1 col-md-8" style="width: 25vh; height: 25vw;">
+      <div class="card-body">
+        <!-- Using ChartsCSS framework -->
+        <table class="charts-css column show-heading show-labels data-spacing-20">
+          <caption class="text-center"> Last Three Month Sales </caption>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Total Sales</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="monthSales : ${lastThreeMonthsSales.lastThreeMonthsSales}">
+              <th scope="row" th:text="${monthSales.getMonth()}">January</th>
+              <td th:style="|--size: ${monthSales.getTotal() / lastThreeMonthsSales.getMaxValue()}|"
+                th:text="${#numbers.formatCurrency(monthSales.getTotal())}">$100,000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- End of three months sales bars graph card -->
+
+
+  <!-- Last Three Months Average card -->
+  <div class="card col-md-4">
+    <div class="card-body">
+      <h5 class="card-title text-center">Three Months Average Sales</h5>
+      <p class="card-text text-center"
+        th:text="${#numbers.formatCurrency(lastThreeMonthsSales.getThreeMonthsAverageSales())}">
         Customer List</p>
     </div>
   </div>
-  <!-- Top Five movers Div-->
-  <div class="row">
-    <div class="col">
-      <h5 class="my-3 text-center" th:text="|Top 5 Movers|">Customer List</h5>
-      <!-- Customer list as table -->
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Sku</th>
-            <th scope="col">Description</th>
-            <th scope="col">Qty on Hand</th>
-            <th scope="col">Average Week Sales</th>
-            <th scope="col">Weeks of Inventory</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr th:each="mover : ${topFiveMovers}">
-            <th scope="row" th:text="${mover.getSku()}">101010</th>
-            <td th:text="${mover.getDescription()}">Iphone 14</td>
-            <td th:text="${mover.getQtyOnHand()}">190</td>
-            <td th:text="${mover.getAverageWeekSales()}">40</td>
-            <td th:text="${mover.getWeeksOfInventory()}">4.0</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <!-- END Last Three Months Average card -->
   </div>
+
+<div class="row">
+    <!-- Top Five movers Div-->
+    <div class="card p-2">
+      <div class="card-body">
+        <h5 class="my-3 text-center card-title" th:text="|Top 5 Movers|">Customer List</h5>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Sku</th>
+              <th scope="col">Description</th>
+              <th scope="col">Qty on Hand</th>
+              <th scope="col">Average Week Sales</th>
+              <th scope="col">Weeks of Inventory</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="mover : ${topFiveMovers}">
+              <th scope="row" th:text="${mover.getSku()}">101010</th>
+              <td th:text="${mover.getDescription()}">Iphone 14</td>
+              <td th:text="${mover.getQtyOnHand()}">190</td>
+              <td th:text="${mover.getAverageWeekSales()}">40</td>
+              <td th:text="${mover.getWeeksOfInventory()}">4.0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- END Stock Levels Table  -->
+</div>
+
 </div>
 
 <!-- Header fragment -->

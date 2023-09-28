@@ -41,6 +41,7 @@ public class PickingJobController {
         this.invoiceService = invoiceService;
     }
 
+     // Handle GET request to fetch all picking jobs
     @GetMapping(value = PICKING_JOB_PATH)
     public String getAllPickingJobs(Model model) {
         model.addAttribute("title", "Picking Jobs");
@@ -48,6 +49,7 @@ public class PickingJobController {
         return "pickingJobs/pickingJobs";
     }
 
+    // Handle GET request to fetch details of a specific picking job
     @GetMapping(value = PICKING_JOB_ID_PATH)
     public String getPickingJobDetails(@PathVariable(value = "pickingJobId", required = false) Long id, Model model) {
         Optional<PickingJob> pickingJob = pickingJobService.findById(id);
@@ -63,6 +65,7 @@ public class PickingJobController {
         }
     }
 
+    // Handle GET request to initiate the picking process for a specific job
     @GetMapping(value = FULFILL_PICKING_JOB)
     public String startPickingProcess(@PathVariable(value = "pickingJobId", required = true) Long id, Model model) {
         Optional<PickingJob> pickingJob = pickingJobService.findById(id);
@@ -84,16 +87,17 @@ public class PickingJobController {
         }
     }
 
+    // Handle POST request to fulfill a picking job
     @PostMapping(value = FULFILL_PICKING_JOB)
     public String fulfillPickingJob(@PathVariable(value = "pickingJobId", required = true) Long id, 
         @ModelAttribute PickingJobDto pickingJobDto, Model model) {
         Optional<PickingJob> pickingJob = pickingJobService.findById(id); 
         if (pickingJob.isPresent()) {
-            //FULFILL ORDER
+            // Fulfill the picking job with the provided DTO
             PickingJob updatedPickingJob = pickingJobService.fulfill(pickingJob.get(), pickingJobDto);
-            //UPDATES STOCK LEVES AFTER FULFILLING PICKING JOB
+            // Update stock levels after fulfilling the picking job
             stockService.pickStock(updatedPickingJob);
-            //CREATES A INVOICE BY PICKING JOB
+             // Create an invoice based on the picking job
             invoiceService.createByPickingJob(pickingJob.get());
             return "redirect:/picking-job";
         } else {

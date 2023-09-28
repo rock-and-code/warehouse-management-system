@@ -21,11 +21,13 @@ public class DashBoardController {
         this.stockService = stockService;
     }
 
+    // Handling GET requests for the dashboard
     @GetMapping(value = "/")
     public String getDashBoard(Model model) {
+        // Adding attributes to the model for use in the view
         model.addAttribute("title", "Dashboard");
         model.addAttribute("lastThreeMonthsSales", salesOrderService.findLastThreeMonthsSales());
         model.addAttribute("topFiveMovers", stockService.getTopFiveMovers());
-        return "dashboard/dashboard";
+        return "dashboard/dashboard"; // Returning the view template name
     }
 }

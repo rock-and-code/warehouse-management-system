@@ -38,6 +38,7 @@ public class PurchaseOrderController {
         this.itemService = itemService;
     }
 
+    // Handle GET request to create a new purchase order
     @GetMapping(value = NEW_PURCHASE_ORDER_PATH)
     public String newPurchaseOrder(@ModelAttribute PurchaseOrder purchaseOrder, Model model) {
         model.addAttribute("purchaseOrder", purchaseOrder);
@@ -46,10 +47,11 @@ public class PurchaseOrderController {
         return "forms/purchaseOrderForm";
     }
 
+    // Handle POST request to add a new line to the purchase order
     @PostMapping(value = NEW_PURCHASE_ORDER_PATH, params = "addRow")
     public String addPurchaseOrderLine(@ModelAttribute PurchaseOrder purchaseOrder,
             HttpServletRequest request, Model model) {
-        //Adding new sales order line to sales order
+        // Adding a new purchase order line to the current purchase order
         purchaseOrder.getPurchaseOrderLines().add(new PurchaseOrderLine());
 
         model.addAttribute("purchaseOrder", purchaseOrder);
@@ -58,11 +60,13 @@ public class PurchaseOrderController {
         return "forms/purchaseOrderForm";
     }
 
+    // Handle POST request to remove a line from the purchase order
     @PostMapping(value = NEW_PURCHASE_ORDER_PATH, params = "removeRow")
     public String removePurchaseOrderLine(@ModelAttribute PurchaseOrder purchaseOrder,
             HttpServletRequest request, Model model) {
         // newSalesOrderDto.addOrderLine();
         final int rowId = Integer.valueOf(request.getParameter("removeRow"));
+        // Remove the purchase order line based on the row ID
         purchaseOrder.getPurchaseOrderLines().remove(rowId);
 
         model.addAttribute("purchaseOrder", purchaseOrder);
@@ -71,14 +75,16 @@ public class PurchaseOrderController {
         return "forms/purchaseOrderForm";
     }
 
+    // Handle POST request to save the purchase order
     @PostMapping(value = NEW_PURCHASE_ORDER_PATH, params = "save")
     public String savePurchaseOrder(@ModelAttribute PurchaseOrder purchaseOrder,
             HttpServletRequest request, Model model) {
+        // Save the purchase order
         purchaseOrderService.save(purchaseOrder);
         return "redirect:/purchase-order";
     }
 
-
+    // Handle GET request to fetch all purchase orders
     @GetMapping(value = PURCHASE_ORDER_PATH)
     public String getAllPurchaseOrders(Model model) {
         //TODO: -> Add pagination (25 records per page)
@@ -88,6 +94,7 @@ public class PurchaseOrderController {
         return "purchaseOrders/purchaseOrders";
     }
 
+    // Handle GET request to fetch details of a specific purchase order
     @GetMapping(value = PURCHASE_ORDER_ID_PATH)
     public String getPurchaseOrderDetails(@PathVariable(value = "orderId") Long orderId, Model model) {
         Optional<PurchaseOrder> order = purchaseOrderService.findById(orderId);
@@ -102,11 +109,13 @@ public class PurchaseOrderController {
         }   
     }
 
+    // Handle POST request to delete a purchase order
     @PostMapping(value = PURCHASE_ORDER_ID_PATH, params = "delete")
     public String deletePurchaseOrder(@PathVariable(value = "orderId") Long orderId, Model model) {
         Optional<PurchaseOrder> order = purchaseOrderService.findById(orderId);
         if (order.isPresent()) {
             if (order.get().getStatus() != PoStatus.RECEIVED) {
+                // Delete the purchase order if its status is not received
                 purchaseOrderService.delete(order.get());
                 return "redirect:/purchase-order";
             }

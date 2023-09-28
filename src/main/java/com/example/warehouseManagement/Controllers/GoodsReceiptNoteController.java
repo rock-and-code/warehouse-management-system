@@ -28,6 +28,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 @RequestMapping(value = "/")
 public class GoodsReceiptNoteController {
+    // Constants for path definitions
     public static final String GOODS_RECEIPT_NOTE_PATH = "goods-receipt-note";
     public static final String NEW_GOODS_RECEIPT_NOTE_PATH = GOODS_RECEIPT_NOTE_PATH + "/new-good-receipt-note";
     public static final String GOODS_RECEIPT_NOTE_ID_PATH = GOODS_RECEIPT_NOTE_PATH + "/{goodsReceiptNoteId}";
@@ -38,6 +39,7 @@ public class GoodsReceiptNoteController {
     private final ItemService itemService;
     private final WarehouseSectionService warehouseSectionService;
 
+     // Constructor for dependency injection
     public GoodsReceiptNoteController(GoodsReceiptNoteService goodsReceiptNoteService,
             PurchaseOrderService purchaseOrderService, ItemService itemService,
             WarehouseSectionService warehouseSectionService) {
@@ -47,6 +49,7 @@ public class GoodsReceiptNoteController {
         this.warehouseSectionService = warehouseSectionService;
     }
 
+     // Handling GET request for creating a new goods receipt note
     @GetMapping(value = NEW_GOODS_RECEIPT_NOTE_PATH)
     public String newGoodsReceiptNote(@ModelAttribute GoodsReceiptNote goodsReceiptNote, Model model) {
         model.addAttribute("goodsReceiptNote", new GoodsReceiptNote());
@@ -56,6 +59,7 @@ public class GoodsReceiptNoteController {
         return "forms/goodsReceiptNoteForm";
     }
 
+    // Handling POST request for adding a new goods receipt note line
     @PostMapping(value = NEW_GOODS_RECEIPT_NOTE_PATH, params = "addRow")
     public String addGoodReceiptNoteLine(@ModelAttribute GoodsReceiptNote goodsReceiptNote,
             HttpServletRequest request, Model model) {
@@ -67,11 +71,13 @@ public class GoodsReceiptNoteController {
         return "forms/goodsReceiptNoteForm";
     }
 
+    // Handling POST request for removing a goods receipt note line
     @PostMapping(value = NEW_GOODS_RECEIPT_NOTE_PATH, params = "removeRow")
     public String removeGoodsReceiptNoteLine(@ModelAttribute GoodsReceiptNote goodsReceiptNote,
             HttpServletRequest request, Model model) {
         // newSalesOrderDto.addOrderLine();
         final int rowId = Integer.valueOf(request.getParameter("removeRow"));
+        // Removing the selected goods receipt note line
         goodsReceiptNote.getGoodsReceiptNoteLines().remove(rowId);
         model.addAttribute("title", "New Goods Receipt Note");
         model.addAttribute("purchaseOrders", purchaseOrderService.findAll());
@@ -79,12 +85,14 @@ public class GoodsReceiptNoteController {
         return "forms/goodsReceiptNoteForm";
     }
 
+    // Handling POST request for saving a new goods receipt note
     @PostMapping(value = NEW_GOODS_RECEIPT_NOTE_PATH, params = "save")
     public String saveNewGoodsReceiptNote(@ModelAttribute GoodsReceiptNote goodsReceiptNote) {
         goodsReceiptNoteService.save(goodsReceiptNote);
         return "redirect:/goods-receipt-note?added";
     }
 
+    // Handling GET request for retrieving all pending goods receipt notes
     @GetMapping(value = GOODS_RECEIPT_NOTE_PATH)
     public String getAllPendingGoodsReceiptNotes(Model model) {
         model.addAttribute("title", "Goods Receipt Notes");
@@ -92,6 +100,7 @@ public class GoodsReceiptNoteController {
         return "goodsReceiptNotes/goodsReceiptNotes";
     }
 
+    // Handling GET request for retrieving details of a specific goods receipt note
     @GetMapping(value = GOODS_RECEIPT_NOTE_ID_PATH)
     public String getGoodsReceiptNoteDetails(@PathVariable(value = "goodsReceiptNoteId", required = false) Long id,
             Model model) {
@@ -106,6 +115,7 @@ public class GoodsReceiptNoteController {
         }
     }
 
+    // Handling GET request for starting to receive a shipment
     @GetMapping(value = FULFILL_GOODS_RECEIPT_NOTE)
     public String startReceiveShipment(@PathVariable(value = "goodsReceiptNoteId", required = true) Long id,
             Model model) {
@@ -135,14 +145,17 @@ public class GoodsReceiptNoteController {
         }
     }
 
+    // Handling POST request for fulfilling a goods receipt note
     @PostMapping(value = FULFILL_GOODS_RECEIPT_NOTE)
     public String fulfillGoodsReceiptNote(@PathVariable(value = "goodsReceiptNoteId", required = true) Long id,
             @ModelAttribute GoodsReceiptNoteDto goodsReceiptNoteDto, Model model) {
         Optional<GoodsReceiptNote> goodsReceiptNote = goodsReceiptNoteService.findById(id);
         if (goodsReceiptNote.isPresent()) {
+             // Fulfill the goods receipt note with the provided DTO
             goodsReceiptNoteService.fulfill(goodsReceiptNote.get(), goodsReceiptNoteDto);
             return "redirect:/goods-receipt-note/added";
         } else {
+            // Redirect to a not found page if the goods receipt note is not found
             return "redirect:/goods-receipt-note?notFound";
         }
 

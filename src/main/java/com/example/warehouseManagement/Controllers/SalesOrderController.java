@@ -20,6 +20,9 @@ import com.example.warehouseManagement.Util.Counter;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+/**
+ * Controller class for handling sales order operations.
+ */
 @Controller
 @RequestMapping(value = "/")
 public class SalesOrderController {
@@ -38,6 +41,15 @@ public class SalesOrderController {
         this.itemService = itemService;
     }
 
+    /**
+     * GET /sales-order/new-sales-order
+     *
+     * Displays a form for creating a new sales order.
+     *
+     * @param salesOrder a SalesOrder object to be populated with form data
+     * @param model      a Model object to be populated with data for the view
+     * @return the name of the view to render
+     */
     @GetMapping(value = NEW_SALES_ORDER_PATH)
     public String getSalesOrderDetails(@ModelAttribute SalesOrder salesOrder, Model model) {
         model.addAttribute("salesOrder", salesOrder);
@@ -46,10 +58,20 @@ public class SalesOrderController {
         return "forms/salesOrderForm";
     }
 
+    /**
+     * POST /sales-order/new-sales-order?addRow
+     *
+     * Adds a new sales order line to the sales order.
+     *
+     * @param salesOrder a SalesOrder object to be populated with form data
+     * @param request    an HttpServletRequest object
+     * @param model      a Model object to be populated with data for the view
+     * @return the name of the view to render
+     */
     @PostMapping(value = NEW_SALES_ORDER_PATH, params = "addRow")
     public String addSaleOrderLine(@ModelAttribute SalesOrder salesOrder,
             HttpServletRequest request, Model model) {
-        //Adding new sales order line to sales order
+        // Adding new sales order line to sales order
         salesOrder.getSaleOrderLines().add(new SalesOrderLine());
 
         model.addAttribute("salesOrder", salesOrder);
@@ -58,6 +80,16 @@ public class SalesOrderController {
         return "forms/salesOrderForm";
     }
 
+    /**
+     * POST /sales-order/new-sales-order?removeRow
+     *
+     * Removes a sales order line from the sales order.
+     *
+     * @param salesOrder a SalesOrder object to be populated with form data
+     * @param request    an HttpServletRequest object
+     * @param model      a Model object to be populated with data for the view
+     * @return the name of the view to render
+     */
     @PostMapping(value = NEW_SALES_ORDER_PATH, params = "removeRow")
     public String removeSaleOrderLine(@ModelAttribute SalesOrder salesOrder,
             HttpServletRequest request, Model model) {
@@ -71,52 +103,94 @@ public class SalesOrderController {
         return "forms/salesOrderForm";
     }
 
+    /**
+     * POST /sales-order/new-sales-order?save
+     *
+     * Saves the sales order.
+     *
+     * @param salesOrder a SalesOrder object to be populated with form data
+     * @param request    an HttpServletRequest object
+     * @param model      a Model object to be populated with data for the view
+     * @return the name of the view to render, or a redirect to the sales orders
+     *         list page if the sales order is saved successfully
+     */
     @PostMapping(value = NEW_SALES_ORDER_PATH, params = "save")
     public String saveSaleOrder(@ModelAttribute SalesOrder salesOrder,
             HttpServletRequest request, Model model) {
         salesOrderService.save(salesOrder);
+        // Redirect to the sales orders list page if the sales order is saved
+        // successfully.
         return "redirect:/sales-order?added";
     }
 
-
+    /**
+     * GET /sales-order
+     *
+     * Gets all sales orders.
+     *
+     * @param model a Model object to be populated with data for the view
+     * @return the name of the view to render
+     */
     @GetMapping(value = SALES_ORDER_PATH)
     public String getAllSalesOrders(Model model) {
-        //TODO: -> Add pagination (25 records per page)
+        // TODO: -> Add pagination (25 records per page)
+        // Add the title, customers, and sales orders to the model.
         model.addAttribute("title", "Sales Orders");
         model.addAttribute("customers", customerService.findAll());
         model.addAttribute("salesOrders", salesOrderService.findAllSalesOrder());
+        // Return the name of the view to render.
         return "salesOrders/salesOrders";
     }
 
+    /**
+     * GET /sales-order/{orderId}
+     *
+     * Gets the sales order details for the given sales order ID.
+     *
+     * @param orderId the sales order ID
+     * @param model   a Model object to be populated with data for the view
+     * @return the name of the view to render, or a redirect to the sales orders
+     *         list page if the sales order is not found
+     */
     @GetMapping(value = SALES_ORDER_ID_PATH)
     public String getSalesOrderDetails(@PathVariable(value = "orderId") Long orderId, Model model) {
         Optional<SalesOrder> order = salesOrderService.findById(orderId);
+        // If the sales order is found, add it to the model and return the name of the
+        // view to render.
         if (order.isPresent()) {
             model.addAttribute("title", "Sales Orders");
             model.addAttribute("salesOrder", order.get());
             model.addAttribute("counter", new Counter());
-        return "salesOrders/salesOrderDetails";
-        }
-        else {
+            return "salesOrders/salesOrderDetails";
+        } else {
+            // The sales order is not found, redirect to the sales orders list page.
             return "redirect:/sales-order?notFound";
-        }   
+        }
     }
 
+    /**
+     * POST /sales-order/{orderId}?delete
+     *
+     * Deletes the sales order with the given sales order ID.
+     *
+     * @param orderId the sales order ID
+     * @param model   a Model object to be populated with data for the view
+     * @return the name of the view to render, or a redirect to the sales orders
+     *         list page if the sales order is not found or cannot be deleted
+     */
     @PostMapping(value = SALES_ORDER_ID_PATH, params = "delete")
     public String deleteSalesOrder(@PathVariable(value = "orderId") Long orderId, Model model) {
         Optional<SalesOrder> order = salesOrderService.findById(orderId);
-        if (order.isPresent()) {
-            if (order.get().getStatus() != SoStatus.SHIPPED) {
-                salesOrderService.delete(order.get());
-                return "redirect:/sales-order?salesOrderDeleted";
-            }
-            else {
-                return "redirect:/sales-order/?failedToDelete";
-            }
-        }
-        else {
+        // If the sales order is found and is not shipped, delete it and redirect to the
+        // sales orders list page.
+        if (order.isPresent() && order.get().getStatus() != SoStatus.SHIPPED) {
+            salesOrderService.delete(order.get());
+            return "redirect:/sales-order?salesOrderDeleted";
+        } else if (order.get().getStatus() == SoStatus.SHIPPED) {
+            return "redirect:/sales-order?failedToDelete";
+        } else {
             return "redirect:/sales-order/?notFound";
-        }   
+        }
     }
 
 }
