@@ -44,6 +44,6 @@ public interface GoodsReceiptNoteService {
 
     public List<GoodsReceiptNote> findAllPending();
 
-    public void fulfill(GoodsReceiptNote goodsReceiptNote, GoodsReceiptNoteDto goodsReceiptNoteDto);
+    public int fulfill(GoodsReceiptNote goodsReceiptNote, GoodsReceiptNoteDto goodsReceiptNoteDto);
 }
 

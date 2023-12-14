@@ -35,6 +35,10 @@
     </table>
     <h3 class="text-center" th:text="|Total ${#numbers.formatCurrency(salesOrder.getTotal())}|"></h3>
 </div>
+<div class="container my-3">
+    <a th:href="@{/sales-orders}"
+        class="btn btn-outline-secondary col-12">Back</a>
+</div>
 
 <!-- Header fragment -->
 <div th:insert="~{fragments/footer :: footer}"></div>

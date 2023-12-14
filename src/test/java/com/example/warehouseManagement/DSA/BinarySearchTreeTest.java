@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class BinarySearchTreeTest {
+class BinarySearchTreeTest {
     @Test
-    void testAdd() {
+    void add() {
        System.out.println("### Test Add Method");
         BinarySearchTree<String> bst = new BinarySearchTree<>();
         bst.add("A");
@@ -36,7 +36,7 @@ public class BinarySearchTreeTest {
         assertEquals(expResult, result);
     }
     @Test
-    void testRemove() {
+    void remove() {
         System.out.println("### Test Remove Method");
         BinarySearchTree<String> bst = new BinarySearchTree<>();
         bst.add("A");
@@ -65,7 +65,7 @@ public class BinarySearchTreeTest {
         assertEquals(expResult, result);
     }
     @Test
-    void testContains() {
+    void contains() {
         System.out.println("### Test Contains Method");
         BinarySearchTree<String> bst = new BinarySearchTree<>();
         bst.add("A");

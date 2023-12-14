@@ -2,6 +2,7 @@ package com.example.warehouseManagement.Services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,11 @@ public class WarehouseSectionServiceImpl implements WarehouseSectionService {
     @Override
     public Iterable<WarehouseSection> findAll() {
         return warehouseSectionRepository.findAll();
+    }
+
+    @Override
+    public Optional<WarehouseSection> findWarehouseSectionBySectionNumber(String sectionNumber) {
+        return warehouseSectionRepository.findBySectionNumber(sectionNumber);
     }
     
 }

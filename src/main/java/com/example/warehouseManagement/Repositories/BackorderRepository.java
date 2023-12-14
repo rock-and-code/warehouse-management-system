@@ -15,18 +15,21 @@ public interface BackorderRepository extends CrudRepository<Backorder, Long> {
     
     public List<Backorder> findBySalesOrder(SalesOrder salesOrder);
 
-    @Query(value = "SELECT \n" +
-        "so.date AS \"date\", \n" + 
-        "customer.name AS \"customer\", \n" +
-        "so.id AS \"salesOrder\", \n" +
-        "ROUND(SUM(backorder.qty * item_price.price),2) AS \"total\", \n " +
-        "FROM sales_order so \n" +
-        "INNER JOIN backorder ON backorder.sales_order_id = so.id \n" +
-        "INNER JOIN item_price ON backorder.item_id = item_price.id \n" +
-        "INNER JOIN customer ON so.customer_id = customer.id \n" +
-        "WHERE so.date LIKE CONCAT('',:year,'%') \n" +
-        "GROUP BY so.id \n" +
-        "ORDER BY \"date\"", nativeQuery = true)
+    @Query(value = """
+        SELECT\s
+        so.date AS "date",\s
+        customer.name AS "customer",\s
+        so.id AS "salesOrder",\s
+        ROUND(SUM(backorder.qty * item_price.price),2) AS "total",\s
+         \
+        FROM sales_order so\s
+        INNER JOIN backorder ON backorder.sales_order_id = so.id\s
+        INNER JOIN item_price ON backorder.item_id = item_price.id\s
+        INNER JOIN customer ON so.customer_id = customer.id\s
+        WHERE so.date LIKE CONCAT('',:year,'%')\s
+        GROUP BY so.id\s
+        ORDER BY "date"\
+        """, nativeQuery = true)
     public List<BackorderDto> findBackordersByYear(@Param("year") int year);
 
     /**

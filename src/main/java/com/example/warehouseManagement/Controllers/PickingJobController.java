@@ -26,7 +26,7 @@ import com.example.warehouseManagement.Util.Counter;
 @Controller
 @RequestMapping(value = "/")
 public class PickingJobController {
-    public static final String PICKING_JOB_PATH = "picking-job";
+    public static final String PICKING_JOB_PATH = "picking-jobs";
     public static final String PICKING_JOB_ID_PATH = PICKING_JOB_PATH + "/{pickingJobId}";
     public static final String FULFILL_PICKING_JOB = PICKING_JOB_PATH + "/fulfill-job" + "/{pickingJobId}";
     private final PickingJobService pickingJobService;
@@ -83,7 +83,7 @@ public class PickingJobController {
             model.addAttribute("counter", new Counter());
             return "pickingJobs/pickingJobDetails";
         } else {
-            return "redirect:/picking-job?notFound";
+            return "redirect:/picking-jobs?notFound";
         }
     }
 
@@ -117,9 +117,9 @@ public class PickingJobController {
             model.addAttribute("pickingJob", pickingJob.get());
             model.addAttribute("counter", new Counter());
             // Returns the name of the view template for the fulfill picking job form.
-            return "forms/fulfillPickingJobForm";
+            return "pickingJobs/fulfillPickingJobForm";
         } else {
-            return "redirect:/picking-job?notFound";
+            return "redirect:/picking-jobs?notFound";
         }
     }
 
@@ -147,10 +147,10 @@ public class PickingJobController {
             // Create an invoice based on the picking job
             invoiceService.createByPickingJob(pickingJob.get());
             // Redirect to the picking job list page with an error message.
-            return "redirect:/picking-job";
+            return "redirect:/picking-jobs";
         } else {
             // Redirect to the picking job list page with an error message.
-            return "redirect:/picking-job?notFound";
+            return "redirect:/picking-jobs?notFound";
         }
     }
 }

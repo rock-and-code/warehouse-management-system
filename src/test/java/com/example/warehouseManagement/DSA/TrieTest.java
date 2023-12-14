@@ -7,9 +7,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-public class TrieTest {
+class TrieTest {
     @Test
-    void testGetWordList() {
+    void getWordList() {
         System.out.println("### Test Get Word List Method");
         List<String> list = List.of("Apple", "application", "app", "appreciate", "appropriate", "approach", "ball",
                 "blink", "ballistic", "battalion", "pluto", "platonic", "plasma");

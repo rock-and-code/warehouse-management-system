@@ -34,7 +34,9 @@ public class GoodsReceiptNoteController {
     /**
      * Constants for path definitions.
      */
-    public static final String GOODS_RECEIPT_NOTE_PATH = "goods-receipt-note";
+    private final int NOT_FULFILLED = 0;
+    private final int PARTIALLY_FULFILLED = 1;
+    public static final String GOODS_RECEIPT_NOTE_PATH = "goods-receipt-notes";
     public static final String NEW_GOODS_RECEIPT_NOTE_PATH = GOODS_RECEIPT_NOTE_PATH + "/new-good-receipt-note";
     public static final String GOODS_RECEIPT_NOTE_ID_PATH = GOODS_RECEIPT_NOTE_PATH + "/{goodsReceiptNoteId}";
     public static final String FULFILL_GOODS_RECEIPT_NOTE = GOODS_RECEIPT_NOTE_PATH + "/fulfill"
@@ -77,7 +79,7 @@ public class GoodsReceiptNoteController {
         model.addAttribute("title", "New Goods Receipt Note");
         model.addAttribute("purchaseOrders", purchaseOrderService.findAll());
         model.addAttribute("items", itemService.findAll());
-        return "forms/goodsReceiptNoteForm";
+        return "goodsReceiptNotes/goodsReceiptNoteForm";
     }
 
     /**
@@ -98,7 +100,7 @@ public class GoodsReceiptNoteController {
         model.addAttribute("title", "New Goods Receipt Note");
         model.addAttribute("purchaseOrders", purchaseOrderService.findAll());
         model.addAttribute("items", itemService.findAll());
-        return "forms/goodsReceiptNoteForm";
+        return "goodsReceiptNotes/goodsReceiptNoteForm";
     }
 
     /**
@@ -123,7 +125,7 @@ public class GoodsReceiptNoteController {
         model.addAttribute("purchaseOrders", purchaseOrderService.findAll());
         model.addAttribute("items", itemService.findAll());
         // Returns the view template name for the goods receipt note form.
-        return "forms/goodsReceiptNoteForm";
+        return "goodsReceiptNotes/goodsReceiptNoteForm";
     }
 
     /**
@@ -137,7 +139,7 @@ public class GoodsReceiptNoteController {
         // Saves the new goods receipt note to the database.
         goodsReceiptNoteService.save(goodsReceiptNote);
         // Redirects to the goods receipt note list page with a success message.
-        return "redirect:/goods-receipt-note?added";
+        return "redirect:/goods-receipt-notes?added";
     }
 
     /**
@@ -179,7 +181,7 @@ public class GoodsReceiptNoteController {
             model.addAttribute("counter", new Counter());
             return "goodsReceiptNotes/goodsReceiptNoteDetails";
         } else {
-            return "redirect:/goods-receipt-note?notFound";
+            return "redirect:/goods-receipt-notes?notFound";
         }
     }
 
@@ -226,9 +228,9 @@ public class GoodsReceiptNoteController {
             model.addAttribute("counter", new Counter());
             // Returns the name of the view template for the fulfill goods receipt note
             // form.
-            return "forms/fulfillGoodsReceiptNoteForm";
+            return "goodsReceiptNotes/fulfillGoodsReceiptNoteForm";
         } else {
-            return "redirect:/goods-receipt-note?notFound";
+            return "redirect:/goods-receipt-notes?notFound";
         }
     }
 
@@ -251,10 +253,15 @@ public class GoodsReceiptNoteController {
             // If the goods receipt note is found, fulfills it with the provided DTO.
             // Otherwise, redirects to the goods receipt note list page with an error
             // message.
-            goodsReceiptNoteService.fulfill(goodsReceiptNote.get(), goodsReceiptNoteDto);
-            return "redirect:/goods-receipt-note/added";
+            int fulfillment = goodsReceiptNoteService.fulfill(goodsReceiptNote.get(), goodsReceiptNoteDto);
+            if (fulfillment == NOT_FULFILLED)
+                return "redirect:/goods-receipt-notes?notFulfilled";
+            else if (fulfillment == PARTIALLY_FULFILLED)
+                return "redirect:/goods-receipt-notes?partiallyFulfilled";
+            else
+                return "redirect:/goods-receipt-notes?fulfilled";
         } else {
-            return "redirect:/goods-receipt-note?notFound";
+            return "redirect:/goods-receipt-notes?notFound";
         }
 
     }

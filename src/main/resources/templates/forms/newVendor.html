@@ -1,0 +1,96 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <div class="container">
+        <div class="container mx-auto col-md-6" id="new-customer-form">
+            <div id="header">
+                <h1 class="mt-3">New Vendor</h1>
+            </div>
+
+            <div id="newCustomerForm">
+                <!-- SALE ORDER FORM -->
+                <form action="#" th:action="@{/vendors/new-vendor}" th:object="${vendor}"
+                    method="post" class="row g-3 needs-validation" novalidate>
+                    <!-- FROM/TO INPUTS FIELDS-->
+                    <div class="col-md-12">
+                        <label for="name" class="form-label">Vendor Name</label>
+                        <input class="form-control" type="text" id="name">
+                        <div class="invalid-feedback">
+                            Please enter the vendor name
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <label for="street" class="form-label">Street</label>
+                        <input class="form-control" type="text" id="street">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="city" class="form-label">City</label>
+                        <input class="form-control" type="text" id="city">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="state" class="form-label">State</label>
+                        <!-- Drop down list of US States -->
+                        <select class="form-select" th:field="*{states}" aria-label="Default select example"
+                            th:errorclass="fieldError" id="state" required name="state">
+                            <option value="" selected disable hidden>Choose...</option>
+                            <option th:each="state: ${states.states}" th:text="|${state.name}|"
+                                th:value="${state.name}">Two
+                            </option>
+                        </select>
+                    </div>
+                    <!-- End of state field-->
+                    <div class="col-md-4">
+                        <label for="zipcode" class="form-label">Zipcode</label>
+                        <input class="form-control" type="text" id="zipcode">
+                    </div>
+                    <div class="col-md-5">
+                        <label for="contactInfo" class="form-label">Contact Info</label>
+                        <input class="form-control" type="text" id="contactInfo">
+                    </div>
+                    <div class="col-12">
+                        <div class="d-grid mx-auto">
+                            <button type="submit" class="btn btn-dark col-12">Add vendor</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    //JAVASCRIPT SNIPPET TO PROVIDES DATA VALIDATION ON FRONT END WHEN FORM IS SUBMITTED
+    //IT WILL SUPPLY A MESSAGE BELOW THE BLANK INPUT FIELD
+    (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        // it checks every input field that its class attribute contains "needs-validation"
+
+        //TODO: MOVE JS TO SEPARTE FILE
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+
+
+<!-- Footer fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>
+
+

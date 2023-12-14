@@ -37,7 +37,7 @@ public class Vendor {
     @Column(name = "state")
     private String state;
     @Column(name = "zipcode")
-    private int zipcode;
+    private String zipcode;
     @Column(name = "contact_info")
     private String contactInfo;
     @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -48,5 +48,9 @@ public class Vendor {
     @Column(name = "purchase_orders")
     @Builder.Default
     private List<PurchaseOrder> purchaseOrders = new ArrayList<>();
+    @Column(name = "formatted_address")
+    public String formattedAddress() {
+        return "%s %s, %s, %s".formatted(street, city, state, zipcode);
+    }
 
 }

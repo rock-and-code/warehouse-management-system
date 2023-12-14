@@ -24,7 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping(value = "/")
 public class PurchaseOrderController {
 
-    private static final String PURCHASE_ORDER_PATH = "purchase-order";
+    private static final String PURCHASE_ORDER_PATH = "purchase-orders";
     private static final String NEW_PURCHASE_ORDER_PATH = PURCHASE_ORDER_PATH + "/new-purchase-order";
     private static final String PURCHASE_ORDER_ID_PATH = PURCHASE_ORDER_PATH + "/{orderId}";
     private final PurchaseOrderService purchaseOrderService;
@@ -44,6 +44,8 @@ public class PurchaseOrderController {
         this.itemService = itemService;
     }
 
+    // TODO: Add controller to display pending purchase orders only
+
     /**
      * Handles a GET request to create a new purchase order.
      *
@@ -56,7 +58,7 @@ public class PurchaseOrderController {
         model.addAttribute("purchaseOrder", purchaseOrder);
         model.addAttribute("vendors", vendorService.findAll());
         model.addAttribute("items", itemService.findAll());
-        return "forms/purchaseOrderForm";
+        return "purchaseOrders/purchaseOrderForm";
     }
 
     /**
@@ -76,7 +78,7 @@ public class PurchaseOrderController {
         model.addAttribute("purchaseOrder", purchaseOrder);
         model.addAttribute("vendors", vendorService.findAll());
         model.addAttribute("items", itemService.findAll());
-        return "forms/purchaseOrderForm";
+        return "purchaseOrders/purchaseOrderForm";
     }
 
     /**
@@ -98,7 +100,7 @@ public class PurchaseOrderController {
         model.addAttribute("purchaseOrder", purchaseOrder);
         model.addAttribute("vendors", vendorService.findAll());
         model.addAttribute("items", itemService.findAll());
-        return "forms/purchaseOrderForm";
+        return "purchaseOrders/purchaseOrderForm";
     }
 
     /**
@@ -115,7 +117,7 @@ public class PurchaseOrderController {
         // Save the purchase order to the database
         purchaseOrderService.save(purchaseOrder);
         // Redirects to the purchase order list page.
-        return "redirect:/purchase-order";
+        return "redirect:/purchase-orders";
     }
 
     /**
@@ -144,7 +146,7 @@ public class PurchaseOrderController {
      * @return the name of the view template to render
      */
     @GetMapping(value = PURCHASE_ORDER_ID_PATH)
-    public String getPurchaseOrderDetails(@PathVariable(value = "orderId") Long orderId, Model model) {
+    public String getPurchaseOrderDetails(@PathVariable Long orderId, Model model) {
         // Finds the purchase order with the specified ID.
         Optional<PurchaseOrder> order = purchaseOrderService.findById(orderId);
         // If the purchase order is found, sets the title, purchase order, and counter
@@ -158,7 +160,7 @@ public class PurchaseOrderController {
         } else {
             // If the purchase order is not found, redirects to the purchase order list page
             // with a not found error message.
-            return "redirect:/purchase-order?notFound";
+            return "redirect:/purchase-orders?notFound";
         }
     }
 
@@ -170,7 +172,7 @@ public class PurchaseOrderController {
      * @return the name of the view template to render
      */
     @PostMapping(value = PURCHASE_ORDER_ID_PATH, params = "delete")
-    public String deletePurchaseOrder(@PathVariable(value = "orderId") Long orderId, Model model) {
+    public String deletePurchaseOrder(@PathVariable Long orderId, Model model) {
         // Finds the purchase order with the specified ID.
         Optional<PurchaseOrder> order = purchaseOrderService.findById(orderId);
         // If the purchase order is found, deletes it if its status is not received.
@@ -179,15 +181,15 @@ public class PurchaseOrderController {
                 // Deletes the purchase order from the database.
                 purchaseOrderService.delete(order.get());
                 // Redirects to the purchase order list page.
-                return "redirect:/purchase-order";
+                return "redirect:/purchase-orders";
             } else {
                 // Redirects to the purchase order list page with a failed to delete error
                 // message.
-                return "redirect:/purchase-order?failedToDelete";
+                return "redirect:/purchase-orders?failedToDelete";
             }
         } else {
             // Redirects to the purchase order list page with a not found error message.
-            return "redirect:/purchase-order?notFound";
+            return "redirect:/purchase-orders?notFound";
         }
     }
 

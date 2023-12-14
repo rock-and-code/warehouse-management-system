@@ -27,7 +27,7 @@
         </div>
     </div>
     <!-- Page headers -->
-    <h1 class="my-3 text-center" th:text="|Purchase Orders|">Customer List</h1>
+    <h1 class="my-3" th:text="|Purchase Orders|">Customer List</h1>
     <!-- Customer list as table -->
     <table class="table">
         <thead>
@@ -44,17 +44,17 @@
                 <th scope="row" th:text="|${#temporals.monthNameShort(purchaseOrder.date)} ${#temporals.format(purchaseOrder.date, ' dd, yyyy')}|">1</th>
                 <td th:text="${purchaseOrder.id}">Mark</td>
                 <td th:text="${#numbers.formatCurrency(purchaseOrder.total)}">Otto</td>
-                <td><a th:href="@{/purchase-order/{orderId}(orderId=${purchaseOrder.id})}" class="btn btn-outline-secondary">Details</a></td>
+                <td><a th:href="@{/purchase-orders/{orderId}(orderId=${purchaseOrder.id})}" class="btn btn-outline-secondary">Details</a></td>
                 <td>
-                    <form th:action="@{/purchase-order/{orderId}(orderId=${purchaseOrder.id})}" method="post">
+                    <form th:action="@{/purchase-orders/{orderId}(orderId=${purchaseOrder.id})}" method="post">
                         <button type="submit" class="btn btn-dark" name="delete">Delete</button>
                     </form>
                 </td>
-                <!-- TODO: Adds button to delete sales order (first: implement sales order CRUD controll) -->
             </tr>
         </tbody>
     </table>
 </div>
+
 
 <!-- Header fragment -->
 <div th:insert="~{fragments/footer :: footer}"></div>

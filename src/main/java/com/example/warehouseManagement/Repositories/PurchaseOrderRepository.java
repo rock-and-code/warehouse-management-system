@@ -25,17 +25,19 @@ public interface PurchaseOrderRepository extends CrudRepository<PurchaseOrder, L
      * @param vendor
      * @return
      */
-    @Query(value = "SELECT \n" +
-        "purchase_order.id AS \"id\", \n" +
-        "purchase_order.date AS \"date\", purchase_order.purchase_order_number AS \"purchaseOrder\", \n" + 
-        "ROUND(SUM(purchase_order_line.qty * item_cost.cost),2) AS \"total\" \n" + 
-        "FROM vendor AS V \n" +
-        "INNER JOIN purchase_order ON purchase_order.vendor_id = V.id \n" + 
-        "INNER JOIN purchase_order_line ON purchase_order_line.purchase_order_id = purchase_order.id \n" + 
-        "INNER JOIN item_cost ON item_cost.id = purchase_order_line.item_cost_id \n" +
-        "WHERE V.id = :vendorId " +
-        "GROUP BY purchase_order.purchase_order_number \n" + 
-        "ORDER BY purchase_order.date DESC", nativeQuery = true)
+    @Query(value = """
+        SELECT\s
+        purchase_order.id AS "id",\s
+        purchase_order.date AS "date", purchase_order.purchase_order_number AS "purchaseOrder",\s
+        ROUND(SUM(purchase_order_line.qty * item_cost.cost),2) AS "total"\s
+        FROM vendor AS V\s
+        INNER JOIN purchase_order ON purchase_order.vendor_id = V.id\s
+        INNER JOIN purchase_order_line ON purchase_order_line.purchase_order_id = purchase_order.id\s
+        INNER JOIN item_cost ON item_cost.id = purchase_order_line.item_cost_id\s
+        WHERE V.id = :vendorId \
+        GROUP BY purchase_order.purchase_order_number\s
+        ORDER BY purchase_order.date DESC\
+        """, nativeQuery = true)
     public List<PurchaseOrderDto> findAllByVendor(@Param("vendorId") Long vendorId);
     /**
      * @Query(value = "SELECT * FROM PURCHASEORDER WHERE PURCHASEORDER.vendor = :vendor", nativeQuery = true)
@@ -47,16 +49,18 @@ public interface PurchaseOrderRepository extends CrudRepository<PurchaseOrder, L
      * @param customer
      * @return
      */
-    @Query(value = "SELECT \n" +
-    "po.id AS \"id\", \n" + 
-    "po.date AS \"date\", \n" +
-    "po.id AS \"purchaseOrder\", \n" +
-    "ROUND(SUM(purchase_order_line.qty * item_cost.cost),2) AS total \n" +
-    "FROM purchase_order po \n" +
-    "INNER JOIN purchase_order_line ON po.id = purchase_order_line.purchase_order_id \n" +
-    "INNER JOIN item_cost ON item_cost.id = purchase_order_line.item_cost_id \n" + 
-    "GROUP BY po.id \n" +
-    "ORDER BY po.date", nativeQuery = true)
+    @Query(value = """
+    SELECT\s
+    po.id AS "id",\s
+    po.date AS "date",\s
+    po.id AS "purchaseOrder",\s
+    ROUND(SUM(purchase_order_line.qty * item_cost.cost),2) AS total\s
+    FROM purchase_order po\s
+    INNER JOIN purchase_order_line ON po.id = purchase_order_line.purchase_order_id\s
+    INNER JOIN item_cost ON item_cost.id = purchase_order_line.item_cost_id\s
+    GROUP BY po.id\s
+    ORDER BY po.date\
+    """, nativeQuery = true)
     public List<PurchaseOrderDto> findAllPurchaseOrder();
     
 }

@@ -65,18 +65,21 @@ public interface StockRepository extends CrudRepository<Stock, Long> {
      */
     @Modifying
     @Transactional
-    @Query(value= "SELECT TOP 5 \n" +
-        "item.sku AS \"sku\", \n " +
-        "item.description as \"description\", \n" +
-        "SUM(sales_order_line.qty) /  EXTRACT(WEEK FROM CURRENT_DATE()) as \"averageWeekSales\", \n" +
-        "NVL((SELECT SUM(s.qty_on_hand) FROM stock s WHERE s.item_id = item.id),0) as \"qtyOnHand\", \n" +
-        "NVL(ROUND((SELECT SUM(s.qty_on_hand) FROM stock s WHERE s.item_id = item.id) / CAST((SUM(sales_order_line.qty) / " +  
-        "EXTRACT(WEEK FROM CURRENT_DATE())) AS REAL),2),0)  as \"weeksOfInventory\" \n" +
-        "FROM sales_order so \n" +
-        "INNER JOIN sales_order_line ON sales_order_line.sales_order_id = so.id \n" +
-        "INNER JOIN item_price ON sales_order_line.item_id = item_price.item_id \n" +
-        "INNER JOIN item ON sales_order_line.item_id = item.id \n" +
-        "GROUP BY item.id ORDER BY \"averageWeekSales\" DESC", nativeQuery = true)
+    @Query(value= """
+        SELECT TOP 5\s
+        item.sku AS "sku",\s
+         \
+        item.description as "description",\s
+        SUM(sales_order_line.qty) /  EXTRACT(WEEK FROM CURRENT_DATE()) as "averageWeekSales",\s
+        NVL((SELECT SUM(s.qty_on_hand) FROM stock s WHERE s.item_id = item.id),0) as "qtyOnHand",\s
+        NVL(ROUND((SELECT SUM(s.qty_on_hand) FROM stock s WHERE s.item_id = item.id) / CAST((SUM(sales_order_line.qty) / \
+        EXTRACT(WEEK FROM CURRENT_DATE())) AS REAL),2),0)  as "weeksOfInventory"\s
+        FROM sales_order so\s
+        INNER JOIN sales_order_line ON sales_order_line.sales_order_id = so.id\s
+        INNER JOIN item_price ON sales_order_line.item_id = item_price.item_id\s
+        INNER JOIN item ON sales_order_line.item_id = item.id\s
+        GROUP BY item.id ORDER BY "averageWeekSales" DESC\
+        """, nativeQuery = true)
     public List<TopFiveMoversDto> getTopFiveMovers();
 
     // @Query(value = "SELECT \n" +
@@ -148,22 +151,28 @@ public interface StockRepository extends CrudRepository<Stock, Long> {
         "    GROUP BY item.id", nativeQuery = true)
     public List<StockLevelReportItemDto> findStockReportsItemsByVendorId(@Param("vendorId") Long vendorId);
 
-    @Query(value = "SELECT TOP 1 * FROM STOCK s \n" +
-      "WHERE s.item_id = :itemId AND s.warehouse_section_id = :warehouseSectionId\n" + 
-      "ORDER by s.qty_on_hand DESC", nativeQuery = true)
+    @Query(value = """
+      SELECT TOP 1 * FROM STOCK s\s
+      WHERE s.item_id = :itemId AND s.warehouse_section_id = :warehouseSectionId
+      ORDER by s.qty_on_hand DESC\
+      """, nativeQuery = true)
     public Stock findByWarehouseSectionAndItemId(@Param("warehouseSectionId") Long warehouseSectionId, @Param("itemId") Long itemId);
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE STOCK s \n" +
-      "SET s.qty_on_hand = :newQtyOnHand \n" +
-      "WHERE s.warehouse_section_id = :warehouseSectionId AND s.item_id = :itemId", nativeQuery = true)
+    @Query(value = """
+      UPDATE STOCK s\s
+      SET s.qty_on_hand = :newQtyOnHand\s
+      WHERE s.warehouse_section_id = :warehouseSectionId AND s.item_id = :itemId\
+      """, nativeQuery = true)
     public void updateStockByWarehouseSectionAndItemId(@Param("newQtyOnHand") int newQtyOnHand, @Param("warehouseSectionId") Long warehouseSectionId, @Param("itemId") Long itemId);
 
     @Transactional
     @Modifying
-    @Query(value = "DELETE STOCK s \n" +
-      "WHERE s.warehouse_section_id = :warehouseSectionId AND s.item_id = :itemId", nativeQuery = true)
+    @Query(value = """
+      DELETE STOCK s\s
+      WHERE s.warehouse_section_id = :warehouseSectionId AND s.item_id = :itemId\
+      """, nativeQuery = true)
     public void deleteStockByWarehouseSectionAndItemId(@Param("warehouseSectionId") Long warehouseSectionId, @Param("itemId") Long itemId);
 
     /**

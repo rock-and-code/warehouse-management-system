@@ -34,7 +34,7 @@
         </div>
     </div>
     <!-- Page headers -->
-    <h1 class="my-3 text-center" th:text="|Sales Orders|">Customer List</h1>
+    <h1 class="my-3" th:text="|Sales Orders|">Customer List</h1>
     <!-- Customer list as table -->
     <table class="table">
         <thead>
@@ -51,9 +51,9 @@
                 <th scope="row" th:text="|${#temporals.monthNameShort(saleOrder.date)} ${#temporals.format(saleOrder.date, ' dd, yyyy')}|">1</th>
                 <td th:text="${saleOrder.salesOrder}">Mark</td>
                 <td th:text="${#numbers.formatCurrency(saleOrder.total)}">Otto</td>
-                <td><a th:href="@{/sales-order/{orderId}(orderId=${saleOrder.id})}" class="btn btn-outline-secondary">Details</a></td>
+                <td><a th:href="@{/sales-orders/{orderId}(orderId=${saleOrder.id})}" class="btn btn-outline-secondary">Details</a></td>
                 <td>
-                    <form th:action="@{/sales-order/{orderId}(orderId=${saleOrder.id})}" method="post">
+                    <form th:action="@{/sales-orders/{orderId}(orderId=${saleOrder.id})}" method="post">
                         <button type="submit" class="btn btn-dark" name="delete">Delete</button>
                     </form>
                 </td>

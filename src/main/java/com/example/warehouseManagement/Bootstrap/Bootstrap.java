@@ -284,6 +284,9 @@ public class Bootstrap implements CommandLineRunner {
                 }
             }
         }
+        // Adds warehouse section to handle damages
+        WarehouseSection damages = WarehouseSection.builder().sectionNumber("11-11-1-1").warehouse(savedWarehouse)
+                .build();
         // FLOOR SECTIONS USUALLY USED BY RECEIVING DEPARTMENT TO PLACE THE MERCHADISE
         // BEFORE PUTTING IT AWAY IN A SPECIFIC WH SECTION
         WarehouseSection floor = WarehouseSection.builder().sectionNumber("00-00-0-0").warehouse(savedWarehouse)
@@ -294,11 +297,16 @@ public class Bootstrap implements CommandLineRunner {
         // WarehouseSection.builder().sectionNumber("11-11-1-1").warehouse(savedWarehouse).build();
 
         WarehouseSection savedFloorSection = warehouseSectionRepository.save(floor);
+        WarehouseSection savedDamagedSection = warehouseSectionRepository.save(damages);
         // WarehouseSection savedPickingSection =
         // warehouseSectionRepository.save(picking);
 
         savedWarehouse.getSections().add(savedFloorSection);
+        savedWarehouse.getSections().add(savedDamagedSection);
         // savedWarehouse.getSections().add(savedPickingSection);
+
+        
+
 
         // adds Goods receipt notes, goods receipt notes lines to add stock levels in
         // the warehouse

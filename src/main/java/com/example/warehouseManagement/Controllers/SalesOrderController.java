@@ -27,7 +27,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping(value = "/")
 public class SalesOrderController {
 
-    private static final String SALES_ORDER_PATH = "sales-order";
+    private static final String SALES_ORDER_PATH = "sales-orders";
     private static final String NEW_SALES_ORDER_PATH = SALES_ORDER_PATH + "/new-sales-order";
     private static final String SALES_ORDER_ID_PATH = SALES_ORDER_PATH + "/{orderId}";
     private final SalesOrderService salesOrderService;
@@ -51,11 +51,11 @@ public class SalesOrderController {
      * @return the name of the view to render
      */
     @GetMapping(value = NEW_SALES_ORDER_PATH)
-    public String getSalesOrderDetails(@ModelAttribute SalesOrder salesOrder, Model model) {
+    public String newSalesOrder(@ModelAttribute SalesOrder salesOrder, Model model) {
         model.addAttribute("salesOrder", salesOrder);
         model.addAttribute("customers", customerService.findAll());
         model.addAttribute("items", itemService.findAll());
-        return "forms/salesOrderForm";
+        return "salesOrders/salesOrderForm";
     }
 
     /**
@@ -77,7 +77,7 @@ public class SalesOrderController {
         model.addAttribute("salesOrder", salesOrder);
         model.addAttribute("customers", customerService.findAll());
         model.addAttribute("items", itemService.findAll());
-        return "forms/salesOrderForm";
+        return "salesOrders/salesOrderForm";
     }
 
     /**
@@ -100,7 +100,7 @@ public class SalesOrderController {
         model.addAttribute("salesOrder", salesOrder);
         model.addAttribute("customers", customerService.findAll());
         model.addAttribute("items", itemService.findAll());
-        return "forms/salesOrderForm";
+        return "salesOrders/salesOrderForm";
     }
 
     /**
@@ -120,7 +120,7 @@ public class SalesOrderController {
         salesOrderService.save(salesOrder);
         // Redirect to the sales orders list page if the sales order is saved
         // successfully.
-        return "redirect:/sales-order?added";
+        return "redirect:/sales-orders?added";
     }
 
     /**
@@ -153,7 +153,7 @@ public class SalesOrderController {
      *         list page if the sales order is not found
      */
     @GetMapping(value = SALES_ORDER_ID_PATH)
-    public String getSalesOrderDetails(@PathVariable(value = "orderId") Long orderId, Model model) {
+    public String getSalesOrderDetails(@PathVariable Long orderId, Model model) {
         Optional<SalesOrder> order = salesOrderService.findById(orderId);
         // If the sales order is found, add it to the model and return the name of the
         // view to render.
@@ -164,7 +164,7 @@ public class SalesOrderController {
             return "salesOrders/salesOrderDetails";
         } else {
             // The sales order is not found, redirect to the sales orders list page.
-            return "redirect:/sales-order?notFound";
+            return "redirect:/sales-orders?notFound";
         }
     }
 
@@ -179,7 +179,7 @@ public class SalesOrderController {
      *         list page if the sales order is not found or cannot be deleted
      */
     @PostMapping(value = SALES_ORDER_ID_PATH, params = "delete")
-    public String deleteSalesOrder(@PathVariable(value = "orderId") Long orderId, Model model) {
+    public String deleteSalesOrder(@PathVariable Long orderId, Model model) {
         Optional<SalesOrder> order = salesOrderService.findById(orderId);
         // If the sales order is found and is not shipped, delete it and redirect to the
         // sales orders list page.
@@ -187,9 +187,9 @@ public class SalesOrderController {
             salesOrderService.delete(order.get());
             return "redirect:/sales-order?salesOrderDeleted";
         } else if (order.get().getStatus() == SoStatus.SHIPPED) {
-            return "redirect:/sales-order?failedToDelete";
+            return "redirect:/sales-orders?failedToDelete";
         } else {
-            return "redirect:/sales-order/?notFound";
+            return "redirect:/sales-orders/?notFound";
         }
     }
 

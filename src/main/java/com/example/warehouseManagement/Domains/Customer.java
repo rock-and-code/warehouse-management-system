@@ -37,7 +37,7 @@ public class Customer {
     @Column(name = "state")
     private String state;
     @Column(name = "zipcode")
-    private int zipcode;
+    private String zipcode;
     @Column(name = "contact_info")
     private String contactInfo;
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY) //Fetch when needed
@@ -52,7 +52,7 @@ public class Customer {
 
     @Column(name = "formatted_address")
     public String formattedAddress() {
-        return String.format("%s %s, %s, %d", street, city, state, zipcode);
+        return "%s %s, %s, %s".formatted(street, city, state, zipcode);
     }
 }
 

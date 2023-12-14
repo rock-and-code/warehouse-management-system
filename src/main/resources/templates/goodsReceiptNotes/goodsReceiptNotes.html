@@ -12,10 +12,24 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
-    <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESSFUL ADDED PO -->
-    <div th:if="${param.added}">
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESSFUL FULFILLED PO -->
+    <div th:if="${param.fulfilled}">
         <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-            Shipment Received
+            Goods Receipt Note Fulfilled
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON PARTIALLY FULFILLED PO -->
+    <div th:if="${param.partiallyFulfilled}">
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            Goods Receipt Note Partially Fulfilled
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+     <!-- ALERTS TO PROVIDE USER FEEDBACK ON NOT FULFILLED PO -->
+     <div th:if="${param.notFulfilled}">
+        <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+            Goods Receipt Note Was Not Fulfilled
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
@@ -37,8 +51,8 @@
                 <th scope="row" th:text="|${#temporals.monthNameShort(goodsReceiptNote.date)} ${#temporals.format(goodsReceiptNote.date, ' dd, yyyy')}|">1</th>
                 <td th:text="${goodsReceiptNote.id}">Mark</td>
                 <td th:text="${goodsReceiptNote.getTotalQty()}">Otto</td>
-                <td><a th:href="@{/goods-receipt-note/{goodReceiptNoteId}(goodReceiptNoteId=${goodsReceiptNote.id})}" class="btn btn-outline-secondary">Details</a></td>
-                <td><a th:href="@{/goods-receipt-note/fulfill/{goodReceiptNoteId}(goodReceiptNoteId=${goodsReceiptNote.id})}" class="btn btn-outline-primary">Fulfill</a></td>
+                <td><a th:href="@{/goods-receipt-notes/{goodReceiptNoteId}(goodReceiptNoteId=${goodsReceiptNote.id})}" class="btn btn-outline-secondary">Details</a></td>
+                <td><a th:href="@{/goods-receipt-notes/fulfill/{goodReceiptNoteId}(goodReceiptNoteId=${goodsReceiptNote.id})}" class="btn btn-outline-primary">Fulfill</a></td>
                 <!-- <td>
                     <form th:action="@{/goods-receipt-note/{goodReceiptNoteId}(goodReceiptNoteId=${goodsReceiptNote.id})}" method="post">
                         <button type="submit" class="btn btn-danger" name="delete">Delete</button>
