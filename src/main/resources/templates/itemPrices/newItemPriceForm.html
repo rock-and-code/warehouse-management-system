@@ -1,0 +1,88 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <div class="container">
+        <div class="container mx-auto col-md-6" id="new-customer-form">
+            <div id="header">
+                <h1 class="mt-3" th:text="|New Price for Item: ${item.id} ${item.description}|">New Price for Item</h1>
+            </div>
+
+            <div id="newItemPriceForm">
+                <!-- SALE ORDER FORM -->
+                <form action="#" th:action="@{|/items/${item.id}/itemPrices/new-item-price|}" th:object="${itemPriceDto}"
+                    method="post" class="row g-3 needs-validation" novalidate>
+                    <!-- FROM/TO INPUTS FIELDS-->
+                    <!-- Start Date field -->
+                    <div class="col-md-6">
+                        <label for="startDate" class="form-label">From</label>
+                        <input class="form-control" th:field="*{startDate}" type="date" id="startDate">
+                    </div>
+                    <div class="invalid-feedback">
+                        Please enter the effective date
+                    </div>
+                     <!-- End of start date field-->
+                     <!-- End date-->
+                    <div class="col-md-6">
+                        <label for="endDate" class="form-label">To</label>
+                        <input class="form-control" th:field="*{endDate}" type="date" id="endDate">
+                    </div>
+                    <div class="invalid-feedback">
+                        Please enter the termination date
+                    </div>
+                     <!-- End of end date field-->
+                     <!-- Price-->
+                    <div class="col-md-12">
+                        <label for="price" class="form-label">Price</label>
+                        <input class="form-control" th:field="*{price}" step="0.01" type="number" id="price">
+                    </div>
+                    <div class="invalid-feedback">
+                        Please enter the price
+                    </div>
+                    <!-- End of price field-->
+                    <div class="col-12">
+                        <div class="d-grid mx-auto">
+                            <button type="submit" class="btn btn-dark col-12">Add Price</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    //JAVASCRIPT SNIPPET TO PROVIDES DATA VALIDATION ON FRONT END WHEN FORM IS SUBMITTED
+    //IT WILL SUPPLY A MESSAGE BELOW THE BLANK INPUT FIELD
+    (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        // it checks every input field that its class attribute contains "needs-validation"
+
+        //TODO: MOVE JS TO SEPARTE FILE
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+
+
+<!-- Footer fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>
+
+

@@ -1,0 +1,64 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESSFUL ITEM DELETION -->
+    <div th:if="${param.deleted}">
+        <div class="alert alert-success alert-dismissible fade show my-3" role="alert">
+            Item has been deleted
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+     <!-- ALERTS TO PROVIDE USER FEEDBACK ON UNSUCCESSFUL ITEM DELETION -->
+     <div th:if="${param.failedToDelete}">
+        <div class="alert alert-danger alert-dismissible fade show my-3" role="alert">
+            Cannot delete billed Item
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON ITEM NOT FOUND -->
+    <div th:if="${param.notFound}">
+        <div class="alert alert-info alert-dismissible fade show my-3" role="alert">
+            Item not found
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <!-- Page headers -->
+    <h1 class="my-3">Item List</h1>
+    <!-- Item list as table -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Vendor</th>
+                <th scope="col">SKU</th>
+                <th scope="col">Description</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item : ${items}">
+                <th scope="row" th:text="${item.id}">1</th>
+                <td th:text="${item.vendor.name}">Mark</td>
+                <td th:text="${item.sku}">Otto</td>
+                <td th:text="${item.description}">@mdo</td>
+                <!-- Link to see item details -->
+                <td><a th:href="@{|/items/${item.id}|}" class="btn btn-outline-secondary col-12">Details</a>
+                </td>
+                <!-- Button to remove item | TODO:should be only available for ADMIN ROLE-->
+                <td>
+                    <form th:action="@{/items/{id}(id=${item.id})}" method="POST">
+                        <button type="submit" class="btn btn-dark col-12" name="delete">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Footer fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>

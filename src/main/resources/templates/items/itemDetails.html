@@ -1,0 +1,73 @@
+<!-- Header fragment -->
+<!-- Header html elements in separate file (/templates/fragments/header)-->
+<div th:insert="~{fragments/header :: header}"></div>
+
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container-sm">
+    <div class="col-md-8 offset-md-2" id="alerts-container">
+        <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESSFUL ITEM DELETION -->
+        <div th:if="${param.deleted}">
+            <div class="alert alert-success alert-dismissible fade show my-3" role="alert">
+                Price has been deleted
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        <!-- ALERTS TO PROVIDE USER FEEDBACK ON UNSUCCESSFUL ITEM DELETION -->
+        <div th:if="${param.failedToDelete}">
+            <div class="alert alert-danger alert-dismissible fade show my-3" role="alert">
+                Cannot delete price billed
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        <!-- ALERTS TO PROVIDE USER FEEDBACK ON ITEM NOT FOUND -->
+        <div th:if="${param.notFound}">
+            <div class="alert alert-info alert-dismissible fade show my-3" role="alert">
+                Item not found
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    <div id="header" class="text-center mb-3">
+        <h1 class="mt-4" th:text="|Item: ${item.id} - ${item.description}|">Item details</h1>
+    </div>
+    <div class="card col-md-8 offset-md-2">
+        <!-- RENDER A PICTURE FROM UNSPLASH API USING ITEM NAME AS KEYWORDS -->
+        <img src="https://source.unsplash.com/1200x450/?tech,business,${item.description}" class="card-img-top"
+            alt="..." style="height: 18rem;"
+            onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1500835556837-99ac94a94552?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=12004&q=450';" />
+        <div class="card-body">
+            <h5 class="card-title" th:text="${item.vendor.name}">Card title</h5>
+            <p class="card-text font-weight-bold" th:text="|Sku: ${item.sku}|"></p>
+            <p class="card-text font-weight-bold" th:text="|Description: ${item.description}|"></p>
+        </div>
+    </div>
+    <div id="header" class="text-center mb-3">
+        <h1 class="mt-4">Price History</h1>
+    </div>
+    <!-- DISPLAY A LIST OF PRICES THAT HAS BEEN ASSIGNED TO THE ITEM -->
+    <div th:each="price : ${item.itemPrices}">
+        <div class="card col-md-8 offset-md-2 mb-3">
+            <div class="card-body">
+                <h5 class="card-title" th:text="|Valid from ${price.start} to ${price.end}|">Valid from start date to
+                    end date</h5>
+                <p class="card-text font-weight-bold" th:text="${#numbers.formatCurrency(price.price)}">Price</p>
+                <a class="btn btn-outline-dark mb-3" th:href="@{|/items/${item.id}/itemPrices/${price.id}|}">Price
+                    Details</a>
+                <!-- DELETE PRICE BUTTON -->
+                <form action="#" th:action="@{|/items/${item.id}/itemPrices/${price.id}|}" method="post"
+                    class="needs-validation" novalidate>
+                    <button type="submit" name="delete" value="yes" class="btn btn-outline-danger">Delete Price</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8 offset-md-2 my-3">
+        <!-- ADD NEW ITEM PRICE BUTTON -->
+        <a class="btn btn-outline-primary mb-3" th:href="@{|/items/${item.id}/itemPrices/new-item-price|}">Add Price</a>
+        <a th:href="@{/items}" class="btn btn-outline-secondary col-12">Back</a>
+    </div>
+
+    <!-- Footer fragment -->
+    <div th:insert="~{fragments/footer :: footer}"></div>

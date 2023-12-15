@@ -1,0 +1,35 @@
+<!-- CREATED FOR TESTING WEB CONTROLLER PURPOSES. NO USE CASE FOR THIS VIEW IN PRODUCTION -->
+
+<!-- Header fragment -->
+<!-- Header html elements in separate file (/templates/fragments/header)-->
+<div th:insert="~{fragments/header :: header}"></div>
+
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container-sm">
+    <div id="header" class="text-center mb-3">
+        <h1 class="mt-4" th:text="|Item Price: ${itemPrice.id} - ${itemPrice.item.description}|">Item price details</h1>
+    </div>
+    <div class="card col-md-8 offset-md-2">
+        <!-- RENDER A PICTURE FROM UNSPLASH API USING itemPrice NAME AS KEYWORDS -->
+        <img src="https://source.unsplash.com/1200x450/?tech,business,${itemPrice.description}" class="card-img-top"
+            alt="..." style="height: 18rem;"
+            onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1500835556837-99ac94a94552?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=12004&q=450';" />
+        <div class="card-body">
+            <h5 class="card-title" th:text="${itemPrice.item.vendor.name}">Card title</h5>
+            <p class="card-text font-weight-bold" th:text="|Sku: ${itemPrice.item.sku}|"></p>
+            <p class="card-text font-weight-bold" th:text="|Description: ${itemPrice.item.description}|"></p>
+            <p class="card-text font-weight-bold" th:text="|From: ${itemPrice.start}|"></p>
+            <p class="card-text font-weight-bold" th:text="|To: ${itemPrice.end}|"></p>
+            <p class="card-text font-weight-bold" th:text="${#numbers.formatCurrency(itemPrice.price)}"></p>
+        </div>
+    </div>
+
+    <div class="col-md-8 offset-md-2 my-3">
+        <a th:href="@{|/items/${itemPrice.item.id}|}"
+            class="btn btn-outline-secondary col-12">Back</a>
+    </div>
+</div>
+
+<!-- Footer fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>

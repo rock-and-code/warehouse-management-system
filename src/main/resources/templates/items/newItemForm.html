@@ -1,0 +1,95 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <div class="container">
+        <div class="container mx-auto col-md-6" id="new-customer-form">
+            <div id="header">
+                <h1 class="mt-3">New Item</h1>
+            </div>
+
+            <div id="newItemForm">
+                <!-- SALE ORDER FORM -->
+                <form action="#" th:action="@{/items/new-item}" th:object="${itemDto}"
+                    method="post" class="row g-3 needs-validation" novalidate>
+                    <!-- FROM/TO INPUTS FIELDS-->
+                    <!-- Vendor field -->
+                    <div class="col-md-12">
+                        <label for="vendor" class="form-label">Vendor</label>
+                        <!-- Drop down list of Vendors in DBA -->
+                        <select class="form-select" th:field="*{vendorId}" aria-label="Default select example"
+                            th:errorclass="fieldError" id="vendorId" required name="vendorId">
+                            <option value="" selected disable hidden>Choose...</option>
+                            <option th:each="vendor: ${vendors}" th:text="|${vendor.name}|"
+                                th:value="${vendor.id}">Two
+                            </option>
+                        </select>
+                    </div>
+                    <div class="invalid-feedback">
+                        Please select the vendor
+                    </div>
+                     <!-- End of Vendor field-->
+                     <!-- SKU-->
+                    <div class="col-md-4">
+                        <label for="sku" class="form-label">Sku</label>
+                        <input class="form-control" th:field="*{sku}" type="number" id="sku">
+                    </div>
+                    <div class="invalid-feedback">
+                        Please enter the SKU number
+                    </div>
+                     <!-- End of SKU field-->
+                     <!-- Description-->
+                    <div class="col-md-8">
+                        <label for="description" class="form-label">Description</label>
+                        <input class="form-control" th:field="*{description}" type="text" id="description">
+                    </div>
+                    <div class="invalid-feedback">
+                        Please enter the description
+                    </div>
+                    <!-- End of description field-->
+                    <div class="col-12">
+                        <div class="d-grid mx-auto">
+                            <button type="submit" class="btn btn-dark col-12">Add Item</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    //JAVASCRIPT SNIPPET TO PROVIDES DATA VALIDATION ON FRONT END WHEN FORM IS SUBMITTED
+    //IT WILL SUPPLY A MESSAGE BELOW THE BLANK INPUT FIELD
+    (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        // it checks every input field that its class attribute contains "needs-validation"
+
+        //TODO: MOVE JS TO SEPARTE FILE
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+
+
+<!-- Footer fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>
+
+
