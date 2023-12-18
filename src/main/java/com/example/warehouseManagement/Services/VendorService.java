@@ -3,6 +3,7 @@ package com.example.warehouseManagement.Services;
 import java.util.Optional;
 
 import com.example.warehouseManagement.Domains.Vendor;
+import com.example.warehouseManagement.Domains.Exceptions.VendorNotFoundException;
 
 public interface VendorService {
     /**
@@ -16,6 +17,7 @@ public interface VendorService {
      * @return
      */
     public Optional<Vendor> findById(Long id);
+    public Vendor updateById(Long id, Vendor vendor) throws VendorNotFoundException;
     /**
      * Persist a given vendor in the dba
      * @param vendor

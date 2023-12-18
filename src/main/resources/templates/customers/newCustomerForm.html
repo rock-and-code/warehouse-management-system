@@ -26,10 +26,16 @@
                     <div class="col-md-8">
                         <label for="street" class="form-label">Street</label>
                         <input class="form-control" th:field="*{street}" type="text" id="street">
+                        <div class="invalid-feedback">
+                            Please enter the street address
+                        </div>
                     </div>
                     <div class="col-md-4">
                         <label for="city" class="form-label">City</label>
                         <input class="form-control" th:field="*{city}" type="text" id="city">
+                        <div class="invalid-feedback">
+                            Please enter the city name
+                        </div>
                     </div>
                     <div class="col-md-3">
                         <label for="state" class="form-label">State</label>
@@ -41,15 +47,24 @@
                                 th:value="${state.abbreviation}">Two
                             </option>
                         </select>
+                        <div class="invalid-feedback">
+                            Please select the state
+                        </div>
                     </div>
                     <!-- End of state field-->
                     <div class="col-md-4">
                         <label for="zipcode" class="form-label">Zipcode</label>
                         <input class="form-control" th:field="*{zipcode}" type="text" id="zipcode">
+                        <div class="invalid-feedback">
+                            Please enter the zipcode number
+                        </div>
                     </div>
                     <div class="col-md-5">
                         <label for="contactInfo" class="form-label">Contact Info</label>
                         <input class="form-control" th:field="*{contactInfo}" type="text" id="contactInfo">
+                        <div class="invalid-feedback">
+                            Please enter the contact information
+                        </div>
                     </div>
                     <div class="col-12">
                         <div class="d-grid mx-auto">

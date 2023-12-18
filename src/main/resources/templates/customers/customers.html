@@ -40,6 +40,7 @@
                 <th scope="col">zipcode</th>
                 <th scope="col"></th>
                 <th scope="col"></th>
+                <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
@@ -50,8 +51,8 @@
                 <td th:text="${customer.city}">@mdo</td>
                 <td th:text="${customer.state}">@mdo</td>
                 <td th:text="${customer.zipcode}">@mdo</td>
-                <td><a th:href="@{|/customers/${customer.id}|}" class="btn btn-outline-secondary col-12">Details</a>
-                </td>
+                <td><a th:href="@{|/customers/${customer.id}|}" class="btn btn-outline-secondary col-12">Details</a></td>
+                <td><a th:href="@{|/customers/${customer.id}/update|}" class="btn btn-outline-success col-12">Edit</a></td>
                 <td>
                     <form th:action="@{/customers/{id}(id=${customer.id})}" method="POST">
                         <button type="submit" class="btn btn-dark col-12" name="delete">Delete</button>

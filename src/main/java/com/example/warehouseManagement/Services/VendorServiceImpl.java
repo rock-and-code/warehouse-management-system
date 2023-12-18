@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.example.warehouseManagement.Domains.Vendor;
+import com.example.warehouseManagement.Domains.Exceptions.VendorNotFoundException;
 import com.example.warehouseManagement.Repositories.VendorRepository;
 
 @Service
@@ -29,6 +30,23 @@ public class VendorServiceImpl implements VendorService {
     @Override
     public Optional<Vendor> findById(Long id) {
         return vendorRepository.findById(id);
+    }
+
+    @Override
+    public Vendor updateById(Long id, Vendor vendor) throws VendorNotFoundException {
+        if (vendorRepository.findById(id).isEmpty()) {
+            throw new VendorNotFoundException();
+        } else {
+            Vendor existing = vendorRepository.findById(id).get();
+            //Updates fields with new values
+            existing.setName(vendor.getName());
+            existing.setStreet(vendor.getStreet());
+            existing.setCity(vendor.getCity());
+            existing.setZipcode(vendor.getZipcode());
+            existing.setState(vendor.getState());
+            existing.setContactInfo(vendor.getContactInfo());
+            return vendorRepository.save(existing);
+        }
     }
 
     /**

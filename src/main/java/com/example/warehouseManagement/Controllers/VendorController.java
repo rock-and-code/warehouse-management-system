@@ -12,12 +12,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.warehouseManagement.Domains.StatePool;
 import com.example.warehouseManagement.Domains.Vendor;
+import com.example.warehouseManagement.Domains.Exceptions.VendorNotFoundException;
 import com.example.warehouseManagement.Services.VendorService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Controller class for handling customer operations.
+ * Controller class for handling vendor operations.
  */
 @Controller
 @RequestMapping(value = "/")
@@ -28,11 +29,12 @@ public class VendorController {
     private static final String VENDOR_PATH = "vendors";
     private static final String NEW_VENDOR_PATH = VENDOR_PATH + "/new-vendor";
     private static final String VENDOR_PATH_ID = VENDOR_PATH + "/{vendorId}";
+    private static final String UPDATE_VENDOR_PATH_ID = VENDOR_PATH_ID + "/update";
 
     /**
      * Constructor.
      *
-     * @param vendorService the CustomerService to use
+     * @param vendorService the vendorService to use
      */
     public VendorController(VendorService vendorService) {
         this.vendorService = vendorService;
@@ -58,12 +60,12 @@ public class VendorController {
      *
      * Displays a form for creating a new vendor.
      *
-     * @param vendor a Customer object to be populated with form data
+     * @param vendor a vendor object to be populated with form data
      * @param model      a Model object to be populated with data for the view
      * @return the name of the view to render
      */
     @GetMapping(value = NEW_VENDOR_PATH)
-    public String newCustomer(@ModelAttribute Vendor mewVendor, Model model) {
+    public String newvendor(@ModelAttribute Vendor mewVendor, Model model) {
         model.addAttribute("states", StatePool.getStates());
         model.addAttribute("newVendor", Vendor.builder().build());
         return "vendors/newVendorForm";
@@ -99,7 +101,7 @@ public class VendorController {
     @GetMapping(value = VENDOR_PATH_ID)
     public String getVendorDetails(@PathVariable(name = "vendorId", required = false) Long id, Model model) {
         Optional<Vendor> vendor = vendorService.findById(id);
-        // Checking if the customer exists
+        // Checking if the vendor exists
         if (vendor.isEmpty())
             return "redirect:/vendors"; // Redirecting to the list of vendors
 
@@ -107,6 +109,47 @@ public class VendorController {
         model.addAttribute("vendor", vendor.get());
         model.addAttribute("title", "Vendor Details");
         return "vendors/vendorDetails"; // Returning the view template name
+    }
+
+     /**
+     * Handles GET requests for retrieving vendor details by ID and display a form to update vendor details.
+     *
+     * @param id the vendor ID
+     * @param model the Model to populate with data for the view
+     * @return the name of the view to render, or a redirect to the list of vendors if the vendor is not found
+     */
+    @GetMapping(value = UPDATE_VENDOR_PATH_ID)
+    public String getVendorUpdateForm(@PathVariable(name = "vendorId", required = false) Long id, Model model) {
+           Optional<Vendor> vendor = vendorService.findById(id);
+        // Checking if the vendor exists
+        if (vendor.isEmpty())
+            return "redirect:/vendors"; // Redirecting to the list of vendors
+
+        // Adding the vendor and a title attribute to the model
+        model.addAttribute("vendor", vendor.get());
+        model.addAttribute("states", StatePool.getStates());
+        model.addAttribute("title", "Update vendor");
+        return "vendors/updateVendorForm"; // Returning the view template name
+    }
+
+    /**
+     * Handles POST requests to update data from an existing vendor in database
+     *
+     * @param id the vendor ID
+     * @param model the Model to populate with data for the view
+     * @return the name of the view to render, or a redirect to the list of vendors if the vendor is not found
+     */
+    @PostMapping(value = UPDATE_VENDOR_PATH_ID)
+    public String updateVendor(@PathVariable(name = "vendorId", required = false) Long id, 
+        @ModelAttribute Vendor updatedVendor, HttpServletRequest request, Model model) {
+        try {
+            vendorService.updateById(id, updatedVendor);
+        } catch (VendorNotFoundException e) {
+            return "redirect:/vendors?notFound"; // Redirect to the list of vendors with an error message.
+        }
+        // Redirect to the vendor details page if the vendor is saved
+        // successfully.
+        return String.format("redirect:/vendors/%d", id);
     }
 
     /**
@@ -129,7 +172,7 @@ public class VendorController {
             return "redirect:/vendors?failedToDelete"; // Redirect to the list of vendors with a failure message.
         }
 
-        // Delete the customer and redirect to the list of customers with a success message.
+        // Delete the vendor and redirect to the list of vendors with a success message.
         vendorService.delete(vendor.get());
         return "redirect:/vendor/deleted";
     }

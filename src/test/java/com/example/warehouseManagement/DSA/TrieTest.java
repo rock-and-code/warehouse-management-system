@@ -21,9 +21,14 @@ class TrieTest {
         System.out.printf("Trie size: %d\n", trie.size());
 
         List<String> output = trie.getWordList("ap");
-        List<String> expResult = List.of("app", "apple", "application", "appreciate", "approach", "appropriate");
+        System.out.printf("Word List ->%s\n", output.toString());
+        List<String> expResult = List.of("app", "appreciate", "appropriate", "approach","application");
         assertArrayEquals(expResult.toArray(), output.toArray());
         System.out.println("List -> " + Arrays.toString(output.toArray()));
+
+        expResult = List.of("Apple");
+        output = trie.getWordList("Ap");
+        assertArrayEquals(expResult.toArray(), output.toArray());
     }
 
 }
