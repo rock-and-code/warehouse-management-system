@@ -123,7 +123,7 @@ public class VendorController {
            Optional<Vendor> vendor = vendorService.findById(id);
         // Checking if the vendor exists
         if (vendor.isEmpty())
-            return "redirect:/vendors"; // Redirecting to the list of vendors
+            return "redirect:/vendors?notFound"; // Redirecting to the list of vendors
 
         // Adding the vendor and a title attribute to the model
         model.addAttribute("vendor", vendor.get());

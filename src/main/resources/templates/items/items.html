@@ -38,6 +38,7 @@
                 <th scope="col">Description</th>
                 <th scope="col"></th>
                 <th scope="col"></th>
+                <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
@@ -47,8 +48,8 @@
                 <td th:text="${item.sku}">Otto</td>
                 <td th:text="${item.description}">@mdo</td>
                 <!-- Link to see item details -->
-                <td><a th:href="@{|/items/${item.id}|}" class="btn btn-outline-secondary col-12">Details</a>
-                </td>
+                <td><a th:href="@{|/items/${item.id}|}" class="btn btn-outline-secondary col-12">Details</a></td>
+                <td><a th:href="@{|/items/${item.id}/update|}" class="btn btn-outline-secondary col-12">Edit</a></td>
                 <!-- Button to remove item | TODO:should be only available for ADMIN ROLE-->
                 <td>
                     <form th:action="@{/items/{id}(id=${item.id})}" method="POST">

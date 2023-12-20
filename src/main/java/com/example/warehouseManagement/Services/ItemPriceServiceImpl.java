@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.example.warehouseManagement.Domains.ItemPrice;
+import com.example.warehouseManagement.Domains.Exceptions.ItemPriceNotFoundException;
 import com.example.warehouseManagement.Repositories.ItemPriceRepository;
 
 @Service
@@ -33,6 +34,19 @@ public class ItemPriceServiceImpl implements ItemPriceService {
     @Override
     public Optional<ItemPrice> findById(Long id) {
         return itemPriceRepository.findById(id);
+    }
+
+    @Override
+    public ItemPrice updateEndDateById(Long id, ItemPrice itemPrice) throws ItemPriceNotFoundException {
+        if (itemPriceRepository.findById(id).isEmpty()) {
+            throw new ItemPriceNotFoundException();
+        }
+        else {
+            ItemPrice existing = itemPriceRepository.findById(id).get();
+
+            existing.setEnd(itemPrice.getEnd());
+            return itemPriceRepository.save(existing);
+        }
     }
 
     @Override

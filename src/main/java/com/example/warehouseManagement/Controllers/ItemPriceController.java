@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.ItemPrice;
 import com.example.warehouseManagement.Domains.DTOs.ItemPriceDto;
+import com.example.warehouseManagement.Domains.Exceptions.ItemPriceNotFoundException;
 import com.example.warehouseManagement.Services.ItemPriceService;
 import com.example.warehouseManagement.Services.ItemService;
 
@@ -32,6 +33,7 @@ public class ItemPriceController {
     private static final String ITEM_PRICE_PATH = "items/{itemId}/itemPrices";
     private static final String NEW_ITEM_PRICE_PATH = ITEM_PRICE_PATH + "/new-item-price";
     private static final String ITEM_PRICE_PATH_ID = ITEM_PRICE_PATH + "/{itemPriceId}";
+    private static final String UPDATE_ITEM_PRICE_PATH_ID = ITEM_PRICE_PATH_ID + "/update";
 
     /**
      * Constructor.
@@ -42,10 +44,6 @@ public class ItemPriceController {
         this.itemPriceService = itemPriceService;
         this.itemService = itemService;
     }
-
-    
-    //TODO: ADD FROM TO UPDATE ITEM PRICE
-
 
     /**
      * GET /items/{itemId}/itemPrices/new-item-price
@@ -95,7 +93,7 @@ public class ItemPriceController {
     /**
      * Handles GET requests for retrieving item details by ID.
      *
-     * @param id the itemPriceId
+     * @param itemPriceId the itemPriceId
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of item prices if the item price is not found
      */
@@ -111,6 +109,54 @@ public class ItemPriceController {
         model.addAttribute("itemPrice", itemPrice.get());
         model.addAttribute("title", "Item Price Details");
         return "itemPrices/itemPriceDetails"; // Returning the view template name
+    }
+
+    /**
+     * Handles GET requests for retrieving item price update by ID.
+     *
+     * @param itemPriceId the itemPriceId
+     * @param model the Model to populate with data for the view
+     * @return the name of the view to render, or a redirect to the list of item prices if the item price is not found
+     */
+    @GetMapping(value = UPDATE_ITEM_PRICE_PATH_ID)
+    public String getItemPriceUpdateForm(@PathVariable(name = "itemId", required = false) Long itemId,
+        @PathVariable(name = "itemPriceId", required = false) Long itemPriceId, Model model) {
+        Optional<Item> item = itemService.findById(itemId);
+        Optional<ItemPrice> itemPrice = itemPriceService.findById(itemPriceId);
+        // Checking if the item exists
+        if (item.isEmpty())
+            return "redirect:/items?notFound"; // Redirecting to the list of item 
+        // Checking if the itemPrice exists
+        if (itemPrice.isEmpty())
+            return String.format("redirect:/items/%s",itemId); // Redirecting to the list of item details
+
+        // Adding the itemPrice and a title attribute to the model
+        model.addAttribute("item", item.get());
+        model.addAttribute("itemPrice", itemPrice.get());
+        model.addAttribute("title", "Update Price Details");
+        return "itemPrices/itemPriceUpdateForm"; // Returning the view template name
+    }
+
+    /**
+     * Handles POST requests for retrieving item price update by ID.
+     *
+     * @param itemPriceId the itemPriceId
+     * @param model the Model to populate with data for the view
+     * @return the name of the view to render, or a redirect to the list of item prices if the item price is not found
+     */
+    @PostMapping(value = UPDATE_ITEM_PRICE_PATH_ID)
+    public String updateItemPrice(@PathVariable(name = "itemId", required = false) Long itemId,
+        @PathVariable(name = "itemPriceId", required = false) Long itemPriceId, 
+        @ModelAttribute ItemPrice item, Model model) {
+        System.out.println("Update Item Price Web End Point Called");
+        
+        // Update the price of an existing item price in DB
+        try {
+            itemPriceService.updateEndDateById(itemPriceId, item);
+        } catch (ItemPriceNotFoundException e) {
+            return String.format("redirect:/items/%s?notFound", itemId); // Redirecting to the item details view
+        }
+        return String.format("redirect:/items/%s", itemId); // Redirecting to the item details view
     }
 
     /**

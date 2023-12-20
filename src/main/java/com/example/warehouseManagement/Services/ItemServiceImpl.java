@@ -7,58 +7,76 @@ import org.springframework.stereotype.Service;
 
 import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.Vendor;
+import com.example.warehouseManagement.Domains.Exceptions.ItemNotFoundException;
 import com.example.warehouseManagement.Repositories.ItemRepository;
 
 @Service
 public class ItemServiceImpl implements ItemService {
 
-    private final ItemRepository productRepository;
+    private final ItemRepository itemRepository;
 
-    public ItemServiceImpl(ItemRepository productRepository) {
-        this.productRepository = productRepository;
+    public ItemServiceImpl(ItemRepository itemRepository) {
+        this.itemRepository = itemRepository;
     }
     /**
-     * Returns an interable of the list of all the products in the dba
+     * Returns an interable of the list of all the items in the dba
      * @return
      */
     @Override
     public Iterable<Item> findAll() {
-        return productRepository.findAll();
+        return itemRepository.findAll();
     }
     /**
-     * Return a product given its id
+     * Return a item given its id
      * @param id
      * @return
      */
     @Override
     public Optional<Item> findById(Long id) {
-        return productRepository.findById(id);
+        return itemRepository.findById(id);
     }
     /**
-     * Return a list of products by a given vendor id
+     * Return a list of items by a given vendor id
      * @param vendor
      * @return
      */
     @Override
     public List<Item> findByVendor(Vendor vendor) {
-        return productRepository.findByVendor(vendor);
+        return itemRepository.findByVendor(vendor);
     }
     /**
-     * Saves a new product in the dba
-     * @param product
+     * Updates an existing item in the dba by a given item id
+     * @param id
+     * @param item
+     * @return
+     */
+    public Item updateDescriptionAndSKUById(Long id, Item item) throws ItemNotFoundException {
+        if (itemRepository.findById(id).isEmpty()) {
+            throw new ItemNotFoundException();
+        } else {
+            Item existing = itemRepository.findById(id).get();
+
+            existing.setDescription(item.getDescription());
+            existing.setSku(item.getSku());
+            return itemRepository.save(existing);
+        }
+    }
+    /**
+     * Saves a new item in the dba
+     * @param item
      * @return
      */
     @Override
-    public Item save(Item product) {
-        return productRepository.save(product);
+    public Item save(Item item) {
+        return itemRepository.save(item);
     }
     /**
-     * Deletes a product from the dba
-     * @param product
+     * Deletes a item from the dba
+     * @param item
      */
     @Override
-    public void delete(Item product) {
-        productRepository.delete(product);
+    public void delete(Item item) {
+        itemRepository.delete(item);
     }
     
 }

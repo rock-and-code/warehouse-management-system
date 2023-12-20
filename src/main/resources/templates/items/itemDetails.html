@@ -52,13 +52,15 @@
                 <h5 class="card-title" th:text="|Valid from ${price.start} to ${price.end}|">Valid from start date to
                     end date</h5>
                 <p class="card-text font-weight-bold" th:text="${#numbers.formatCurrency(price.price)}">Price</p>
-                <a class="btn btn-outline-dark mb-3" th:href="@{|/items/${item.id}/itemPrices/${price.id}|}">Price
-                    Details</a>
-                <!-- DELETE PRICE BUTTON -->
-                <form action="#" th:action="@{|/items/${item.id}/itemPrices/${price.id}|}" method="post"
-                    class="needs-validation" novalidate>
-                    <button type="submit" name="delete" value="yes" class="btn btn-outline-danger">Delete Price</button>
-                </form>
+                <div class="d-grid gap-2 d-md-block">
+                    
+                    <a class="btn btn-outline-dark " th:href="@{|/items/${item.id}/itemPrices/${price.id}|}">Price Details</a>
+                    <a class="btn btn-outline-success" th:href="@{|/items/${item.id}/itemPrices/${price.id}/update|}">Edit</a>
+                    <!-- DELETE PRICE BUTTON -->
+                    <form action="#" th:action="@{|/items/${item.id}/itemPrices/${price.id}|}" method="post" class="d-inline">
+                        <button type="submit" name="delete" value="yes" class="btn btn-outline-danger">Delete Price</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

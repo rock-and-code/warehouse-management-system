@@ -14,6 +14,7 @@ import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.StatePool;
 import com.example.warehouseManagement.Domains.Vendor;
 import com.example.warehouseManagement.Domains.DTOs.ItemDto;
+import com.example.warehouseManagement.Domains.Exceptions.ItemNotFoundException;
 import com.example.warehouseManagement.Services.ItemService;
 import com.example.warehouseManagement.Services.VendorService;
 
@@ -32,6 +33,7 @@ public class ItemController {
     private static final String ITEM_PATH = "items";
     private static final String NEW_ITEM_PATH = ITEM_PATH + "/new-item";
     private static final String ITEM_PATH_ID = ITEM_PATH + "/{itemId}";
+    private static final String UPDATE_ITEM_PATH_ID = ITEM_PATH_ID + "/update";
 
     /**
      * Constructor.
@@ -117,8 +119,47 @@ public class ItemController {
 
         // Adding the item and a title attribute to the model
         model.addAttribute("item", item.get());
-        model.addAttribute("title", "item Details");
+        model.addAttribute("title", "Item Details");
         return "items/itemDetails"; // Returning the view template name
+    }
+
+    /**
+     * Handles GET requests for update item description and sku by ID.
+     *
+     * @param id the item ID
+     * @param model the Model to populate with data for the view
+     * @return the name of the view to render, or a redirect to the list of items if the item is not found
+     */
+    @GetMapping(value = UPDATE_ITEM_PATH_ID)
+    public String getItemUpdateForm(@PathVariable(name = "itemId", required = false) Long id, Model model) {
+        Optional<Item> item = itemService.findById(id);
+        // Checking if the item exists
+        if (item.isEmpty())
+            return "redirect:/items?notFound"; // Redirecting to the list of items
+
+        // Adding the item and a title attribute to the model
+        model.addAttribute("item", item.get());
+        model.addAttribute("itemDto", new ItemDto());
+        model.addAttribute("title", "Update Item");
+        return "items/updateItemForm"; // Returning the view template name
+    }
+
+    /**
+     * Handles POST requests for update item description and sku by ID.
+     *
+     * @param id the item ID
+     * @param model the Model to populate with data for the view
+     * @return the name of the view to render, or a redirect to the list of items if the item is not found
+     */
+    @PostMapping(value = UPDATE_ITEM_PATH_ID)
+    public String updateItemDescriptionAndSKU(@PathVariable(name = "itemId", required = false) Long id, 
+        @ModelAttribute Item updatedItem, Model model) {
+        try {
+            itemService.updateDescriptionAndSKUById(id, updatedItem);
+        } catch (ItemNotFoundException e) {
+            return "redirect:/items?notFound"; 
+        }
+        return String.format("redirect:/items/%d", id);  // Returning the view template name
     }
 
     /**

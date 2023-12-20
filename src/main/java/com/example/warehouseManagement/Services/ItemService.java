@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.Vendor;
+import com.example.warehouseManagement.Domains.Exceptions.ItemNotFoundException;
 
 public interface ItemService {
     /**
@@ -25,14 +26,21 @@ public interface ItemService {
      */
     public List<Item> findByVendor(Vendor vendor);
     /**
-     * Saves a new product in the dba
-     * @param product
+     * Updates an existing product in the dba by a given item id
+     * @param id
+     * @param item
      * @return
      */
-    public Item save(Item product);
+    public Item updateDescriptionAndSKUById(Long id, Item item) throws ItemNotFoundException;
+    /**
+     * Saves a new product in the dba
+     * @param item
+     * @return
+     */
+    public Item save(Item item);
     /**
      * Deletes a product from the dba
-     * @param product
+     * @param item
      */
-    public void delete(Item product);
+    public void delete(Item item);
 }

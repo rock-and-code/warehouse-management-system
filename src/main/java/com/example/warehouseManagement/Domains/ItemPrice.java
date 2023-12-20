@@ -1,6 +1,7 @@
 package com.example.warehouseManagement.Domains;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,4 +45,8 @@ public class ItemPrice {
     private LocalDate end;
     @Column(name = "price")
     private double price;
+    public String formattedEndDate() {
+        DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return end.format(pattern);
+    }
 }
