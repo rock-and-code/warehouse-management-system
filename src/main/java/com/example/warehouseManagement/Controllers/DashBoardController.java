@@ -23,7 +23,7 @@ public class DashBoardController {
      * Constructor to inject the necessary dependencies.
      *
      * @param salesOrderService the SalesOrderService dependency
-     * @param stockService the StockService dependency
+     * @param stockService      the StockService dependency
      */
     public DashBoardController(SalesOrderService salesOrderService, StockService stockService) {
         this.salesOrderService = salesOrderService;
@@ -38,10 +38,9 @@ public class DashBoardController {
      */
     @GetMapping(value = "/")
     public String getDashBoard(Model model) {
-        // Adding attributes to the model for use in the view
-        model.addAttribute("title", "Dashboard");
-        model.addAttribute("lastThreeMonthsSales", salesOrderService.findLastThreeMonthsSales());
-        model.addAttribute("topFiveMovers", stockService.getTopFiveMovers());
-        return "dashboard/dashboard"; // Returning the view template name
+            model.addAttribute("title", "Dashboard");
+            model.addAttribute("lastThreeMonthsSales", salesOrderService.findLastThreeMonthsSales());
+            model.addAttribute("topFiveMovers", stockService.getTopFiveMovers());
+            return "dashboard/dashboard"; // Returning the view template name
     }
 }

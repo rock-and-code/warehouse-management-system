@@ -185,7 +185,7 @@ public class SalesOrderController {
         // sales orders list page.
         if (order.isPresent() && order.get().getStatus() != SoStatus.SHIPPED) {
             salesOrderService.delete(order.get());
-            return "redirect:/sales-order?salesOrderDeleted";
+            return "redirect:/sales-orders?salesOrderDeleted";
         } else if (order.get().getStatus() == SoStatus.SHIPPED) {
             return "redirect:/sales-orders?failedToDelete";
         } else {
