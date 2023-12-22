@@ -48,6 +48,7 @@ public interface SalesOrderRepository extends CrudRepository<SalesOrder, Long>{
     @Query(value = """
       SELECT\s
       so.id AS "id",\s
+      so.status AS "status",\s
       so.date AS "date",\s
       so.id AS "salesOrder",\s
       ROUND(SUM(sales_order_line.qty * item_price.price),2) AS "total"\s
@@ -133,6 +134,27 @@ public interface SalesOrderRepository extends CrudRepository<SalesOrder, Long>{
         ORDER BY FORMATDATETIME(sales_order.date, 'MMM') ASC\
         """, nativeQuery = true)
     public List<MonthlySalesDto> findLastThreeMonthsSales();
+
+    /**
+     * Returns a list of the sales order with its total amount by a customer
+     * @param customer
+     * @return
+     */
+    @Query(value = """
+      SELECT
+      so.id AS "id",
+      so.status AS "status",
+      so.date AS "date",
+      so.id AS "salesOrder",
+      ROUND(SUM(sales_order_line.qty * item_price.price),2) AS "total"
+      FROM sales_order AS so
+      INNER JOIN sales_order_line ON so.id = sales_order_line.sales_order_id
+      INNER JOIN item_price ON item_price.id = sales_order_line.item_price_id
+      WHERE so.status = 0
+      GROUP BY so.id
+      ORDER BY so.date
+      """, nativeQuery = true)
+    public List<SalesOrderDto> findAllPendingSalesOrder();
 }
 
 /*

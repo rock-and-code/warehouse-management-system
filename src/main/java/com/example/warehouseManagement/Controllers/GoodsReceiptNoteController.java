@@ -49,6 +49,10 @@ public class GoodsReceiptNoteController {
     private final ItemService itemService;
     private final WarehouseSectionService warehouseSectionService;
 
+    // TODO: CREATE A FROM TO CREATE AND FULFILL A GOODS RECEIPT NOTE BY A PURCHASE ORDER NUMBER
+    // BUSINESS RULE: ONLY PURCHASE ORDER IN TRANSIT WILL BE RETURN BY THE FORM SINCE 
+    // AN ALREADY RECEIVED PURCHASE ORDER CANNOT BE RECEIVED TWICED
+
     /**
      * Constructor for dependency injection.
      *
@@ -79,7 +83,7 @@ public class GoodsReceiptNoteController {
         model.addAttribute("title", "New Goods Receipt Note");
         model.addAttribute("purchaseOrders", purchaseOrderService.findAll());
         model.addAttribute("items", itemService.findAll());
-        return "goodsReceiptNotes/goodsReceiptNoteForm";
+        return "goodsReceiptNotes/newGoodsReceiptNoteForm";
     }
 
     /**
@@ -100,7 +104,7 @@ public class GoodsReceiptNoteController {
         model.addAttribute("title", "New Goods Receipt Note");
         model.addAttribute("purchaseOrders", purchaseOrderService.findAll());
         model.addAttribute("items", itemService.findAll());
-        return "goodsReceiptNotes/goodsReceiptNoteForm";
+        return "goodsReceiptNotes/newGoodsReceiptNoteForm";
     }
 
     /**
@@ -125,7 +129,7 @@ public class GoodsReceiptNoteController {
         model.addAttribute("purchaseOrders", purchaseOrderService.findAll());
         model.addAttribute("items", itemService.findAll());
         // Returns the view template name for the goods receipt note form.
-        return "goodsReceiptNotes/goodsReceiptNoteForm";
+        return "goodsReceiptNotes/newGoodsReceiptNoteForm";
     }
 
     /**

@@ -9,8 +9,11 @@ import com.example.warehouseManagement.Domains.GoodsReceiptNote;
 import com.example.warehouseManagement.Domains.GoodsReceiptNote.GrnStatus;
 import com.example.warehouseManagement.Domains.GoodsReceiptNoteLine;
 import com.example.warehouseManagement.Domains.PurchaseOrder;
+import com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus;
 import com.example.warehouseManagement.Domains.PurchaseOrderLine;
 import com.example.warehouseManagement.Domains.DTOs.PurchaseOrderDto;
+import com.example.warehouseManagement.Domains.Exceptions.PurchaseOrderNotFoundException;
+import com.example.warehouseManagement.Domains.Exceptions.ReceivedOrderModificationException;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteLineRepository;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteRepository;
 import com.example.warehouseManagement.Repositories.ItemCostRepository;
@@ -67,6 +70,28 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public List<PurchaseOrderDto> findAllByVendor(Long vendorId) {
         return purchaseOrderRepository.findAllByVendor(vendorId);
+    }
+    /**
+     * Update an existing purchase order in the db by its id
+     * @param id
+     * @param purchaseOrder
+     * @return
+     */
+    @Override
+    public PurchaseOrder updateById(Long id, PurchaseOrder purchaseOrder) throws PurchaseOrderNotFoundException, ReceivedOrderModificationException {
+        if (purchaseOrderRepository.findById(id).isEmpty()) {
+            throw new PurchaseOrderNotFoundException();
+        } else {
+            PurchaseOrder existing = purchaseOrderRepository.findById(id).get();
+            if (existing.getStatus() == PoStatus.RECEIVED) {
+                throw new ReceivedOrderModificationException();
+            }
+            // Business Rules -> Only allow sales order modification on customer (for clients with differents corporations or that changed corporation)
+            // And changes in sales order lines
+            existing.setVendor(purchaseOrder.getVendor());
+            existing.setPurchaseOrderLines(purchaseOrder.getPurchaseOrderLines());
+            return purchaseOrderRepository.save(existing);
+        }
     }
 
     /**

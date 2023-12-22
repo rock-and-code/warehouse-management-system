@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.DTOs.PurchaseOrderDto;
+import com.example.warehouseManagement.Domains.Exceptions.PurchaseOrderNotFoundException;
+import com.example.warehouseManagement.Domains.Exceptions.ReceivedOrderModificationException;
 
 public interface PurchaseOrderService {
     /**
@@ -30,6 +32,13 @@ public interface PurchaseOrderService {
      * @return
      */
     public List<PurchaseOrderDto> findAllByVendor(Long vendorId);
+    /**
+     * Update an existing purchase order in the db by its id
+     * @param id
+     * @param purchaseOrder
+     * @return
+     */
+    public PurchaseOrder updateById(Long id, PurchaseOrder purchaseOrder) throws PurchaseOrderNotFoundException, ReceivedOrderModificationException;
     /**
      * Persist a given purchase order in the DBA
      * @param purchaseOrder

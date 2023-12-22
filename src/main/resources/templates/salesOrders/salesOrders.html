@@ -26,10 +26,24 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESSFUL UPDATE SO -->
+    <div th:if="${param.updated}">
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            Sales Order has been updated
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
     <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESSFUL SO DELETION -->
     <div th:if="${param.salesOrderDeleted}">
         <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
             Sales Order Deleted
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON FAILED UPDATE -->
+    <div th:if="${param.cannotBeUpdated}">
+        <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+            Shipped Order Cannot be Updated
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
@@ -44,16 +58,23 @@
                 <th scope="col">Total</th>
                 <th scope="col">Details</th>
                 <th scope="col"></th>
+                <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
-            <tr th:each="saleOrder : ${salesOrders}">
-                <th scope="row" th:text="|${#temporals.monthNameShort(saleOrder.date)} ${#temporals.format(saleOrder.date, ' dd, yyyy')}|">1</th>
-                <td th:text="${saleOrder.salesOrder}">Mark</td>
-                <td th:text="${#numbers.formatCurrency(saleOrder.total)}">Otto</td>
-                <td><a th:href="@{/sales-orders/{orderId}(orderId=${saleOrder.id})}" class="btn btn-outline-secondary">Details</a></td>
+            <tr th:each="salesOrder : ${salesOrders}">
+                <th scope="row" th:text="|${#temporals.monthNameShort(salesOrder.date)} ${#temporals.format(salesOrder.date, ' dd, yyyy')}|">1</th>
+                <td th:text="${salesOrder.salesOrder}">Mark</td>
+                <td th:text="${#numbers.formatCurrency(salesOrder.total)}">Otto</td>
+                <td><a th:href="@{/sales-orders/{orderId}(orderId=${salesOrder.id})}" class="btn btn-outline-secondary">Details</a></td>
+                <div class="update" th:if="${salesOrder.status == 0}">
+                    <td><a th:href="@{|/sales-orders/${salesOrder.id}/update|}" class="btn btn-outline-success">Edit</a></td>
+                </div>
+                <div class="update" th:unless="${salesOrder.status == 0}">
+                    <td></td>
+                </div>
                 <td>
-                    <form th:action="@{/sales-orders/{orderId}(orderId=${saleOrder.id})}" method="post">
+                    <form th:action="@{/sales-orders/{orderId}(orderId=${salesOrder.id})}" method="post">
                         <button type="submit" class="btn btn-dark" name="delete">Delete</button>
                     </form>
                 </td>

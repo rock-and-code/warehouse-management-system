@@ -58,7 +58,6 @@ public class SalesOrder {
     @Builder.Default
     private SoStatus status = SoStatus.PENDING;
 
-    //TC(M*N)
     public double getTotal() {
         double total = 0;
         for (int i=0; i<saleOrderLines.size(); i++) {
@@ -69,7 +68,8 @@ public class SalesOrder {
     
     public enum SoStatus {
         PENDING, //0
-        SHIPPED //1
+        PARTIALLY_SHIPPED, //2
+        SHIPPED //3
     }
 }
 

@@ -8,6 +8,8 @@ import com.example.warehouseManagement.Domains.LastThreeMonthsSales;
 import com.example.warehouseManagement.Domains.SalesOrder;
 import com.example.warehouseManagement.Domains.DTOs.PendingSalesOrderDto;
 import com.example.warehouseManagement.Domains.DTOs.SalesOrderDto;
+import com.example.warehouseManagement.Domains.Exceptions.SalesOrderNotFoundException;
+import com.example.warehouseManagement.Domains.Exceptions.ShippedOrderModificationException;
 
 public interface SalesOrderService {
     /**
@@ -22,6 +24,11 @@ public interface SalesOrderService {
      * @return
      */
     public List<SalesOrder> findByCustomer(Customer customer);
+    /**
+     * Returns a list of all pending sales orders persisted in the dba 
+     * @return
+     */
+    public List<SalesOrderDto> findAllPendingOrders();
     /**
      * Returns a list of all the sales orders persisted in the dba \
      * @return
@@ -46,6 +53,13 @@ public interface SalesOrderService {
      * @return
      */
     public List<PendingSalesOrderDto> findAllPendingToShipOrdersByYearAndMonth(int year, String month);
+    /**
+     * Update an existing sales order in the db by its id
+     * @param id
+     * @param salesOrder
+     * @return
+     */
+    public SalesOrder updateById(Long id, SalesOrder salesOrder) throws SalesOrderNotFoundException, ShippedOrderModificationException;
     /**
      * Persists a sales order in the dba
      * @param salesOrder
