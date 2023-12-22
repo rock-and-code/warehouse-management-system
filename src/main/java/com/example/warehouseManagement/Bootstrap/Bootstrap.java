@@ -1,5 +1,6 @@
 package com.example.warehouseManagement.Bootstrap;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -120,7 +121,7 @@ public class Bootstrap implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         // Variables
-        Random random = new Random();
+        Random random = new SecureRandom();
         int VENDORS = 5, CUSTOMERS = 10, SALES_ORDER = 20, PURCHASE_ORDER = 30;
         List<Vendor> savedVendors = new ArrayList<>();
         List<Customer> savedCustomers = new ArrayList<>();
