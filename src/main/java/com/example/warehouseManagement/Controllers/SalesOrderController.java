@@ -151,7 +151,7 @@ public class SalesOrderController {
     }
 
     /**
-     * GET /sales-order
+     * GET /sales-order/pending
      *
      * Gets all sales orders.
      *
@@ -214,6 +214,7 @@ public class SalesOrderController {
             model.addAttribute("title", "Sales Orders");
             model.addAttribute("customers", customerService.findAll());
             model.addAttribute("salesOrder", order.get());
+            model.addAttribute("persistedOrder", order.get());
             model.addAttribute("counter", new Counter());
             return "salesOrders/updateSalesOrderForm";
         } else {
@@ -233,12 +234,13 @@ public class SalesOrderController {
      * @return the name of the view to render
      */
     @PostMapping(value = UPDATE_SALES_ORDER_ID_PATH, params = "addRow")
-    public String addSaleOrderLineToUpdateOrderForm(@PathVariable("orderId") Long id,
-            HttpServletRequest request, Model model) {
+    public String addSaleOrderLineToUpdateOrderForm(@ModelAttribute SalesOrder salesOrder,
+            @PathVariable("orderId") Long id, HttpServletRequest request, Model model) {
         // Adding new sales order line to sales order
-        SalesOrder salesOrder = salesOrderService.findById(id).get();
+        SalesOrder order = salesOrderService.findById(id).get();
         salesOrder.getSaleOrderLines().add(new SalesOrderLine());
 
+        model.addAttribute("persistedOrder", order);
         model.addAttribute("salesOrder", salesOrder);
         model.addAttribute("customers", customerService.findAll());
         model.addAttribute("items", itemService.findAll());
@@ -256,20 +258,22 @@ public class SalesOrderController {
      * @return the name of the view to render
      */
     @PostMapping(value = UPDATE_SALES_ORDER_ID_PATH, params = "removeRow")
-    public String removeSaleOrderLineFromUpdateOrderForm(@PathVariable("orderId") Long id, 
-            HttpServletRequest request, Model model) {
-        SalesOrder salesOrder = salesOrderService.findById(id).get();
+    public String removeSaleOrderLineFromUpdateOrderForm(@ModelAttribute SalesOrder salesOrder,
+            @PathVariable("orderId") Long id, HttpServletRequest request, Model model) {
+        SalesOrder order = salesOrderService.findById(id).get();
         // Checks if other was already shipped
         if (salesOrder.getStatus() == SoStatus.SHIPPED) {
             return "salesOrders/cannotBeUpdated";
         }
         final int rowId = Integer.valueOf(request.getParameter("removeRow"));
         // Delete Line
-        SalesOrderLine deleteSalesOrderLine = salesOrder.getSaleOrderLines().get(rowId);
+        SalesOrderLine deleteSalesOrderLine = order.getSaleOrderLines().get(rowId);
         salesOrder.getSaleOrderLines().remove(rowId);
+        order.getSaleOrderLines().remove(rowId);
         salesOrderLineService.delete(deleteSalesOrderLine);
 
         model.addAttribute("salesOrder", salesOrder);
+        model.addAttribute("persistedOrder", order);
         model.addAttribute("customers", customerService.findAll());
         model.addAttribute("items", itemService.findAll());
         return "salesOrders/updateSalesOrderForm";

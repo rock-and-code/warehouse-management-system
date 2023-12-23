@@ -28,6 +28,7 @@ public interface PurchaseOrderRepository extends CrudRepository<PurchaseOrder, L
     @Query(value = """
         SELECT\s
         purchase_order.id AS "id",\s
+        purchase_order.status AS "status",\s
         purchase_order.date AS "date", purchase_order.purchase_order_number AS "purchaseOrder",\s
         ROUND(SUM(purchase_order_line.qty * item_cost.cost),2) AS "total"\s
         FROM vendor AS V\s
@@ -46,12 +47,12 @@ public interface PurchaseOrderRepository extends CrudRepository<PurchaseOrder, L
 
     /**
      * Returns a list of the purchase order persisted in the dba
-     * @param customer
      * @return
      */
     @Query(value = """
     SELECT\s
     po.id AS "id",\s
+    po.status AS "status",\s
     po.date AS "date",\s
     po.id AS "purchaseOrder",\s
     ROUND(SUM(purchase_order_line.qty * item_cost.cost),2) AS total\s
@@ -62,5 +63,25 @@ public interface PurchaseOrderRepository extends CrudRepository<PurchaseOrder, L
     ORDER BY po.date\
     """, nativeQuery = true)
     public List<PurchaseOrderDto> findAllPurchaseOrder();
+
+    /**
+     * Returns a list of the purchase order persisted in the dba
+     * @return
+     */
+    @Query(value = """
+    SELECT\s
+    po.id AS "id",\s
+    po.status AS "status",\s
+    po.date AS "date",\s
+    po.id AS "purchaseOrder",\s
+    ROUND(SUM(purchase_order_line.qty * item_cost.cost),2) AS total\s
+    FROM purchase_order po\s
+    INNER JOIN purchase_order_line ON po.id = purchase_order_line.purchase_order_id\s
+    INNER JOIN item_cost ON item_cost.id = purchase_order_line.item_cost_id\s
+    WHERE po.status = 0\s
+    GROUP BY po.id\s
+    ORDER BY po.date\
+    """, nativeQuery = true)
+    public List<PurchaseOrderDto> findAllPendingPurchaseOrder();
     
 }

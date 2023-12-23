@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.example.warehouseManagement.Domains.GoodsReceiptNote;
 import com.example.warehouseManagement.Domains.GoodsReceiptNote.GrnStatus;
 import com.example.warehouseManagement.Domains.GoodsReceiptNoteLine;
+import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus;
 import com.example.warehouseManagement.Domains.PurchaseOrderLine;
@@ -17,6 +18,7 @@ import com.example.warehouseManagement.Domains.Exceptions.ReceivedOrderModificat
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteLineRepository;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteRepository;
 import com.example.warehouseManagement.Repositories.ItemCostRepository;
+import com.example.warehouseManagement.Repositories.ItemRepository;
 import com.example.warehouseManagement.Repositories.PurchaseOrderLineRepository;
 import com.example.warehouseManagement.Repositories.PurchaseOrderRepository;
 
@@ -24,17 +26,20 @@ import com.example.warehouseManagement.Repositories.PurchaseOrderRepository;
 public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final PurchaseOrderLineRepository purchaseOrderLineRepository;
+    private final ItemRepository itemRepository;
     private final ItemCostRepository itemCostRepository;
     private final GoodsReceiptNoteRepository goodsReceiptNoteRepository;
     private final GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository;
 
     public PurchaseOrderServiceImpl(PurchaseOrderRepository purchaseOrderRepository,
             PurchaseOrderLineRepository purchaseOrderLineRepository,
+            ItemRepository itemRepository,
             ItemCostRepository itemCostRepository,
             GoodsReceiptNoteRepository goodsReceiptNoteRepository,
             GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository) {
         this.purchaseOrderLineRepository = purchaseOrderLineRepository;
         this.purchaseOrderRepository = purchaseOrderRepository;
+        this.itemRepository = itemRepository;
         this.itemCostRepository = itemCostRepository;
         this.goodsReceiptNoteRepository = goodsReceiptNoteRepository;
         this.goodsReceiptNoteLineRepository = goodsReceiptNoteLineRepository;
@@ -86,10 +91,37 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             if (existing.getStatus() == PoStatus.RECEIVED) {
                 throw new ReceivedOrderModificationException();
             }
-            // Business Rules -> Only allow sales order modification on customer (for clients with differents corporations or that changed corporation)
-            // And changes in sales order lines
-            existing.setVendor(purchaseOrder.getVendor());
-            existing.setPurchaseOrderLines(purchaseOrder.getPurchaseOrderLines());
+
+            for (int i=0; i<existing.getPurchaseOrderLines().size(); i++) {
+                // Checks if sales order line item was modified
+                Long existingSolItemId = existing.getPurchaseOrderLines().get(i).getItem().getId();
+                Long modifiedSolItemId = purchaseOrder.getPurchaseOrderLines().get(i).getItem().getId();
+                int existingSolQty = existing.getPurchaseOrderLines().get(i).getQty();
+                int modifiedSolQty = purchaseOrder.getPurchaseOrderLines().get(i).getQty();
+
+                if (existingSolItemId != modifiedSolItemId) {
+                    Item modifiedItem = itemRepository.findById(modifiedSolItemId).get();
+                    existing.getPurchaseOrderLines().get(i).setItem(modifiedItem);
+                }
+                if (existingSolQty != modifiedSolQty) {
+                    existing.getPurchaseOrderLines().get(i).setQty(modifiedSolQty);
+                } 
+            }
+            // Checks if a new sales order line was added to existing sales order
+            int existingpurchaseOrderLines = existing.getPurchaseOrderLines().size();
+            int modifiedpurchaseOrderLines = purchaseOrder.getPurchaseOrderLines().size();
+            if (existingpurchaseOrderLines < modifiedpurchaseOrderLines) {
+                for (int i=existingpurchaseOrderLines; i<modifiedpurchaseOrderLines; i++) {
+                    Long newItemId = purchaseOrder.getPurchaseOrderLines().get(i).getItem().getId();
+                    int qty = purchaseOrder.getPurchaseOrderLines().get(i).getQty();
+                    Item modifiedItem = itemRepository.findById(newItemId).get();
+                    PurchaseOrderLine newpurchaseOrderLine = PurchaseOrderLine.builder().item(modifiedItem)
+                        .itemCost(itemCostRepository.findCurrentItemCostByItemId(newItemId))
+                        .qty(qty).purchaseOrder(existing).build();
+                    purchaseOrderLineRepository.save(newpurchaseOrderLine);
+                }
+            }
+
             return purchaseOrderRepository.save(existing);
         }
     }
@@ -132,6 +164,11 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public List<PurchaseOrderDto> findAllPurchaseOrder() {
         return purchaseOrderRepository.findAllPurchaseOrder();
+    }
+
+    @Override
+    public List<PurchaseOrderDto> findAllPendingPurchaseOrder() {
+        return purchaseOrderRepository.findAllPendingPurchaseOrder();
     }
 
 }

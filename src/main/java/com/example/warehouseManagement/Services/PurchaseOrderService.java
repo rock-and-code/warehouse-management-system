@@ -51,9 +51,14 @@ public interface PurchaseOrderService {
      */
     public void delete(PurchaseOrder purchaseOrder);
     /**
-     * Returns a list of all the sales orders persisted in the dba
+     * Returns a list of all the purchase orders persisted in the dba
      * @return
      */
     public List<PurchaseOrderDto> findAllPurchaseOrder();
+    /**
+     * Returns a list of all the pending purchase orders persisted in the dba
+     * @return
+     */
+    public List<PurchaseOrderDto> findAllPendingPurchaseOrder();
 
 }

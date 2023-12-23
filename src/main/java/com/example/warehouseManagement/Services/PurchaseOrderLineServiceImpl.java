@@ -2,10 +2,13 @@ package com.example.warehouseManagement.Services;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.PurchaseOrderLine;
 import com.example.warehouseManagement.Repositories.PurchaseOrderLineRepository;
 
+@Service
 public class PurchaseOrderLineServiceImpl implements PurchaseOrderLineService {
     private final PurchaseOrderLineRepository purchaseOrderLineRepository;
 

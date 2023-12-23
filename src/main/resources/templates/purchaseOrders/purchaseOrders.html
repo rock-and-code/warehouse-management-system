@@ -26,6 +26,27 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESSFUL UPDATE SO -->
+    <div th:if="${param.updated}">
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            Purchase Order has been updated
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESSFUL SO DELETION -->
+    <div th:if="${param.purchaseOrderDeleted}">
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            Purchase Order Deleted
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON FAILED UPDATE -->
+    <div th:if="${param.cannotBeUpdated}">
+        <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+            Received Order Cannot be Updated
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
     <!-- Page headers -->
     <h1 class="my-3" th:text="|Purchase Orders|">Customer List</h1>
     <!-- Customer list as table -->
@@ -37,6 +58,7 @@
                 <th scope="col">Total</th>
                 <th scope="col">Details</th>
                 <th scope="col"></th>
+                <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
@@ -45,6 +67,12 @@
                 <td th:text="${purchaseOrder.id}">Mark</td>
                 <td th:text="${#numbers.formatCurrency(purchaseOrder.total)}">Otto</td>
                 <td><a th:href="@{/purchase-orders/{orderId}(orderId=${purchaseOrder.id})}" class="btn btn-outline-secondary">Details</a></td>
+                <div class="update" th:if="${purchaseOrder.status == 0}">
+                    <td><a th:href="@{|/purchase-orders/${purchaseOrder.id}/update|}" class="btn btn-outline-secondary">Edit</a></td>
+                </div>
+                <div class="update" th:unless="${purchaseOrder.status == 0}">
+                    <td></td>
+                </div>
                 <td>
                     <form th:action="@{/purchase-orders/{orderId}(orderId=${purchaseOrder.id})}" method="post">
                         <button type="submit" class="btn btn-dark" name="delete">Delete</button>

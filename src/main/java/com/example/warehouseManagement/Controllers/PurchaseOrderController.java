@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus;
 import com.example.warehouseManagement.Domains.PurchaseOrderLine;
+import com.example.warehouseManagement.Domains.Exceptions.PurchaseOrderNotFoundException;
+import com.example.warehouseManagement.Domains.Exceptions.ReceivedOrderModificationException;
 import com.example.warehouseManagement.Services.ItemService;
+import com.example.warehouseManagement.Services.PurchaseOrderLineService;
 import com.example.warehouseManagement.Services.PurchaseOrderService;
 import com.example.warehouseManagement.Services.VendorService;
 import com.example.warehouseManagement.Util.Counter;
@@ -25,21 +28,26 @@ import jakarta.servlet.http.HttpServletRequest;
 public class PurchaseOrderController {
 
     private static final String PURCHASE_ORDER_PATH = "purchase-orders";
+    private static final String PENDING_PURCHASE_ORDER_PATH = PURCHASE_ORDER_PATH + "/pending";
     private static final String NEW_PURCHASE_ORDER_PATH = PURCHASE_ORDER_PATH + "/new-purchase-order";
     private static final String PURCHASE_ORDER_ID_PATH = PURCHASE_ORDER_PATH + "/{orderId}";
+    private static final String UPDATE_PURCHASE_ORDER_ID_PATH = PURCHASE_ORDER_ID_PATH + "/update";
     private final PurchaseOrderService purchaseOrderService;
+    private final PurchaseOrderLineService purchaseOrderLineService;
     private final VendorService vendorService;
     private final ItemService itemService;
 
     /**
      * Constructor
      * @param purchaseOrderService the purchaseOrderService to use
+     * @param purchaseOrderLineService the purchaseOrderLineService to use
      * @param vendorService the vendorService to use
      * @param itemService the itemService to use
      */
-    public PurchaseOrderController(PurchaseOrderService purchaseOrderService, VendorService vendorService,
-            ItemService itemService) {
+    public PurchaseOrderController(PurchaseOrderService purchaseOrderService, PurchaseOrderLineService purchaseOrderLineService,
+            VendorService vendorService, ItemService itemService) {
         this.purchaseOrderService = purchaseOrderService;
+        this.purchaseOrderLineService = purchaseOrderLineService;
         this.vendorService = vendorService;
         this.itemService = itemService;
     }
@@ -92,7 +100,7 @@ public class PurchaseOrderController {
     @PostMapping(value = NEW_PURCHASE_ORDER_PATH, params = "removeRow")
     public String removePurchaseOrderLine(@ModelAttribute PurchaseOrder purchaseOrder,
             HttpServletRequest request, Model model) {
-        // newSalesOrderDto.addOrderLine();
+        // newpurchaseOrderDto.addOrderLine();
         final int rowId = Integer.valueOf(request.getParameter("removeRow"));
         // Remove the purchase order line based on the row ID
         purchaseOrder.getPurchaseOrderLines().remove(rowId);
@@ -138,6 +146,25 @@ public class PurchaseOrderController {
         return "purchaseOrders/purchaseOrders";
     }
 
+     /**
+     * GET /sales-order/pending
+     *
+     * Gets all sales orders.
+     *
+     * @param model a Model object to be populated with data for the view
+     * @return the name of the view to render
+     */
+    @GetMapping(value = PENDING_PURCHASE_ORDER_PATH)
+    public String getAllPendingPurchaseOrders(Model model) {
+        // TODO: -> Add pagination (25 records per page)
+        // Add the title, customers, and sales orders to the model.
+        model.addAttribute("title", "Purchase Orders");
+        model.addAttribute("vendors", vendorService.findAll());
+        model.addAttribute("purchaseOrders", purchaseOrderService.findAllPendingPurchaseOrder());
+        // Return the name of the view to render.
+        return "purchaseOrders/purchaseOrders";
+    }
+
     /**
      * Handles a GET request to fetch details of a specific purchase order.
      *
@@ -162,6 +189,116 @@ public class PurchaseOrderController {
             // with a not found error message.
             return "redirect:/purchase-orders?notFound";
         }
+    }
+
+     /**
+     * GET /purchase-order/{orderId}/update
+     *
+     * Gets the purchase order update form for the given purchase order ID.
+     *
+     * @param orderId the purchase order ID
+     * @param model   a Model object to be populated with data for the view
+     * @return the name of the view to render, or a redirect to the purchase orders
+     *         list page if the purchase order is not found
+     */
+    @GetMapping(value = UPDATE_PURCHASE_ORDER_ID_PATH)
+    public String getUpdatePurchaseOrderForm(@PathVariable Long orderId, Model model) {
+        Optional<PurchaseOrder> order = purchaseOrderService.findById(orderId);
+        // If the purchase order is found, add it to the model and return the name of the
+        // view to render.
+        if (order.isPresent()) {
+            model.addAttribute("title", "Purchase Orders");
+            model.addAttribute("vendors", vendorService.findAll());
+            model.addAttribute("purchaseOrder", order.get());
+            model.addAttribute("persistedOrder", order.get());
+            model.addAttribute("counter", new Counter());
+            return "purchaseOrders/updatePurchaseOrderForm";
+        } else {
+            // The purchase order is not found, redirect to the purchase orders list page.
+            return "redirect:/purchase-orders?notFound";
+        }
+    }
+
+    /**
+     * POST /purchase-order/{purchaseOrderId}/update?addRow
+     *
+     * Adds a new purchase order line to the update purchase order form.
+     *
+     * @param purchaseOrder a purchaseOrder object to be populated with form data
+     * @param request    an HttpServletRequest object
+     * @param model      a Model object to be populated with data for the view
+     * @return the name of the view to render
+     */
+    @PostMapping(value = UPDATE_PURCHASE_ORDER_ID_PATH, params = "addRow")
+    public String addPurchaseOrderLineToUpdateOrderForm(@ModelAttribute PurchaseOrder purchaseOrder,
+            @PathVariable("orderId") Long id, HttpServletRequest request, Model model) {
+        // Adding new purchase order line to purchase order
+        PurchaseOrder order = purchaseOrderService.findById(id).get();
+        purchaseOrder.getPurchaseOrderLines().add(new PurchaseOrderLine());
+
+        model.addAttribute("persistedOrder", order);
+        model.addAttribute("purchaseOrder", purchaseOrder);
+        model.addAttribute("vendors", vendorService.findAll());
+        model.addAttribute("items", itemService.findAll());
+        return "purchaseOrders/updatePurchaseOrderForm";
+    }
+
+    /**
+     * POST /purchase-order/{purchaseOrderId}/update?removeRow
+     *
+     * Removes a purchase order line from the update purchase order form.
+     *
+     * @param purchaseOrder a purchaseOrder object to be populated with form data
+     * @param request    an HttpServletRequest object
+     * @param model      a Model object to be populated with data for the view
+     * @return the name of the view to render
+     */
+    @PostMapping(value = UPDATE_PURCHASE_ORDER_ID_PATH, params = "removeRow")
+    public String removePurchaseOrderLineFromUpdateOrderForm(@ModelAttribute PurchaseOrder purchaseOrder,
+            @PathVariable("orderId") Long id, HttpServletRequest request, Model model) {
+        PurchaseOrder order = purchaseOrderService.findById(id).get();
+        // Checks if other was already received
+        if (purchaseOrder.getStatus() == PoStatus.RECEIVED) {
+            return "purchaseOrders/cannotBeUpdated";
+        }
+        final int rowId = Integer.valueOf(request.getParameter("removeRow"));
+        // Delete Line
+        PurchaseOrderLine deletepurchaseOrderLine = order.getPurchaseOrderLines().get(rowId);
+        purchaseOrder.getPurchaseOrderLines().remove(rowId);
+        order.getPurchaseOrderLines().remove(rowId);
+        purchaseOrderLineService.delete(deletepurchaseOrderLine);
+
+        model.addAttribute("purchaseOrder", purchaseOrder);
+        model.addAttribute("persistedOrder", order);
+        model.addAttribute("vendors", vendorService.findAll());
+        model.addAttribute("items", itemService.findAll());
+        return "purchaseOrders/updatepurchaseOrderForm";
+    }
+
+    /**
+     * POST /purchase-order/{purchaseOrderId}/update?save
+     *
+     * Update an existing purchase order by a given id.
+     *
+     * @param purchaseOrder a purchaseOrder object to be populated with form data
+     * @param request    an HttpServletRequest object
+     * @param model      a Model object to be populated with data for the view
+     * @return the name of the view to render, or a redirect to the purchase orders
+     *         list page if the purchase order is saved successfully
+     */
+    @PostMapping(value = UPDATE_PURCHASE_ORDER_ID_PATH, params = "save")
+    public String updatepurchaseOrder(@PathVariable("orderId") Long id, @ModelAttribute PurchaseOrder purchaseOrder,
+            HttpServletRequest request, Model model) {
+        try {
+            purchaseOrderService.updateById(id, purchaseOrder);
+        } catch (PurchaseOrderNotFoundException e) {
+            return "redirect:/purchase-orders?notFound";
+        } catch (ReceivedOrderModificationException e) {
+            return "redirect:/purchase-orders?cannotBeUpdated";
+        }
+        // Redirect to the purchase orders list page if the purchase order was updated
+        // successfully.
+        return "redirect:/purchase-orders?updated";
     }
 
     /**
