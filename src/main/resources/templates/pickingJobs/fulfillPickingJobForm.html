@@ -8,7 +8,7 @@
     <!-- Page headers -->
     <h1 class="my-3 text-center" th:text="|Customer: ${pickingJob.salesOrder.customer.name}|">Customer</h1>
     <!-- Customer list as table -->
-    <form action="#" th:action="@{/picking-job/fulfill-job/{pickingJobId}(pickingJobId=${pickingJob.id})}"
+    <form action="#" th:action="@{/picking-jobs/fulfill-job/{pickingJobId}(pickingJobId=${pickingJob.id})}"
         th:object="${pickingJobDto}" method="post" class="row g-3 needs-validation" novalidate>
         <table class="table">
             <div class="col-md-6">

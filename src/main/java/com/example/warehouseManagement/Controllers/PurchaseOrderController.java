@@ -66,7 +66,7 @@ public class PurchaseOrderController {
         model.addAttribute("purchaseOrder", purchaseOrder);
         model.addAttribute("vendors", vendorService.findAll());
         model.addAttribute("items", itemService.findAll());
-        return "purchaseOrders/purchaseOrderForm";
+        return "purchaseOrders/newPurchaseOrderForm";
     }
 
     /**
@@ -86,7 +86,7 @@ public class PurchaseOrderController {
         model.addAttribute("purchaseOrder", purchaseOrder);
         model.addAttribute("vendors", vendorService.findAll());
         model.addAttribute("items", itemService.findAll());
-        return "purchaseOrders/purchaseOrderForm";
+        return "purchaseOrders/newPurchaseOrderForm";
     }
 
     /**

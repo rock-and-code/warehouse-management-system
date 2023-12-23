@@ -174,7 +174,7 @@ public class VendorController {
 
         // Delete the vendor and redirect to the list of vendors with a success message.
         vendorService.delete(vendor.get());
-        return "redirect:/vendor/deleted";
+        return "redirect:/vendors?deleted";
     }
 
 }

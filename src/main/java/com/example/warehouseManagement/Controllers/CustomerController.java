@@ -174,7 +174,7 @@ public class CustomerController {
 
         // Delete the customer and redirect to the list of customers with a success message.
         customerService.delete(customer.get());
-        return "redirect:/customers/deleted";
+        return "redirect:/customers?deleted";
     }
 
 }

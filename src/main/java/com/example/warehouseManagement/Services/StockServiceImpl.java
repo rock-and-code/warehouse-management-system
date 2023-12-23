@@ -33,6 +33,12 @@ public class StockServiceImpl implements StockService {
     public void pickStock(PickingJob pickingJob) {
         for (PickingJobLine pickingJobLine : pickingJob.getPickingJobLines()) {
             Stock stock = stockRepository.findByWarehouseSectionAndItemId(pickingJobLine.getWarehouseSection().getId(), pickingJobLine.getItem().getId());
+            if (stock == null)
+                continue; // May happends that a picking job has several lines for same product 
+                // and since we are using a form to fullfil the job for simulation purposes rathern than scanning an 
+                // item at the warehouse bin loncation where we can see if a product is available or not
+                // we need to check if stock is null since it may be deleted by a previous picked lined and not 
+                // available for current picking job line
             int remainingBalance = stock.getQtyOnHand() - pickingJobLine.getQtyPicked();
             Long wareHouseSectionId = pickingJobLine.getWarehouseSection().getId();
             Long itemId = pickingJobLine.getItem().getId();

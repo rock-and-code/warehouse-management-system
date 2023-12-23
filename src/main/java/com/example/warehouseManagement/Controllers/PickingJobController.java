@@ -147,7 +147,7 @@ public class PickingJobController {
             // Create an invoice based on the picking job
             invoiceService.createByPickingJob(pickingJob.get());
             // Redirect to the picking job list page with an error message.
-            return "redirect:/picking-jobs";
+            return "redirect:/picking-jobs?fulfilled";
         } else {
             // Redirect to the picking job list page with an error message.
             return "redirect:/picking-jobs?notFound";

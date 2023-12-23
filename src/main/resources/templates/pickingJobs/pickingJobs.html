@@ -5,24 +5,17 @@
 <div th:insert="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
-    <!-- ALERTS TO PROVIDE USER FEEDBACK ON UNSUCCESSFUL PO DELETION -->
-    <div th:if="${param.failedToDelete}">
-        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-            Cannot delete a received purchase order!
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    </div>
     <!-- ALERTS TO PROVIDE USER FEEDBACK ON NOT FOUND PO -->
     <div th:if="${param.notFound}">
         <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
-            PO not found
+            Picking Job not found
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
     <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESSFUL ADDED PO -->
-    <div th:if="${param.added}">
+    <div th:if="${param.fulfilled}">
         <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-            PO added to the database
+            Picking Job fulfilled
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>

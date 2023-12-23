@@ -5,7 +5,7 @@
 <div th:insert="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
-    
+
     <div class="col-md-6 mx-auto">
         <!-- Page headers -->
         <h1 class="my-3 text-center">Backorders By Year</h1>
@@ -16,7 +16,8 @@
             <!-- Year -->
             <div class="my-3">
                 <label for="year" class="form-label">Year</label>
-                <input class="form-control" th:field="*{year}" type="number" value="2023" min="2023" max="2023" id="year" aria-label="Default select example" required>
+                <input class="form-control" th:field="*{year}" type="number" value="2023" min="2023" max="2023"
+                    id="year" aria-label="Default select example" required>
                 <div class="invalid-feedback">
                     Please enter a year
                 </div>
@@ -44,7 +45,6 @@
                 <div class="invalid-feedback">
                     Please select a month
                 </div> -->
-            </div>
 
             <!-- SEARCH BUTTON -->
             <div class="">

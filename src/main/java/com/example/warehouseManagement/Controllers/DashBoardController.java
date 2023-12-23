@@ -16,7 +16,7 @@ import com.example.warehouseManagement.Services.StockService;
 public class DashBoardController {
 
     // private static final String DASH_BOARD_PATH = "dashboar";
-    private final SalesOrderService salesOrderService;
+    private final SalesOrderService salesOrderService; // may need to be changed for invoiced sales orders
     private final StockService stockService;
 
     /**
