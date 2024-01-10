@@ -51,14 +51,25 @@ public class PurchaseOrder {
 
     public double getTotal() {
         double total = 0;
-        for (int i=0; i<purchaseOrderLines.size(); i++) {
+        for (int i = 0; i < purchaseOrderLines.size(); i++) {
             total += purchaseOrderLines.get(i).getItemCost().getCost() * purchaseOrderLines.get(i).getQty();
         }
         return total;
     }
 
     public enum PoStatus {
-        IN_TRANSIT, //0
-        RECEIVED //1
+        IN_TRANSIT(0),
+        RECEIVED(1),
+        PARTIALLY_RECEIVED(2);
+
+        private final int pk;
+
+        PoStatus(int pk) {
+            this.pk = pk;
+        }
+
+        public int getPk() {
+            return pk;
+        }
     }
 }

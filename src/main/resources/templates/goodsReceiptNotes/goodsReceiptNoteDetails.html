@@ -16,7 +16,7 @@
                 <th scope="col">Item</th>
                 <th scope="col">Description</th>
                 <th scope="col">Qty Received</th>
-                <th scope="col">Damaged?</th>
+                <!-- <th scope="col">Condition</th> -->
             </tr>
         </thead>
         <tbody>
@@ -25,7 +25,7 @@
                     <td th:text="${goodsReceiptNoteLine.item.sku}">Mark</td>
                     <td th:text="${goodsReceiptNoteLine.item.description}">Otto</td>
                     <td th:text="${goodsReceiptNoteLine.qty}">Otto</td>
-                    <td th:text="${goodsReceiptNoteLine.damaged}">Otto</td>
+                    <!-- <td th:text="${goodsConditionMapper.getCondition(goodsReceiptNoteLine.condition)}">Damaged</td> -->
                     <!-- TODO: Adds button to delete sales order (first: implement sales order CRUD controll) -->
                 </tr>
         </tbody>
@@ -33,7 +33,7 @@
 </div>
 
 <div class="container my-3">
-    <a th:href="@{/goods-receipt-notes}"
+    <a th:href="@{/goods-receipt-notes/fulfilled-goods-receipt-notes}"
         class="btn btn-outline-secondary col-12">Back</a>
 </div>
 

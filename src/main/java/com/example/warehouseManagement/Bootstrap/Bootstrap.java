@@ -220,23 +220,23 @@ public class Bootstrap implements CommandLineRunner {
                 // Adds the saved purchase order to the po queue
                 if (savedPurchaseOrder.getStatus() == PoStatus.RECEIVED)
                     receivedPurchaseOrders.offer(savedPurchaseOrder);
-                else {
-                    // Adding pending GRN
-                    GoodsReceiptNote goodsReceiptNote = GoodsReceiptNote.builder().date(date)
-                            .purchaseOrder(savedPurchaseOrder).date(savedPurchaseOrder.getDate()).status(GrnStatus.PENDING).build();
-                    GoodsReceiptNote savedGoodsReceiptNote = goodsReceiptNoteRepository.save(goodsReceiptNote);
+                // else {
+                //     // Adding pending GRN
+                //     GoodsReceiptNote goodsReceiptNote = GoodsReceiptNote.builder().date(date)
+                //             .purchaseOrder(savedPurchaseOrder).date(savedPurchaseOrder.getDate()).status(GrnStatus.PENDING).build();
+                //     GoodsReceiptNote savedGoodsReceiptNote = goodsReceiptNoteRepository.save(goodsReceiptNote);
 
-                    for (PurchaseOrderLine pol : savedPurchaseOrder.getPurchaseOrderLines()) {
-                        GoodsReceiptNoteLine goodsReceiptNoteLine = GoodsReceiptNoteLine.builder()
-                                .goodsReceiptNote(savedGoodsReceiptNote)
-                                .qty(pol.getQty()).item(pol.getItem()).build();
-                        GoodsReceiptNoteLine savedGoodsReceiptNoteLine = goodsReceiptNoteLineRepository
-                                .save(goodsReceiptNoteLine);
-                        savedGoodsReceiptNote.getGoodsReceiptNoteLines().add(savedGoodsReceiptNoteLine);
-                        savedPurchaseOrder.getGoodsReceiptNotes().add(savedGoodsReceiptNote);
-                        //purchaseOrderRepository.save(savedPurchaseOrder);
-                    }
-                }
+                //     for (PurchaseOrderLine pol : savedPurchaseOrder.getPurchaseOrderLines()) {
+                //         GoodsReceiptNoteLine goodsReceiptNoteLine = GoodsReceiptNoteLine.builder()
+                //                 .goodsReceiptNote(savedGoodsReceiptNote)
+                //                 .qty(pol.getQty()).item(pol.getItem()).build();
+                //         GoodsReceiptNoteLine savedGoodsReceiptNoteLine = goodsReceiptNoteLineRepository
+                //                 .save(goodsReceiptNoteLine);
+                //         savedGoodsReceiptNote.getGoodsReceiptNoteLines().add(savedGoodsReceiptNoteLine);
+                //         savedPurchaseOrder.getGoodsReceiptNotes().add(savedGoodsReceiptNote);
+                //         //purchaseOrderRepository.save(savedPurchaseOrder);
+                //     }
+                // }
             }
         }
 
@@ -306,19 +306,17 @@ public class Bootstrap implements CommandLineRunner {
         savedWarehouse.getSections().add(savedDamagedSection);
         // savedWarehouse.getSections().add(savedPickingSection);
 
-        
-
-
         // adds Goods receipt notes, goods receipt notes lines to add stock levels in
         // the warehouse
         int WAREHOUSE_SECTIONS = savedWarehouseSections.size();
 
         while (!receivedPurchaseOrders.isEmpty()) {
             PurchaseOrder rPurchaseOrder = receivedPurchaseOrders.poll();
-            int plusDays = random.nextInt(30, 90);
+            int plusDays = random.nextInt(30, 90); // to simulate receiving an order 30 to 90 after 
+            // placing it
             LocalDate date = rPurchaseOrder.getDate().plusDays(plusDays);
             GoodsReceiptNote goodsReceiptNote = GoodsReceiptNote.builder().date(date).purchaseOrder(rPurchaseOrder)
-                    .date(date).status(GrnStatus.RECEIVED).build();
+                    .status(GrnStatus.FULFILLED).build();
             GoodsReceiptNote grn = goodsReceiptNoteRepository.save(goodsReceiptNote);
             GoodsReceiptNote savedGoodsReceiptNote = goodsReceiptNoteRepository.save(grn);
 
@@ -343,7 +341,7 @@ public class Bootstrap implements CommandLineRunner {
         // TC(MSO)
         for (Customer customer : savedCustomers) {
             for (int i = 0; i < SALES_ORDER; i++) {
-                int month = random.nextInt(1, 12);
+                int month = random.nextInt(1, 13); // to include december
                 int day = (month == 2) ? random.nextInt(1, 28) : random.nextInt(1, 30);
                 int year = 2023;
                 LocalDate date = LocalDate.of(year, month, day);

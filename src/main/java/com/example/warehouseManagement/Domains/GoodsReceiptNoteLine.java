@@ -25,13 +25,14 @@ public class GoodsReceiptNoteLine {
     @Column(name = "id")
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "goods_receipt_note_id") //Foreign key to goods receipt note entity
+    @JoinColumn(name = "goods_receipt_note_id") // Foreign key to goods receipt note entity
     private GoodsReceiptNote goodsReceiptNote;
-    @Column(name = "damaged")
-    private boolean damaged;
     @Column(name = "qty")
     private int qty;
     @ManyToOne
-    @JoinColumn(name= "item_id") //Map foreign key in product entity
+    @JoinColumn(name = "item_id") // Map foreign key in product entity
     private Item item;
+    @Column(name = "notes")
+    private String notes;
+
 }

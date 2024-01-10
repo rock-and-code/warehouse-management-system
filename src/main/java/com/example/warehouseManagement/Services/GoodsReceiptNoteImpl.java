@@ -1,7 +1,6 @@
 package com.example.warehouseManagement.Services;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,9 +11,12 @@ import com.example.warehouseManagement.Domains.GoodsReceiptNote.GrnStatus;
 import com.example.warehouseManagement.Domains.GoodsReceiptNoteLine;
 import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.PurchaseOrder;
+import com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus;
+import com.example.warehouseManagement.Domains.PurchaseOrderLine;
 import com.example.warehouseManagement.Domains.Stock;
 import com.example.warehouseManagement.Domains.WarehouseSection;
 import com.example.warehouseManagement.Domains.DTOs.GoodsReceiptNoteDto;
+import com.example.warehouseManagement.Domains.DTOs.GoodsReceiptNoteLineDto;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteLineRepository;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteRepository;
 import com.example.warehouseManagement.Repositories.StockRepository;
@@ -22,10 +24,7 @@ import com.example.warehouseManagement.Repositories.WarehouseSectionRepository;
 
 @Service
 public class GoodsReceiptNoteImpl implements GoodsReceiptNoteService {
-    private final String DAMAGE_WH_SECTION = "11-11-1-1";
-    private final int NOT_FULFILLED = 0;
-    private final int PARTIALLY_FULFILLED = 1;
-    private final int FULFILLED = 2;
+    private final String FLOOR_WH_SECTION = "00-00-0-0";
     private final GoodsReceiptNoteRepository goodsReceiptNoteRepository;
     private final GoodsReceiptNoteLineRepository goodsReceiptNoteLineRepository;
     private final StockRepository stockRepository;
@@ -54,16 +53,16 @@ public class GoodsReceiptNoteImpl implements GoodsReceiptNoteService {
      * Returns a Goods receipt note by a given purchase order number
      */
     @Override
-    public Optional<GoodsReceiptNote> findByPurchaseOrder(int purchaseOrder) {
-        return goodsReceiptNoteRepository.findByPurchaseOrder(purchaseOrder);
+    public Optional<GoodsReceiptNote> findByPurchaseOrder(Long purchaseOrderNumber) {
+        return goodsReceiptNoteRepository.findByPurchaseOrder(purchaseOrderNumber);
     }
 
     /**
      * Returns a list of all the goods receipt notes by a given vendor
      */
     @Override
-    public List<GoodsReceiptNote> findAllByVendor(Long vendorId) {
-        return goodsReceiptNoteRepository.findAllByVendor(vendorId);
+    public List<GoodsReceiptNote> findAllPendingByVendor(Long vendorId) {
+        return goodsReceiptNoteRepository.findAllPendingByVendor(vendorId);
     }
 
     /**
@@ -93,61 +92,74 @@ public class GoodsReceiptNoteImpl implements GoodsReceiptNoteService {
     }
 
     @Override
-    public int fulfill(GoodsReceiptNote goodsReceiptNote, GoodsReceiptNoteDto goodsReceiptNoteDto) {
-        goodsReceiptNote.setStatus(GrnStatus.RECEIVED);
+    public GoodsReceiptNote fulfill(GoodsReceiptNote goodsReceiptNote, GoodsReceiptNoteDto goodsReceiptNoteDto) {
         PurchaseOrder purchaseOrder = goodsReceiptNote.getPurchaseOrder();
         int purchaseOrderLines = purchaseOrder.getPurchaseOrderLines().size();
         int receivedPurchaseOrderLines = 0;
-        // new goods receipt note for items not received or pending to receive in other shipments
-        GoodsReceiptNote newGoodsReceiptNote = GoodsReceiptNote.builder().purchaseOrder(purchaseOrder).status(GrnStatus.PENDING).date(LocalDate.now()).build(); 
-        List<GoodsReceiptNoteLine> pendingGoodsReceiptNoteLines = new ArrayList<>();
+        // Usually the receiving department receive items to a area designated, generally, as the floor to 
+        // then move the goods to designated areas in the warehouse (put away process)
+        Optional<WarehouseSection> floor = warehouseSectionRepository.findBySectionNumber(FLOOR_WH_SECTION);
         // Create a new good
-        for (int i=0; i<goodsReceiptNoteDto.getGoodsReceiptNoteLines().size(); i++) {
-            int qty = goodsReceiptNoteDto.getGoodsReceiptNoteLines().get(i).getQty();
-            Item item = goodsReceiptNote.getGoodsReceiptNoteLines().get(i).getItem();
-            Long warehouseSectionId = goodsReceiptNoteDto.getGoodsReceiptNoteLines().get(i).getWarehouseSectionId();
-            if (warehouseSectionId == null) {// Handling the possibility that front-end validations fails
-                // creates a new goods receipt note for items not received
-                GoodsReceiptNoteLine newGoodsReceiptNoteLine = GoodsReceiptNoteLine.builder().item(item).qty(qty).build();
-                pendingGoodsReceiptNoteLines.add(newGoodsReceiptNoteLine);
-                continue;
-            }
-            Optional<WarehouseSection> warehouseSection = warehouseSectionRepository.findById(warehouseSectionId);
-            Stock stock;
-            boolean damaged = (goodsReceiptNoteDto.getGoodsReceiptNoteLines().get(i).getDamaged() == 0) ? false : true;
-            // Place stocks on given warehosue or on damages section
-            if (damaged) {
-                Optional<WarehouseSection> damagesWHSection = warehouseSectionRepository.findBySectionNumber(DAMAGE_WH_SECTION);
-                stock = Stock.builder().qtyOnHand(qty).item(item).warehouseSection(damagesWHSection.get()).build();
-            } else {
-                stock = Stock.builder().qtyOnHand(qty).item(item).warehouseSection(warehouseSection.get()).build();
-            }
-             
+        for (int i=0; i<goodsReceiptNote.getGoodsReceiptNoteLines().size(); i++) {
+            GoodsReceiptNoteLineDto goodsReceiptNoteLineDto = goodsReceiptNoteDto.getGoodsReceiptNoteLines().get(i);
+            GoodsReceiptNoteLine goodsReceiptNoteLine = goodsReceiptNote.getGoodsReceiptNoteLines().get(i);
+            int qty = goodsReceiptNoteLineDto.getQty();
+            String notes = goodsReceiptNoteLineDto.getNotes();
+            Item item = goodsReceiptNoteLine.getItem();
+            if (qty == 0) continue;
+            goodsReceiptNoteLine.setNotes(notes);
+            Stock stock = Stock.builder().qtyOnHand(qty).item(item).warehouseSection(floor.get()).build();
             stockRepository.save(stock);
+            goodsReceiptNoteLineRepository.save(goodsReceiptNoteLine);
             receivedPurchaseOrderLines++;
         }
-        if (receivedPurchaseOrderLines == 0) {
-            return NOT_FULFILLED;
-        }
+        if (receivedPurchaseOrderLines == 0) return null;
+
         else if (receivedPurchaseOrderLines < purchaseOrderLines) {
-            GoodsReceiptNote savedNewGoodsReceiptNote = goodsReceiptNoteRepository.save(newGoodsReceiptNote);
-            for (GoodsReceiptNoteLine newGoodsReceiptNoteLine : pendingGoodsReceiptNoteLines) {
-                newGoodsReceiptNoteLine.setGoodsReceiptNote(savedNewGoodsReceiptNote);
-                GoodsReceiptNoteLine savedNewGoodsReceiptNoteLine = goodsReceiptNoteLineRepository.save(newGoodsReceiptNoteLine);
-                savedNewGoodsReceiptNote.getGoodsReceiptNoteLines().add(savedNewGoodsReceiptNoteLine);
-            }
-            goodsReceiptNoteRepository.save(savedNewGoodsReceiptNote);
-            return PARTIALLY_FULFILLED;
+            purchaseOrder.setStatus(PoStatus.PARTIALLY_RECEIVED);
         }
-        else {
-            goodsReceiptNoteRepository.save(goodsReceiptNote);
-            return FULFILLED;
-        }
+        purchaseOrder.setStatus(PoStatus.RECEIVED);
+        goodsReceiptNote.setStatus(GrnStatus.FULFILLED);
+        return goodsReceiptNoteRepository.save(goodsReceiptNote);
     }
 
     @Override
     public List<GoodsReceiptNote> findAllPending() {
         return goodsReceiptNoteRepository.findAllPending();
+    }
+    
+    @Override
+    public List<GoodsReceiptNote> findAllFulfilled() {
+        return goodsReceiptNoteRepository.findAllFulfilled();
+    }
+
+    @Override
+    public GoodsReceiptNote create(PurchaseOrder purchaseOrder) {
+        GoodsReceiptNote goodsReceiptNote = GoodsReceiptNote.builder()
+                    .purchaseOrder(purchaseOrder).build();
+            // Create and persist a new Good receipt note
+            GoodsReceiptNote savedGoodsReceiptNote = goodsReceiptNoteRepository.save(goodsReceiptNote);
+            // Create and persist the goods receipt note lines from po
+            for (PurchaseOrderLine purchaseOrderLine : purchaseOrder.getPurchaseOrderLines()) {
+                // where each po line items will be stored
+                GoodsReceiptNoteLine newGoodsReceiptNoteLine = GoodsReceiptNoteLine.builder()
+                        .goodsReceiptNote(savedGoodsReceiptNote)
+                        .item(purchaseOrderLine.getItem())
+                        .qty(0).build();
+                GoodsReceiptNoteLine saveGoodsReceiptNoteLine = goodsReceiptNoteLineRepository.save(newGoodsReceiptNoteLine);
+                goodsReceiptNote.getGoodsReceiptNoteLines().add(saveGoodsReceiptNoteLine);
+            }
+        return goodsReceiptNoteRepository.save(savedGoodsReceiptNote);
+    }
+
+    public GoodsReceiptNoteDto addGoodReceiptNoteLines(GoodsReceiptNote goodsReceiptNote) {
+        GoodsReceiptNoteDto goodsReceiptNoteDto = GoodsReceiptNoteDto.builder()
+            .date(LocalDate.now())
+            .purchaseOrderId(goodsReceiptNote.getPurchaseOrder().getId()).build();
+        for (int i=0; i<goodsReceiptNote.getGoodsReceiptNoteLines().size(); i++) {
+            goodsReceiptNoteDto.getGoodsReceiptNoteLines().add(new GoodsReceiptNoteLineDto());
+        }
+        return goodsReceiptNoteDto;
     }
     
 }

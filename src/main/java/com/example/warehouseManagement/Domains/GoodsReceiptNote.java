@@ -52,7 +52,7 @@ public class GoodsReceiptNote {
 
     public enum GrnStatus {
         PENDING, //0
-        RECEIVED //1
+        FULFILLED //1
     }
 
 }

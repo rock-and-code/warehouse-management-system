@@ -1,0 +1,45 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <!-- Page headers -->
+    <h1 class="my-3" th:text="|Pending Goods Receipt Notes|">Customer List</h1>
+    <!-- Customer list as table -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Goods Receipt Note</th>
+                <th scope="col">Qty Received</th>
+                <th scope="col">Details</th>
+                <th scope="col">Fulfill</th>
+            </tr>
+        </thead>
+        <tbody>
+            <div th:if="${!goodsReceiptNotes.isEmpty()}">
+                <tr th:each="goodsReceiptNote : ${goodsReceiptNotes}">
+                    <th scope="row" th:text="|${#temporals.monthNameShort(goodsReceiptNote.date)} ${#temporals.format(goodsReceiptNote.date, ' dd, yyyy')}|">1</th>
+                    <td th:text="${goodsReceiptNote.id}">Mark</td>
+                    <td th:text="${goodsReceiptNote.getTotalQty()}">Otto</td>
+                    <td><a th:href="@{/goods-receipt-notes/{goodReceiptNoteId}(goodReceiptNoteId=${goodsReceiptNote.id})}" class="btn btn-outline-secondary">Details</a></td>
+                    <td><a th:href="@{|/goods-receipt-notes/${goodsReceiptNote.id}/receive|}" class="btn btn-outline-primary">Fulfill</a></td>
+                </tr>
+            </div>
+            <div th:unless="${!goodsReceiptNotes.isEmpty()}">
+                <tr>
+                    <th>1</th>
+                    <td>No peding goods receipt note to display</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </div>
+        </tbody>
+    </table>
+</div>
+
+<!-- Header fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>

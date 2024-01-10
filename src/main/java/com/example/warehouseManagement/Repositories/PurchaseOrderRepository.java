@@ -26,18 +26,22 @@ public interface PurchaseOrderRepository extends CrudRepository<PurchaseOrder, L
      * @return
      */
     @Query(value = """
-        SELECT\s
-        purchase_order.id AS "id",\s
-        purchase_order.status AS "status",\s
-        purchase_order.date AS "date", purchase_order.purchase_order_number AS "purchaseOrder",\s
-        ROUND(SUM(purchase_order_line.qty * item_cost.cost),2) AS "total"\s
-        FROM vendor AS V\s
-        INNER JOIN purchase_order ON purchase_order.vendor_id = V.id\s
-        INNER JOIN purchase_order_line ON purchase_order_line.purchase_order_id = purchase_order.id\s
-        INNER JOIN item_cost ON item_cost.id = purchase_order_line.item_cost_id\s
-        WHERE V.id = :vendorId \
-        GROUP BY purchase_order.purchase_order_number\s
-        ORDER BY purchase_order.date DESC\
+        SELECT
+            purchase_order.id AS "id",
+            purchase_order.status AS "status",
+            purchase_order.date AS "date", purchase_order.purchase_order_number AS "purchaseOrder",
+            ROUND(SUM(purchase_order_line.qty * item_cost.cost),2) AS "total"
+        FROM 
+            vendor AS V
+            INNER JOIN purchase_order ON purchase_order.vendor_id = V.id
+            INNER JOIN purchase_order_line ON purchase_order_line.purchase_order_id = purchase_order.id
+            INNER JOIN item_cost ON item_cost.id = purchase_order_line.item_cost_id
+        WHERE 
+            V.id = :vendorId
+        GROUP BY 
+            purchase_order.purchase_order_number
+        ORDER BY 
+            purchase_order.date DESC
         """, nativeQuery = true)
     public List<PurchaseOrderDto> findAllByVendor(@Param("vendorId") Long vendorId);
     /**
@@ -50,17 +54,20 @@ public interface PurchaseOrderRepository extends CrudRepository<PurchaseOrder, L
      * @return
      */
     @Query(value = """
-    SELECT\s
-    po.id AS "id",\s
-    po.status AS "status",\s
-    po.date AS "date",\s
-    po.id AS "purchaseOrder",\s
-    ROUND(SUM(purchase_order_line.qty * item_cost.cost),2) AS total\s
-    FROM purchase_order po\s
-    INNER JOIN purchase_order_line ON po.id = purchase_order_line.purchase_order_id\s
-    INNER JOIN item_cost ON item_cost.id = purchase_order_line.item_cost_id\s
-    GROUP BY po.id\s
-    ORDER BY po.date\
+        SELECT
+            po.id AS "id",
+            po.status AS "status",
+            po.date AS "date",
+            po.id AS "purchaseOrder",
+            ROUND(SUM(purchase_order_line.qty * item_cost.cost),2) AS total
+        FROM 
+            purchase_order po
+            INNER JOIN purchase_order_line ON po.id = purchase_order_line.purchase_order_id
+            INNER JOIN item_cost ON item_cost.id = purchase_order_line.item_cost_id
+        GROUP BY 
+            po.id
+        ORDER BY 
+            po.date
     """, nativeQuery = true)
     public List<PurchaseOrderDto> findAllPurchaseOrder();
 
@@ -69,18 +76,22 @@ public interface PurchaseOrderRepository extends CrudRepository<PurchaseOrder, L
      * @return
      */
     @Query(value = """
-    SELECT\s
-    po.id AS "id",\s
-    po.status AS "status",\s
-    po.date AS "date",\s
-    po.id AS "purchaseOrder",\s
-    ROUND(SUM(purchase_order_line.qty * item_cost.cost),2) AS total\s
-    FROM purchase_order po\s
-    INNER JOIN purchase_order_line ON po.id = purchase_order_line.purchase_order_id\s
-    INNER JOIN item_cost ON item_cost.id = purchase_order_line.item_cost_id\s
-    WHERE po.status = 0\s
-    GROUP BY po.id\s
-    ORDER BY po.date\
+    SELECT
+        po.id AS "id",
+        po.status AS "status",
+        po.date AS "date",
+        po.id AS "purchaseOrder",
+        ROUND(SUM(purchase_order_line.qty * item_cost.cost),2) AS total
+    FROM 
+        purchase_order po
+        INNER JOIN purchase_order_line ON po.id = purchase_order_line.purchase_order_id
+        INNER JOIN item_cost ON item_cost.id = purchase_order_line.item_cost_id
+    WHERE 
+        po.status = 0
+    GROUP BY 
+        po.id
+    ORDER BY 
+        po.date
     """, nativeQuery = true)
     public List<PurchaseOrderDto> findAllPendingPurchaseOrder();
     

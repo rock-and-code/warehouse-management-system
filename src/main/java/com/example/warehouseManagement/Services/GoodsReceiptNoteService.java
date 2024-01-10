@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.warehouseManagement.Domains.GoodsReceiptNote;
+import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.DTOs.GoodsReceiptNoteDto;
 
 public interface GoodsReceiptNoteService {
@@ -18,13 +19,13 @@ public interface GoodsReceiptNoteService {
      * @param purchaseOrder
      * @return
      */
-    public Optional<GoodsReceiptNote> findByPurchaseOrder(int purchaseOrder);
+    public Optional<GoodsReceiptNote> findByPurchaseOrder(Long purchaseOrderNumber);
     /**
      * Returns a list of Goods receipt notes by a given vendor
      * @param vendor
      * @return
      */
-    public List<GoodsReceiptNote> findAllByVendor(Long vendorId);
+    public List<GoodsReceiptNote> findAllPendingByVendor(Long vendorId);
     /**
      * Returns all the Goods receipt notes persisted in the dba
      * @return
@@ -44,6 +45,12 @@ public interface GoodsReceiptNoteService {
 
     public List<GoodsReceiptNote> findAllPending();
 
-    public int fulfill(GoodsReceiptNote goodsReceiptNote, GoodsReceiptNoteDto goodsReceiptNoteDto);
+    public List<GoodsReceiptNote> findAllFulfilled();
+
+    public GoodsReceiptNote fulfill(GoodsReceiptNote goodsReceiptNote, GoodsReceiptNoteDto goodsReceiptNoteDto);
+
+    public GoodsReceiptNote create(PurchaseOrder purchaseOrder);
+
+    public GoodsReceiptNoteDto addGoodReceiptNoteLines(GoodsReceiptNote goodsReceiptNote);
 }
 

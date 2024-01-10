@@ -1,0 +1,44 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <!-- Page headers -->
+    <h1 class="my-3" th:text="|Purchase Order|">Customer List</h1>
+    <!-- Customer list as table -->
+    <div th:if="${purchaseOrder == null}">
+        <h3 class="my-3">No matching Purchase Orders found</h3>
+    </div>
+    <table th:unless="${purchaseOrder == null}" class="table">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Purchase Order</th>
+                <th scope="col">Total</th>
+                <th scope="col">Details</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row" th:text="|${#temporals.monthNameShort(purchaseOrder.date)} ${#temporals.format(purchaseOrder.date, ' dd, yyyy')}|">1</th>
+                <td th:text="${purchaseOrder.id}">Mark</td>
+                <td th:text="${#numbers.formatCurrency(purchaseOrder.total)}">Otto</td>
+                <td><a th:href="@{/purchase-orders/{orderId}(orderId=${purchaseOrder.id})}" class="btn btn-outline-secondary">Details</a></td>
+                <div class="update" th:if="${purchaseOrder.getStatus().getPk() == 0}">
+                    <td><a th:href="@{|/goods-receipt-notes/${purchaseOrder.id}/receive|}" class="btn btn-outline-secondary">Receive</a></td>
+                </div>
+                <div class="update" th:unless="${purchaseOrder.getStatus().getPk() == 0}">
+                    <td>Received</td>
+                </div>
+            </tr>
+        </tbody>
+    </table>
+    <a th:href="@{|/goods-receipt-notes/search-purchase-order|}" class="btn btn-outline-secondary">Back</a>
+</div>
+
+
+<!-- Header fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>
