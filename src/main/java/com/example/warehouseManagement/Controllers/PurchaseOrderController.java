@@ -318,7 +318,7 @@ public class PurchaseOrderController {
                 // Deletes the purchase order from the database.
                 purchaseOrderService.delete(order.get());
                 // Redirects to the purchase order list page.
-                return "redirect:/purchase-orders";
+                return "redirect:/purchase-orders?purchaseOrderDeleted";
             } else {
                 // Redirects to the purchase order list page with a failed to delete error
                 // message.

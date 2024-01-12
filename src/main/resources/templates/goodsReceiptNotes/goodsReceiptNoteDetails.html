@@ -7,6 +7,7 @@
 <div class="container">
     <!-- Page headers -->
     <h1 class="my-3 text-center" th:text="|Good Receipt Note: ${goodsReceiptNote.id}|">Good Receipt Note</h1>
+    <h3 class="my-3 text-center" th:text="|Purchase Order: ${goodsReceiptNote.purchaseOrder.id}|">Good Receipt Note</h3>
     <h3 class="my-3 text-center" th:text="|Date: ${#temporals.monthNameShort(goodsReceiptNote.date)} ${#temporals.format(goodsReceiptNote.date, ' dd, yyyy')}|">Date</h3>
     <!-- Customer list as table -->
     <table class="table">
@@ -16,6 +17,7 @@
                 <th scope="col">Item</th>
                 <th scope="col">Description</th>
                 <th scope="col">Qty Received</th>
+                <th scope="col">Notes</th>
                 <!-- <th scope="col">Condition</th> -->
             </tr>
         </thead>
@@ -25,6 +27,7 @@
                     <td th:text="${goodsReceiptNoteLine.item.sku}">Mark</td>
                     <td th:text="${goodsReceiptNoteLine.item.description}">Otto</td>
                     <td th:text="${goodsReceiptNoteLine.qty}">Otto</td>
+                    <td th:text="${goodsReceiptNoteLine.notes}">Otto</td>
                     <!-- <td th:text="${goodsConditionMapper.getCondition(goodsReceiptNoteLine.condition)}">Damaged</td> -->
                     <!-- TODO: Adds button to delete sales order (first: implement sales order CRUD controll) -->
                 </tr>

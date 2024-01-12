@@ -107,7 +107,10 @@ public class GoodsReceiptNoteImpl implements GoodsReceiptNoteService {
             String notes = goodsReceiptNoteLineDto.getNotes();
             Item item = goodsReceiptNoteLine.getItem();
             if (qty == 0) continue;
+            // Records notes made on grn line
             goodsReceiptNoteLine.setNotes(notes);
+            // Records the qty received in the goods receipt note persisted in db
+            goodsReceiptNoteLine.setQty(qty);
             Stock stock = Stock.builder().qtyOnHand(qty).item(item).warehouseSection(floor.get()).build();
             stockRepository.save(stock);
             goodsReceiptNoteLineRepository.save(goodsReceiptNoteLine);
