@@ -1,6 +1,7 @@
 package com.example.warehouseManagement.Repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -90,6 +91,10 @@ public interface StockRepository extends CrudRepository<Stock, Long> {
       ORDER BY \"averageWeekSales\" DESC, \"qtyOnHand\" DESC, \"sku\" DESC
             """, nativeQuery = true)
   public List<TopFiveMoversDto> getTopFiveMovers();
+
+
+  public Optional<Stock> findById(Long id);
+  
   // @Modifying
   // @Transactional
   // @Query(value = """
@@ -349,9 +354,15 @@ public interface StockRepository extends CrudRepository<Stock, Long> {
    * GROUP BY item.id
    */
   @Query(value = """
-      SELECT TOP 1 * FROM STOCK s\s
-      WHERE s.item_id = :itemId AND s.warehouse_section_id = :warehouseSectionId
-      ORDER by s.qty_on_hand DESC\
+      SELECT 
+        TOP 1 * 
+      FROM 
+        STOCK s
+      WHERE 
+        s.item_id = :itemId 
+        AND s.warehouse_section_id = :warehouseSectionId
+      ORDER by 
+        s.qty_on_hand DESC
       """, nativeQuery = true)
   public Stock findByWarehouseSectionAndItemId(@Param("warehouseSectionId") Long warehouseSectionId,
       @Param("itemId") Long itemId);
@@ -359,9 +370,13 @@ public interface StockRepository extends CrudRepository<Stock, Long> {
   @Transactional
   @Modifying
   @Query(value = """
-      UPDATE STOCK s\s
-      SET s.qty_on_hand = :newQtyOnHand\s
-      WHERE s.warehouse_section_id = :warehouseSectionId AND s.item_id = :itemId\
+      UPDATE 
+        STOCK s
+      SET 
+        s.qty_on_hand = :newQtyOnHand
+      WHERE 
+        s.warehouse_section_id = :warehouseSectionId 
+        AND s.item_id = :itemId
       """, nativeQuery = true)
   public void updateStockByWarehouseSectionAndItemId(@Param("newQtyOnHand") int newQtyOnHand,
       @Param("warehouseSectionId") Long warehouseSectionId, @Param("itemId") Long itemId);
@@ -369,11 +384,49 @@ public interface StockRepository extends CrudRepository<Stock, Long> {
   @Transactional
   @Modifying
   @Query(value = """
-      DELETE STOCK s\s
-      WHERE s.warehouse_section_id = :warehouseSectionId AND s.item_id = :itemId\
+      DELETE 
+        STOCK s
+      WHERE 
+        s.warehouse_section_id = :warehouseSectionId 
+        AND s.item_id = :itemId
       """, nativeQuery = true)
   public void deleteStockByWarehouseSectionAndItemId(@Param("warehouseSectionId") Long warehouseSectionId,
       @Param("itemId") Long itemId);
+
+
+@Query(value = """
+      SELECT 
+        s.id,
+        s.warehouse_section_id,
+        s.item_id,
+        s.qty_on_hand 
+      FROM 
+        STOCK s
+      INNER JOIN warehouse_section ws
+        ON ws.id = s.warehouse_section_id
+      WHERE
+        ws.section_number = '00-00-0-0'
+      ORDER by 
+        s.qty_on_hand DESC
+      """, nativeQuery = true)
+  public List<Stock> findStockOnFloor();
+
+  @Query(value = """
+      SELECT 
+        s.id,
+        s.warehouse_section_id,
+        s.item_id,
+        s.qty_on_hand 
+      FROM 
+        STOCK s
+      INNER JOIN warehouse_section ws
+        ON ws.id = s.warehouse_section_id
+      WHERE
+        ws.section_number = :warehouseSectionNumber
+      ORDER by 
+        s.qty_on_hand DESC
+      """, nativeQuery = true)
+  public List<Stock> findStocksByWarehouseSectionNumber(@Param("warehouseSectionNumber") String warehouseSectionNumber);
 
   /**
    * 

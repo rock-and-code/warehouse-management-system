@@ -1,0 +1,72 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <!-- Page headers -->
+    <div class="container col-md-6 mx-auto">
+        <!-- ALERTS TO PROVIDE USER FEEDBACK ON NOT FOUND PO -->
+        <div th:if="${param.notFound}">
+            <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+                Warehouse Section not found
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESS PUT AWAY -->
+        <div th:if="${param.putAway}">
+            <div class="alert alert-info alert-success fade show mt-3" role="alert">
+                Stock successfully put away
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        <h1 class="my-3 text-center">Search Warehouse Section</h1>
+        <!-- Customer list as table -->
+        <form action="#" th:action="@{/put-aways/search-warehouse-section}" th:object="${searchWarehouseSectionDto}"
+            method="post" class="row g-3 needs-validation" novalidate>
+            <div class="col-12">
+                <label for="warehouseSection" class="form-label">Warehouse Section</label>
+                <input class="form-control" type="text" id="warehouseSection" th:field="*{warehouseSectionNumber}"
+                    name="salesOrder" required>
+                <div class="invalid-feedback">
+                    Please enter the Warehouse Section
+                </div>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-dark col-12">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+
+    //JAVASCRIPT SNIPPET TO PROVIDES DATA VALIDATION ON FRONT END WHEN FORM IS SUBMITTED
+    //IT WILL SUPPLY A MESSAGE BELOW THE BLANK INPUT FIELD
+    (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        // it checks every input field that its class attribute contains "needs-validation"
+
+        //TODO: MOVE JS TO SEPARTE FILE
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+
+<!-- Header fragment -->
+<div th:insert="~{fragments/footer :: footer}"></div>

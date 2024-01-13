@@ -57,7 +57,6 @@ public class GoodsReceiptNoteController {
         this.purchaseOrderService = purchaseOrderService;
     }
 
-    //TODO: ADD FUNCTIONALITY TO MOVE STOCKS AROUND THE WAREHOUSE (PUT AWAY PROCESS)
 
     @GetMapping(value = PENDING_GOODS_RECEIPT_NOTE_PATH)
     public String pendingGoodsReceiptNotes(Model model) {

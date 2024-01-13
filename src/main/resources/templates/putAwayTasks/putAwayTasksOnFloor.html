@@ -1,0 +1,97 @@
+<!-- Header -->
+<!-- Header fragment -->
+<div th:insert="~{fragments/header :: header}"></div>
+<!-- Navbar fragment -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON STOCK NOT FOUND -->
+    <div th:if="${param.notFound}">
+        <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+            Stock not found
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESSFUL FULFILLED PO -->
+    <div th:if="${param.putAway}">
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            Stocks put away successfully
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <!-- Page headers -->
+    <h1 class="my-3" th:text="|Put Away Tasks|">Customer List</h1>
+    <!-- Customer list as table -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th hidden scope="col">Id</th>
+                <th scope="col">SKU</th>
+                <th scope="col">Description</th>
+                <th scope="col">Current Bin</th>
+                <th scope="col">Qty On Hand</th>
+                <th scope="col">Destination Bin</th>
+                <th scope="col">Qty To Move</th>
+            </tr>
+        </thead>
+        <tbody>
+            <div th:if="${stocks.size() > 0}">
+                <form action="#" th:action="@{|/put-aways/floor|}" th:object="${wrapper}" method="post"
+                    class="row g-3 needs-validation" novalidate>
+                    <tr th:each="putAwayTaskDto, pAStat : *{putAwayTasks}">
+                        <th scope="row" th:text="${stocks[__${pAStat.index}__].id}">
+                            <input type="number" th:field="*{putAwayTasks[__${pAStat.index}__].stockId}"
+                                class="form-control" id="warehouseSectionId"
+                                
+                                th:value="${stocks[__${pAStat.index}__].id}" 
+                                disabled readonly>
+                        </th>
+                        <th hidden scope="row" th:text="${stocks[__${pAStat.index}__].item.id}">
+                            <input type="number" th:field="*{putAwayTasks[__${pAStat.index}__].itemId}"
+                                class="form-control" id="itemId"
+                                
+                                th:value="${stocks[__${pAStat.index}__].item.id}" 
+                                disabled readonly>
+                        </th>
+                        <td th:text="${stocks[__${pAStat.index}__].item.sku}">310023</td>
+                        <td th:text="${stocks[__${pAStat.index}__].item.description}">Iphone 14</td>
+                        <td th:text="${stocks[__${pAStat.index}__].warehouseSection.sectionNumber}">00-00-0-0</td>
+                        <td th:text="${stocks[__${pAStat.index}__].qtyOnHand}">3</td>
+                        <td>
+                            <!-- <p th:text="${pAStat.current.destinationWarehouseSectionNumber}"></p> -->
+                            <select class="form-select"
+                                th:field="*{putAwayTasks[__${pAStat.index}__].destinationWarehouseSectionId}"
+                                aria-label="Default select example" th:errorclass="fieldError" id="warehouseSectionId"
+                                required name="warehouseSectionId">
+                                <option value="" selected disable hidden>Choose...</option>
+                                <option th:each="warehouseSection: ${warehouseSections}"
+                                    th:text="|${warehouseSection.sectionNumber}|" th:value="${warehouseSection.id}">Two
+                                </option>
+                        </td>
+                        <td>
+                            <input type="number" min="1" step="1"
+                                th:field="*{putAwayTasks[__${pAStat.index}__].qtyToMove}" class=" form-control" id="qty"
+                                value="1">
+                        </td>
+                    </tr>
+                    <td><button type="submit" value="submit" class="btn btn-outline-success">Confirm</button></td>
+                </form>
+            </div>
+            <div th:unless="${stocks.size() > 0}">
+                <tr>
+                    <th scope="row">No stock data on floor to display</th>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </div>
+        </tbody>
+    </table>
+
+
+    <!-- Header fragment -->
+    <div th:insert="~{fragments/footer :: footer}"></div>

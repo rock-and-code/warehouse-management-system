@@ -51,6 +51,8 @@ public interface WarehouseSectionRepository extends CrudRepository<WarehouseSect
     public WarehouseSectionDto findSectionWithHighestQtyOnHandByItemId(@Param("itemId") Long itemId);
 
     public Optional<WarehouseSection> findBySectionNumber(String sectionNumber);
+
+    public Optional<WarehouseSection> findById(Long id);
     /**
     SELECT
     warehouse_section.section_number AS "Bin",

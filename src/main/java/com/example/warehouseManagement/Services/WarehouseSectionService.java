@@ -12,4 +12,5 @@ public interface WarehouseSectionService {
     public Optional<WarehouseSection> findWarehouseSectionBySectionNumber(String sectionNumber);
     public List<WarehouseSectionDto> findWarehouseSectionSuggestionBySalesOrder(SalesOrder salesOrder);
     public Iterable<WarehouseSection> findAll();
+    public Optional<WarehouseSection> findById(Long id);
 }

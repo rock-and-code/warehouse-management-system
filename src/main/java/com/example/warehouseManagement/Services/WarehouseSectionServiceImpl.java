@@ -45,5 +45,10 @@ public class WarehouseSectionServiceImpl implements WarehouseSectionService {
     public Optional<WarehouseSection> findWarehouseSectionBySectionNumber(String sectionNumber) {
         return warehouseSectionRepository.findBySectionNumber(sectionNumber);
     }
+
+    @Override
+    public Optional<WarehouseSection> findById(Long id) {
+        return warehouseSectionRepository.findById(id);
+    }
     
 }
