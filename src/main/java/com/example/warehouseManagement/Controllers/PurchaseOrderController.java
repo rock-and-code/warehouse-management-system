@@ -272,7 +272,7 @@ public class PurchaseOrderController {
         model.addAttribute("persistedOrder", order);
         model.addAttribute("vendors", vendorService.findAll());
         model.addAttribute("items", itemService.findAll());
-        return "purchaseOrders/updatepurchaseOrderForm";
+        return "purchaseOrders/updatePurchaseOrderForm";
     }
 
     /**
