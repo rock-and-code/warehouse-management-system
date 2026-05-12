@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<div th:insert="~{fragments/header :: header}"></div>
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <div th:if="${param.created}" class="alert alert-success alert-dismissible fade show my-3" role="alert">
+        User created
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${param.updated}" class="alert alert-success alert-dismissible fade show my-3" role="alert">
+        User updated
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${param.cannotDeleteSelf}" class="alert alert-warning alert-dismissible fade show my-3" role="alert">
+        You cannot delete your own account.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <h1 class="my-3" th:text="${user.username}"></h1>
+
+    <dl class="row">
+        <dt class="col-sm-3">Id</dt>
+        <dd class="col-sm-9" th:text="${user.id}"></dd>
+
+        <dt class="col-sm-3">Email</dt>
+        <dd class="col-sm-9" th:text="${user.email}"></dd>
+
+        <dt class="col-sm-3">Role</dt>
+        <dd class="col-sm-9" th:text="${user.role}"></dd>
+
+        <dt class="col-sm-3">Enabled</dt>
+        <dd class="col-sm-9" th:text="${user.enabled}"></dd>
+
+        <dt class="col-sm-3">Two-factor</dt>
+        <dd class="col-sm-9" th:text="${user.twoFactorEnabled}"></dd>
+
+        <dt class="col-sm-3">Created</dt>
+        <dd class="col-sm-9" th:text="${user.createdAt}"></dd>
+
+        <dt class="col-sm-3">Last login</dt>
+        <dd class="col-sm-9" th:text="${user.lastLoginAt} ?: 'never'"></dd>
+    </dl>
+
+    <div class="d-flex gap-2">
+        <a class="btn btn-dark" th:href="@{'/admin/users/' + ${user.id} + '/update'}">Edit</a>
+        <form th:action="@{'/admin/users/' + ${user.id}}" method="post" onsubmit="return confirm('Delete this user?');">
+            <button type="submit" name="delete" class="btn btn-outline-danger">Delete</button>
+        </form>
+        <a href="/admin/users" class="btn btn-link">Back to list</a>
+    </div>
+</div>
+
+<div th:insert="~{fragments/footer :: footer}"></div>
+</html>

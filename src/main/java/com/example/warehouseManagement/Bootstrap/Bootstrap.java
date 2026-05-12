@@ -57,6 +57,10 @@ import com.example.warehouseManagement.Repositories.StockRepository;
 import com.example.warehouseManagement.Repositories.VendorRepository;
 import com.example.warehouseManagement.Repositories.WarehouseRepository;
 import com.example.warehouseManagement.Repositories.WarehouseSectionRepository;
+import com.example.warehouseManagement.Domains.User;
+import com.example.warehouseManagement.Domains.User.Role;
+import com.example.warehouseManagement.Repositories.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Component
 public class Bootstrap implements CommandLineRunner {
@@ -80,6 +84,8 @@ public class Bootstrap implements CommandLineRunner {
     private final InvoiceRepository invoiceRepository;
     private final InvoiceLineRepository invoiceLineRepository;
     private final BackorderRepository backorderRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Bootstrap(CustomerRepository customerRepository, ItemRepository itemRepository,
             VendorRepository vendorRepository, SalesOrderRepository salesOrderRepository,
@@ -91,7 +97,8 @@ public class Bootstrap implements CommandLineRunner {
             ItemPriceRepository itemPriceRepository, ItemCostRepository itemCostRepository,
             PickingJobRepository pickingJobRepository, PickingJobLineRepository pickingJobLineRepository,
             InvoiceRepository invoiceRepository, InvoiceLineRepository invoiceLineRepository,
-            BackorderRepository backorderRepository) {
+            BackorderRepository backorderRepository,
+            UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.customerRepository = customerRepository;
         this.itemRepository = itemRepository;
         this.vendorRepository = vendorRepository;
@@ -111,6 +118,8 @@ public class Bootstrap implements CommandLineRunner {
         this.invoiceRepository = invoiceRepository;
         this.invoiceLineRepository = invoiceLineRepository;
         this.backorderRepository = backorderRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -119,6 +128,8 @@ public class Bootstrap implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+
+        seedUsers();
 
         // Variables
         Random random = new SecureRandom();
@@ -445,6 +456,38 @@ public class Bootstrap implements CommandLineRunner {
         System.out.printf("Invocies: %d\n", invoiceRepository.count());
         System.out.printf("Backorders: %d\n", backorderRepository.count());
 
+    }
+
+    /**
+     * Seeds an admin and a 2FA-enabled user on every startup (DB is in-memory).
+     * <p>
+     * Default credentials (DEV ONLY — change for production):
+     * <ul>
+     *   <li>admin / Password123! (no 2FA) — ROLE_ADMIN</li>
+     *   <li>manager / Password123! (2FA on) — ROLE_USER</li>
+     * </ul>
+     */
+    private void seedUsers() {
+        if (userRepository.count() > 0) {
+            return;
+        }
+        userRepository.save(User.builder()
+                .username("admin")
+                .email("admin@example.com")
+                .password(passwordEncoder.encode("Password123!"))
+                .role(Role.ADMIN)
+                .enabled(true)
+                .twoFactorEnabled(false)
+                .build());
+        userRepository.save(User.builder()
+                .username("manager")
+                .email("manager@example.com")
+                .password(passwordEncoder.encode("Password123!"))
+                .role(Role.USER)
+                .enabled(true)
+                .twoFactorEnabled(true)
+                .build());
+        System.out.println("Seeded users: admin (ADMIN, no 2FA) and manager (USER, 2FA enabled). Password: Password123!");
     }
 
 }
