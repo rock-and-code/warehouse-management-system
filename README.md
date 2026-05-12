@@ -123,8 +123,6 @@ src/main/resources/
     ├── reports/ salesOrders/ vendors/
 ```
 
-For a more detailed map (commands, fragment behavior, H2-specific SQL idioms, gotchas), see [`CLAUDE.md`](CLAUDE.md) at the repo root.
-
 ---
 
 ## Gotchas
