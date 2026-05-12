@@ -12,7 +12,11 @@ import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus;
 import com.example.warehouseManagement.Domains.PurchaseOrderLine;
+import com.example.warehouseManagement.Domains.DTOs.AgingPoDto;
+import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
+import com.example.warehouseManagement.Domains.DTOs.PoStatusBucketDto;
 import com.example.warehouseManagement.Domains.DTOs.PurchaseOrderDto;
+import com.example.warehouseManagement.Domains.DTOs.VendorSpendDto;
 import com.example.warehouseManagement.Domains.Exceptions.PurchaseOrderNotFoundException;
 import com.example.warehouseManagement.Domains.Exceptions.ReceivedOrderModificationException;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteLineRepository;
@@ -169,6 +173,26 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public List<PurchaseOrderDto> findAllPendingPurchaseOrder() {
         return purchaseOrderRepository.findAllPendingPurchaseOrder();
+    }
+
+    @Override
+    public OpenOrdersKpiDto findOpenPurchaseOrdersKpi() {
+        return purchaseOrderRepository.findOpenPurchaseOrdersKpi();
+    }
+
+    @Override
+    public List<VendorSpendDto> findTopVendorsBySpendYtd() {
+        return purchaseOrderRepository.findTopVendorsBySpendYtd();
+    }
+
+    @Override
+    public List<PoStatusBucketDto> findPoStatusBuckets() {
+        return purchaseOrderRepository.findPoStatusBuckets();
+    }
+
+    @Override
+    public List<AgingPoDto> findAgingPurchaseOrders() {
+        return purchaseOrderRepository.findAgingPurchaseOrders();
     }
 
 }

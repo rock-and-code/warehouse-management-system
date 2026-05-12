@@ -164,5 +164,10 @@ public class GoodsReceiptNoteImpl implements GoodsReceiptNoteService {
         }
         return goodsReceiptNoteDto;
     }
-    
+
+    @Override
+    public long countPending() {
+        return goodsReceiptNoteRepository.countByStatus(GrnStatus.PENDING);
+    }
+
 }

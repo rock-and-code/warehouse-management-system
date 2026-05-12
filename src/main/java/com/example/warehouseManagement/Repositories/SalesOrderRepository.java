@@ -8,7 +8,9 @@ import org.springframework.data.repository.query.Param;
 
 import com.example.warehouseManagement.Domains.Customer;
 import com.example.warehouseManagement.Domains.SalesOrder;
+import com.example.warehouseManagement.Domains.DTOs.DailySalesDto;
 import com.example.warehouseManagement.Domains.DTOs.MonthlySalesDto;
+import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
 import com.example.warehouseManagement.Domains.DTOs.PendingSalesOrderDto;
 import com.example.warehouseManagement.Domains.DTOs.SalesOrderDto;
 
@@ -186,6 +188,38 @@ public interface SalesOrderRepository extends CrudRepository<SalesOrder, Long>{
         so.date
       """, nativeQuery = true)
     public List<SalesOrderDto> findAllPendingSalesOrder();
+
+    /**
+     * Dashboard KPI: count + total value of sales orders not yet fully shipped
+     * (PENDING = 0, PARTIALLY_SHIPPED = 1).
+     */
+    @Query(value = """
+      SELECT
+        COUNT(DISTINCT so.id) AS "count",
+        COALESCE(ROUND(SUM(sol.qty * ip.price), 2), 0) AS "totalValue"
+      FROM sales_order so
+      LEFT JOIN sales_order_line sol ON sol.sales_order_id = so.id
+      LEFT JOIN item_price ip ON ip.id = sol.item_price_id
+      WHERE so.status IN (0, 1)
+      """, nativeQuery = true)
+    public OpenOrdersKpiDto findOpenSalesOrdersKpi();
+
+    /**
+     * Dashboard daily-sales trend for the last 30 days. One row per date that
+     * had at least one sales order. Used by the Chart.js line chart.
+     */
+    @Query(value = """
+      SELECT
+        so.date AS "day",
+        COALESCE(ROUND(SUM(sol.qty * ip.price), 2), 0) AS "total"
+      FROM sales_order so
+      INNER JOIN sales_order_line sol ON sol.sales_order_id = so.id
+      INNER JOIN item_price ip ON ip.id = sol.item_price_id
+      WHERE so.date >= DATEADD('DAY', -30, CURRENT_DATE())
+      GROUP BY so.date
+      ORDER BY so.date
+      """, nativeQuery = true)
+    public List<DailySalesDto> findDailySalesLast30Days();
 }
 
 /*

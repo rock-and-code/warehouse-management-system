@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import com.example.warehouseManagement.Domains.Backorder;
 import com.example.warehouseManagement.Domains.SalesOrder;
 import com.example.warehouseManagement.Domains.DTOs.BackorderDto;
+import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
 
 
 public interface BackorderRepository extends CrudRepository<Backorder, Long> {
@@ -31,6 +32,21 @@ public interface BackorderRepository extends CrudRepository<Backorder, Long> {
         ORDER BY "date"\
         """, nativeQuery = true)
     public List<BackorderDto> findBackordersByYear(@Param("year") int year);
+
+    /**
+     * Dashboard KPI: count + total dollar value of active backorders.
+     * Value is qty × current item price (the price effective today).
+     */
+    @Query(value = """
+      SELECT
+        COUNT(b.id) AS "count",
+        COALESCE(ROUND(SUM(b.qty * ip.price), 2), 0) AS "totalValue"
+      FROM backorder b
+      LEFT JOIN item_price ip ON ip.item_id = b.item_id
+        AND ip.start_date <= CURRENT_DATE()
+        AND ip.end_date >= CURRENT_DATE()
+      """, nativeQuery = true)
+    public OpenOrdersKpiDto findBackorderKpi();
 
     /**
     SELECT

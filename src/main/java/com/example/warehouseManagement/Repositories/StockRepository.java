@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.Stock;
+import com.example.warehouseManagement.Domains.DTOs.InventorySnapshotDto;
+import com.example.warehouseManagement.Domains.DTOs.ReorderItemDto;
 import com.example.warehouseManagement.Domains.DTOs.StockLevelReportItemDto;
 import com.example.warehouseManagement.Domains.DTOs.TopFiveMoversDto;
 
@@ -526,11 +528,87 @@ public interface StockRepository extends CrudRepository<Stock, Long> {
    * WHERE item.vendor_id = 1
    * GROUP BY item.id
    * 
-   * 
-   * 
-   * 
-   * 
+   *
+   *
+   *
+   *
    */
+
+  /**
+   * Dashboard inventory snapshot: total value (stock × current cost), total
+   * units on hand, count of SKUs that are completely out of stock, and count of
+   * SKUs with weeks-of-inventory &lt; 2 (low-stock threshold).
+   * <p>
+   * Velocity logic mirrors {@link #getTopFiveMovers()} (SUM(sol.qty) /
+   * EXTRACT(WEEK FROM CURRENT_DATE())).
+   */
+  @Query(value = """
+      SELECT
+        COALESCE(ROUND(SUM(s.qty_on_hand * ic.cost), 2), 0) AS "totalValue",
+        COALESCE(SUM(s.qty_on_hand), 0) AS "totalUnits",
+        (
+          SELECT COUNT(*) FROM item i
+          WHERE NOT EXISTS (
+            SELECT 1 FROM stock s2 WHERE s2.item_id = i.id AND s2.qty_on_hand > 0
+          )
+        ) AS "oosCount",
+        (
+          SELECT COUNT(*) FROM (
+            SELECT
+              item.id,
+              NVL((SELECT SUM(s3.qty_on_hand) FROM stock s3 WHERE s3.item_id = item.id), 0) AS qoh,
+              NVL(SUM(sol.qty) / NULLIF(EXTRACT(WEEK FROM CURRENT_DATE()), 0), 0) AS velocity
+            FROM item
+            LEFT JOIN sales_order_line sol ON sol.item_id = item.id
+            GROUP BY item.id
+          ) v
+          WHERE v.velocity > 0
+            AND v.qoh / NULLIF(v.velocity, 0) < 2
+        ) AS "lowStockCount"
+      FROM stock s
+      LEFT JOIN item_cost ic ON ic.item_id = s.item_id
+        AND ic.start_date <= CURRENT_DATE()
+        AND ic.end_date >= CURRENT_DATE()
+      """, nativeQuery = true)
+  public InventorySnapshotDto findInventorySnapshot();
+
+  /**
+   * Items the buyer should reorder: items with non-zero weekly velocity, less
+   * than 2 weeks of inventory on hand, and no PO currently in transit.
+   * Top 10 by lowest weeks-of-inventory.
+   */
+  @Query(value = """
+      SELECT
+        item.id AS "itemId",
+        item.sku AS "sku",
+        item.description AS "description",
+        v.name AS "vendorName",
+        NVL((SELECT SUM(s.qty_on_hand) FROM stock s WHERE s.item_id = item.id), 0) AS "qtyOnHand",
+        CAST(NVL(SUM(sol.qty) / NULLIF(EXTRACT(WEEK FROM CURRENT_DATE()), 0), 0) AS INTEGER) AS "weeklyVelocity",
+        NVL(
+          ROUND(
+            NVL((SELECT SUM(s.qty_on_hand) FROM stock s WHERE s.item_id = item.id), 0) /
+            NULLIF(CAST(SUM(sol.qty) / NULLIF(EXTRACT(WEEK FROM CURRENT_DATE()), 0) AS REAL), 0),
+            2
+          ),
+          0
+        ) AS "weeksOfInventory"
+      FROM item
+      INNER JOIN vendor v ON v.id = item.vendor_id
+      INNER JOIN sales_order_line sol ON sol.item_id = item.id
+      WHERE NOT EXISTS (
+        SELECT 1 FROM purchase_order_line pol
+        INNER JOIN purchase_order po ON po.id = pol.purchase_order_id
+        WHERE pol.item_id = item.id AND po.status IN (0, 2)
+      )
+      GROUP BY item.id, item.sku, item.description, v.name
+      HAVING SUM(sol.qty) / NULLIF(EXTRACT(WEEK FROM CURRENT_DATE()), 0) > 0
+         AND NVL((SELECT SUM(s.qty_on_hand) FROM stock s WHERE s.item_id = item.id), 0)
+             / NULLIF(CAST(SUM(sol.qty) / NULLIF(EXTRACT(WEEK FROM CURRENT_DATE()), 0) AS REAL), 0) < 2
+      ORDER BY "weeksOfInventory" ASC
+      LIMIT 10
+      """, nativeQuery = true)
+  public List<ReorderItemDto> findReorderCandidates();
 
 }
 

@@ -13,4 +13,7 @@ public interface PickingJobService {
     public PickingJob save(PickingJob pickingJob);
     public void delete(PickingJob pickingJob);
     public PickingJob fulfill(PickingJob pickingJob, PickingJobDto pickingJobDto);
+
+    /** Dashboard KPI: count of pending picking jobs. */
+    long countPending();
 }

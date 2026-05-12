@@ -6,8 +6,10 @@ import java.util.Optional;
 import com.example.warehouseManagement.Domains.PickingJob;
 import com.example.warehouseManagement.Domains.Stock;
 import com.example.warehouseManagement.Domains.WarehouseSection;
+import com.example.warehouseManagement.Domains.DTOs.InventorySnapshotDto;
 import com.example.warehouseManagement.Domains.DTOs.PutAwayTaskDto;
 import com.example.warehouseManagement.Domains.DTOs.PutAwayTasksDtoWrapper;
+import com.example.warehouseManagement.Domains.DTOs.ReorderItemDto;
 import com.example.warehouseManagement.Domains.DTOs.StockLevelReportItemDto;
 import com.example.warehouseManagement.Domains.DTOs.TopFiveMoversDto;
 
@@ -38,4 +40,13 @@ public interface StockService {
     public Stock save(Stock stock);
 
     public void putAwayStocks(PutAwayTasksDtoWrapper wrapper, List<Stock> stocks);
+
+    /** Dashboard inventory snapshot: value, units, OOS count, low-stock count. */
+    InventorySnapshotDto findInventorySnapshot();
+
+    /** Items the buyer should reorder (low WoI, no PO in transit). */
+    List<ReorderItemDto> findReorderCandidates();
+
+    /** Count of stock rows currently sitting on the floor awaiting put-away. */
+    long countStockOnFloor();
 }

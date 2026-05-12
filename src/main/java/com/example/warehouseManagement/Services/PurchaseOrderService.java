@@ -4,7 +4,11 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.warehouseManagement.Domains.PurchaseOrder;
+import com.example.warehouseManagement.Domains.DTOs.AgingPoDto;
+import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
+import com.example.warehouseManagement.Domains.DTOs.PoStatusBucketDto;
 import com.example.warehouseManagement.Domains.DTOs.PurchaseOrderDto;
+import com.example.warehouseManagement.Domains.DTOs.VendorSpendDto;
 import com.example.warehouseManagement.Domains.Exceptions.PurchaseOrderNotFoundException;
 import com.example.warehouseManagement.Domains.Exceptions.ReceivedOrderModificationException;
 
@@ -60,5 +64,17 @@ public interface PurchaseOrderService {
      * @return
      */
     public List<PurchaseOrderDto> findAllPendingPurchaseOrder();
+
+    /** Dashboard KPI: count + value of open purchase orders. */
+    OpenOrdersKpiDto findOpenPurchaseOrdersKpi();
+
+    /** Top 5 vendors by year-to-date spend, used by the dashboard bar chart. */
+    List<VendorSpendDto> findTopVendorsBySpendYtd();
+
+    /** PO count grouped by status (0/1/2) — feeds the dashboard doughnut. */
+    List<PoStatusBucketDto> findPoStatusBuckets();
+
+    /** Open POs older than 30 days, oldest first — feeds the aging table. */
+    List<AgingPoDto> findAgingPurchaseOrders();
 
 }

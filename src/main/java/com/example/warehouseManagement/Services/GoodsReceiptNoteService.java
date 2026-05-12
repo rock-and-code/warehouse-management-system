@@ -52,5 +52,8 @@ public interface GoodsReceiptNoteService {
     public GoodsReceiptNote create(PurchaseOrder purchaseOrder);
 
     public GoodsReceiptNoteDto addGoodReceiptNoteLines(GoodsReceiptNote goodsReceiptNote);
+
+    /** Dashboard KPI: count of pending GRNs. */
+    long countPending();
 }
 

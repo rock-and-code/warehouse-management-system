@@ -5,42 +5,60 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.example.warehouseManagement.Services.BackorderService;
+import com.example.warehouseManagement.Services.GoodsReceiptNoteService;
+import com.example.warehouseManagement.Services.PickingJobService;
+import com.example.warehouseManagement.Services.PurchaseOrderService;
 import com.example.warehouseManagement.Services.SalesOrderService;
 import com.example.warehouseManagement.Services.StockService;
 
-/**
- * Controller to handle dashboard requests.
- */
 @Controller
 @RequestMapping(value = "/")
 public class DashBoardController {
 
-    // private static final String DASH_BOARD_PATH = "dashboar";
-    private final SalesOrderService salesOrderService; // may need to be changed for invoiced sales orders
+    private final SalesOrderService salesOrderService;
+    private final PurchaseOrderService purchaseOrderService;
     private final StockService stockService;
+    private final BackorderService backorderService;
+    private final GoodsReceiptNoteService goodsReceiptNoteService;
+    private final PickingJobService pickingJobService;
 
-    /**
-     * Constructor to inject the necessary dependencies.
-     *
-     * @param salesOrderService the SalesOrderService dependency
-     * @param stockService      the StockService dependency
-     */
-    public DashBoardController(SalesOrderService salesOrderService, StockService stockService) {
+    public DashBoardController(SalesOrderService salesOrderService,
+                               PurchaseOrderService purchaseOrderService,
+                               StockService stockService,
+                               BackorderService backorderService,
+                               GoodsReceiptNoteService goodsReceiptNoteService,
+                               PickingJobService pickingJobService) {
         this.salesOrderService = salesOrderService;
+        this.purchaseOrderService = purchaseOrderService;
         this.stockService = stockService;
+        this.backorderService = backorderService;
+        this.goodsReceiptNoteService = goodsReceiptNoteService;
+        this.pickingJobService = pickingJobService;
     }
 
-    /**
-     * Handles GET requests for the dashboard.
-     *
-     * @param model the Model object to populate with data for the view
-     * @return the name of the view template to render
-     */
     @GetMapping(value = "/")
     public String getDashBoard(Model model) {
-            model.addAttribute("title", "Dashboard");
-            model.addAttribute("lastThreeMonthsSales", salesOrderService.findLastThreeMonthsSales());
-            model.addAttribute("topFiveMovers", stockService.getTopFiveMovers());
-            return "dashboard/dashboard"; // Returning the view template name
+        model.addAttribute("title", "Dashboard");
+        // Row 1 — KPI cards
+        model.addAttribute("kpiSo",          salesOrderService.findOpenSalesOrdersKpi());
+        model.addAttribute("kpiPo",          purchaseOrderService.findOpenPurchaseOrdersKpi());
+        model.addAttribute("kpiBackorders",  backorderService.findBackorderKpi());
+        model.addAttribute("pendingGrns",    goodsReceiptNoteService.countPending());
+        // Row 2 — inventory snapshot tiles
+        model.addAttribute("inventory",      stockService.findInventorySnapshot());
+        // Row 3 — daily sales trend + ops stats
+        model.addAttribute("dailySales",     salesOrderService.findDailySalesLast30Days());
+        model.addAttribute("pendingPicks",   pickingJobService.countPending());
+        model.addAttribute("stockOnFloor",   stockService.countStockOnFloor());
+        // Row 4 — vendor spend + PO status doughnut
+        model.addAttribute("topVendors",     purchaseOrderService.findTopVendorsBySpendYtd());
+        model.addAttribute("poStatusBuckets",purchaseOrderService.findPoStatusBuckets());
+        // Row 5 — reorder + top movers
+        model.addAttribute("reorderItems",   stockService.findReorderCandidates());
+        model.addAttribute("topFiveMovers",  stockService.getTopFiveMovers());
+        // Row 6 — PO aging
+        model.addAttribute("agingPos",       purchaseOrderService.findAgingPurchaseOrders());
+        return "dashboard/dashboard";
     }
 }
