@@ -8,8 +8,11 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import com.example.warehouseManagement.Domains.GoodsReceiptNote;
+import com.example.warehouseManagement.Domains.GoodsReceiptNote.GrnStatus;
 
 public interface GoodsReceiptNoteRepository extends CrudRepository<GoodsReceiptNote, Long> {
+
+    long countByStatus(GrnStatus status);
 
     @Query(value = """
         SELECT 

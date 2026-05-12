@@ -10,8 +10,10 @@ import com.example.warehouseManagement.Domains.PickingJob;
 import com.example.warehouseManagement.Domains.PickingJobLine;
 import com.example.warehouseManagement.Domains.Stock;
 import com.example.warehouseManagement.Domains.WarehouseSection;
+import com.example.warehouseManagement.Domains.DTOs.InventorySnapshotDto;
 import com.example.warehouseManagement.Domains.DTOs.PutAwayTaskDto;
 import com.example.warehouseManagement.Domains.DTOs.PutAwayTasksDtoWrapper;
+import com.example.warehouseManagement.Domains.DTOs.ReorderItemDto;
 import com.example.warehouseManagement.Domains.DTOs.StockLevelReportItemDto;
 import com.example.warehouseManagement.Domains.DTOs.TopFiveMoversDto;
 import com.example.warehouseManagement.Repositories.StockRepository;
@@ -124,6 +126,21 @@ public class StockServiceImpl implements StockService {
     @Override
     public List<Stock> findStocksByWareHouseSectionNumber(String warehouseSectionNumber) {
        return stockRepository.findStocksByWarehouseSectionNumber(warehouseSectionNumber);
+    }
+
+    @Override
+    public InventorySnapshotDto findInventorySnapshot() {
+        return stockRepository.findInventorySnapshot();
+    }
+
+    @Override
+    public List<ReorderItemDto> findReorderCandidates() {
+        return stockRepository.findReorderCandidates();
+    }
+
+    @Override
+    public long countStockOnFloor() {
+        return stockRepository.findStockOnFloor().size();
     }
 
 }

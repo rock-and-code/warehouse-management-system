@@ -6,9 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import com.example.warehouseManagement.Domains.PickingJob;
+import com.example.warehouseManagement.Domains.PickingJob.PjStatus;
 
 public interface PickingJobRepository extends CrudRepository<PickingJob, Long> {
     @Query(value = "SELECT * FROM picking_job pj\n" + //
             "WHERE pj.status = 0 ORDER BY pj.date", nativeQuery = true)
-    public List<PickingJob> findAllPending();   
+    public List<PickingJob> findAllPending();
+
+    long countByStatus(PjStatus status);
 }

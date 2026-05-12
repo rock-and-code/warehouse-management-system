@@ -13,6 +13,8 @@ import com.example.warehouseManagement.Domains.PickingJobLine;
 import com.example.warehouseManagement.Domains.SalesOrder;
 import com.example.warehouseManagement.Domains.SalesOrder.SoStatus;
 import com.example.warehouseManagement.Domains.SalesOrderLine;
+import com.example.warehouseManagement.Domains.DTOs.DailySalesDto;
+import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
 import com.example.warehouseManagement.Domains.DTOs.PendingSalesOrderDto;
 import com.example.warehouseManagement.Domains.DTOs.SalesOrderDto;
 import com.example.warehouseManagement.Domains.Exceptions.SalesOrderNotFoundException;
@@ -180,6 +182,16 @@ public class SalesOrderServiceImpl implements SalesOrderService {
     @Override
     public List<SalesOrderDto> findAllPendingOrders() {
         return salesOrderRepository.findAllPendingSalesOrder();
+    }
+
+    @Override
+    public OpenOrdersKpiDto findOpenSalesOrdersKpi() {
+        return salesOrderRepository.findOpenSalesOrdersKpi();
+    }
+
+    @Override
+    public List<DailySalesDto> findDailySalesLast30Days() {
+        return salesOrderRepository.findDailySalesLast30Days();
     }
 
 }

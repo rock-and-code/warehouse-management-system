@@ -2,6 +2,7 @@ package com.example.warehouseManagement.Bootstrap;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,6 +58,10 @@ import com.example.warehouseManagement.Repositories.StockRepository;
 import com.example.warehouseManagement.Repositories.VendorRepository;
 import com.example.warehouseManagement.Repositories.WarehouseRepository;
 import com.example.warehouseManagement.Repositories.WarehouseSectionRepository;
+import com.example.warehouseManagement.Domains.User;
+import com.example.warehouseManagement.Domains.User.Role;
+import com.example.warehouseManagement.Repositories.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Component
 public class Bootstrap implements CommandLineRunner {
@@ -80,6 +85,8 @@ public class Bootstrap implements CommandLineRunner {
     private final InvoiceRepository invoiceRepository;
     private final InvoiceLineRepository invoiceLineRepository;
     private final BackorderRepository backorderRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Bootstrap(CustomerRepository customerRepository, ItemRepository itemRepository,
             VendorRepository vendorRepository, SalesOrderRepository salesOrderRepository,
@@ -91,7 +98,8 @@ public class Bootstrap implements CommandLineRunner {
             ItemPriceRepository itemPriceRepository, ItemCostRepository itemCostRepository,
             PickingJobRepository pickingJobRepository, PickingJobLineRepository pickingJobLineRepository,
             InvoiceRepository invoiceRepository, InvoiceLineRepository invoiceLineRepository,
-            BackorderRepository backorderRepository) {
+            BackorderRepository backorderRepository,
+            UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.customerRepository = customerRepository;
         this.itemRepository = itemRepository;
         this.vendorRepository = vendorRepository;
@@ -111,6 +119,8 @@ public class Bootstrap implements CommandLineRunner {
         this.invoiceRepository = invoiceRepository;
         this.invoiceLineRepository = invoiceLineRepository;
         this.backorderRepository = backorderRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -120,8 +130,18 @@ public class Bootstrap implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
+        seedUsers();
+
         // Variables
         Random random = new SecureRandom();
+        // Seed-data window: Jan 1 of the current year through the last day of the
+        // current month. This keeps dashboard queries (e.g. "last three months sales"
+        // against CURRENT_DATE()) populated as the system clock moves forward.
+        final LocalDate today = LocalDate.now();
+        final LocalDate yearStart = today.with(TemporalAdjusters.firstDayOfYear());
+        final LocalDate cutoff = today.with(TemporalAdjusters.lastDayOfMonth());
+        final long startEpoch = yearStart.toEpochDay();
+        final long endEpochExclusive = cutoff.toEpochDay() + 1;
         int VENDORS = 5, CUSTOMERS = 10, SALES_ORDER = 20, PURCHASE_ORDER = 30;
         List<Vendor> savedVendors = new ArrayList<>();
         List<Customer> savedCustomers = new ArrayList<>();
@@ -153,12 +173,14 @@ public class Bootstrap implements CommandLineRunner {
                 // Add vendos to the savedProducts objects
                 item.setVendor(currentVendor);
                 Item savedItem = itemRepository.save(item);
-                ItemPrice itemPrice = ItemPrice.builder().start(LocalDate.of(2023, 1, 1))
+                LocalDate priceStart = yearStart;
+                LocalDate priceEnd = LocalDate.of(today.getYear(), 12, 31);
+                ItemPrice itemPrice = ItemPrice.builder().start(priceStart)
                         .salesOrderLine(new ArrayList<>())
-                        .end(LocalDate.of(2023, 12, 31)).price(itemInfo.getSalesPrice()).item(savedItem).build();
-                ItemCost itemCost = ItemCost.builder().start(LocalDate.of(2023, 1, 1))
+                        .end(priceEnd).price(itemInfo.getSalesPrice()).item(savedItem).build();
+                ItemCost itemCost = ItemCost.builder().start(priceStart)
                         .purchaseOrderLine(new ArrayList<>(i))
-                        .end(LocalDate.of(2023, 12, 31)).cost(itemInfo.getCost()).item(savedItem).build();
+                        .end(priceEnd).cost(itemInfo.getCost()).item(savedItem).build();
                 ItemPrice savedItemPrice = itemPriceRepository.save(itemPrice);
                 ItemCost savedItemCost = itemCostRepository.save(itemCost);
                 // salesPrices.add(savedItemPrice);
@@ -183,10 +205,7 @@ public class Bootstrap implements CommandLineRunner {
 
         for (Vendor vendor : savedVendors) {
             for (int i = 0; i < PURCHASE_ORDER; i++) {
-                int month = random.nextInt(1, 12);
-                int day = (month == 2) ? random.nextInt(1, 28) : random.nextInt(1, 30);
-                int year = 2023;
-                LocalDate date = LocalDate.of(year, month, day);
+                LocalDate date = LocalDate.ofEpochDay(random.nextLong(startEpoch, endEpochExclusive));
                 int purchaseOrderLines = random.nextInt(3, 20);
                 int orderStatus = random.nextInt(3);
                 // adds savedCustomer to the purchase order
@@ -341,10 +360,7 @@ public class Bootstrap implements CommandLineRunner {
         // TC(MSO)
         for (Customer customer : savedCustomers) {
             for (int i = 0; i < SALES_ORDER; i++) {
-                int month = random.nextInt(1, 13); // to include december
-                int day = (month == 2) ? random.nextInt(1, 28) : random.nextInt(1, 30);
-                int year = 2023;
-                LocalDate date = LocalDate.of(year, month, day);
+                LocalDate date = LocalDate.ofEpochDay(random.nextLong(startEpoch, endEpochExclusive));
                 int salesOrderLines = random.nextInt(3, 20);
                 int orderStatus = random.nextInt(3);
                 // adds savedCustomer to the savedSalesOrder
@@ -445,6 +461,38 @@ public class Bootstrap implements CommandLineRunner {
         System.out.printf("Invocies: %d\n", invoiceRepository.count());
         System.out.printf("Backorders: %d\n", backorderRepository.count());
 
+    }
+
+    /**
+     * Seeds an admin and a 2FA-enabled user on every startup (DB is in-memory).
+     * <p>
+     * Default credentials (DEV ONLY — change for production):
+     * <ul>
+     *   <li>admin / Password123! (no 2FA) — ROLE_ADMIN</li>
+     *   <li>manager / Password123! (2FA on) — ROLE_USER</li>
+     * </ul>
+     */
+    private void seedUsers() {
+        if (userRepository.count() > 0) {
+            return;
+        }
+        userRepository.save(User.builder()
+                .username("admin")
+                .email("admin@example.com")
+                .password(passwordEncoder.encode("Password123!"))
+                .role(Role.ADMIN)
+                .enabled(true)
+                .twoFactorEnabled(false)
+                .build());
+        userRepository.save(User.builder()
+                .username("manager")
+                .email("manager@example.com")
+                .password(passwordEncoder.encode("Password123!"))
+                .role(Role.USER)
+                .enabled(true)
+                .twoFactorEnabled(true)
+                .build());
+        System.out.println("Seeded users: admin (ADMIN, no 2FA) and manager (USER, 2FA enabled). Password: Password123!");
     }
 
 }

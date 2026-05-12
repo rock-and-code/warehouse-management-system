@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<div th:insert="~{fragments/header :: header}"></div>
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <div th:if="${param.created}" class="alert alert-success alert-dismissible fade show my-3" role="alert">
+        User created
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${param.updated}" class="alert alert-success alert-dismissible fade show my-3" role="alert">
+        User updated
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${param.deleted}" class="alert alert-success alert-dismissible fade show my-3" role="alert">
+        User deleted
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${param.notFound}" class="alert alert-info alert-dismissible fade show my-3" role="alert">
+        User not found
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center my-3">
+        <h1>Users</h1>
+        <a class="btn btn-dark" href="/admin/users/new">New user</a>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Enabled</th>
+                <th>2FA</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.username}"></td>
+                <td th:text="${user.email}"></td>
+                <td th:text="${user.role}"></td>
+                <td>
+                    <span th:if="${user.enabled}" class="badge bg-success">Yes</span>
+                    <span th:unless="${user.enabled}" class="badge bg-secondary">No</span>
+                </td>
+                <td>
+                    <span th:if="${user.twoFactorEnabled}" class="badge bg-info">On</span>
+                    <span th:unless="${user.twoFactorEnabled}" class="badge bg-secondary">Off</span>
+                </td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-dark" th:href="@{'/admin/users/' + ${user.id}}">View</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:insert="~{fragments/footer :: footer}"></div>
+</html>

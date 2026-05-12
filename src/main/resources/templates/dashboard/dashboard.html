@@ -1,104 +1,351 @@
-<!-- Header -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 <!-- Header fragment -->
 <div th:insert="~{fragments/header :: header}"></div>
 <!-- Navbar fragment -->
 <div th:insert="~{fragments/navbar :: navbar}"></div>
 
-<h1 class="my-3 text-center" th:text="|Dash Board|">Customer List</h1>
+<div class="container-fluid px-4 py-3">
 
-<!-- Charts CSS CDN-->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/charts.css/dist/charts.min.css">
-
-<!-- Boostrap Grid Structure -->
-<div class="container">
-
-  <div class="row">
-    <!-- Last three months sales bars graph card -->
-    <div class="card p-1 flex-grow-1 col-md-8" style="width: 25vh; height: 30vw;">
-      <div class="card-body">
-        <!-- Checks if there is sales data to display, otherwise display no sales data to display message -->
-        <div class="salesGraph" th:if="${!lastThreeMonthsSales.lastThreeMonthsSales.isEmpty()}">
-          <!-- Using ChartsCSS framework -->
-          <table class="charts-css column show-heading show-labels data-spacing-20">
-            <caption class="text-center"> Last Three Month Sales </caption>
-            <thead>
-              <tr>
-                <th scope="col">Date</th>
-                <th scope="col">Total Sales</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr th:each="monthSales : ${lastThreeMonthsSales.lastThreeMonthsSales}">
-                <th scope="row" th:text="${monthSales.getMonth()}">January</th>
-                <td th:style="|--size: ${monthSales.getTotal() / lastThreeMonthsSales.getMaxValue()}|"
-                  th:text="${#numbers.formatCurrency(monthSales.getTotal())}">$100,000</td>
-              </tr>
-            </tbody>
-          </table>
+    <!-- Row 1: KPI cards -->
+    <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center text-muted small mb-1">
+                        <i class="bi bi-cart me-2"></i>Open sales orders
+                    </div>
+                    <div class="h3 mb-0" th:text="${kpiSo?.count ?: 0}">0</div>
+                    <div class="text-muted small" th:text="${'$' + #numbers.formatDecimal(kpiSo?.totalValue ?: 0, 0, 'COMMA', 2, 'POINT') + ' pending'}">$0</div>
+                </div>
+            </div>
         </div>
-        <div class="salesGraph" th:unless="${!lastThreeMonthsSales.lastThreeMonthsSales.isEmpty()}">
-          <h5 class="center">No sales data to display</h5>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center text-muted small mb-1">
+                        <i class="bi bi-bag-check me-2"></i>Open purchase orders
+                    </div>
+                    <div class="h3 mb-0" th:text="${kpiPo?.count ?: 0}">0</div>
+                    <div class="text-muted small" th:text="${'$' + #numbers.formatDecimal(kpiPo?.totalValue ?: 0, 0, 'COMMA', 2, 'POINT') + ' on order'}">$0</div>
+                </div>
+            </div>
         </div>
-      </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center text-muted small mb-1">
+                        <i class="bi bi-receipt me-2"></i>Pending receipts
+                    </div>
+                    <div class="h3 mb-0" th:text="${pendingGrns}">0</div>
+                    <div class="text-muted small">GRNs awaiting fulfillment</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center text-muted small mb-1">
+                        <i class="bi bi-exclamation-triangle text-warning me-2"></i>Active backorders
+                    </div>
+                    <div class="h3 mb-0" th:text="${kpiBackorders?.count ?: 0}">0</div>
+                    <div class="text-muted small" th:text="${'$' + #numbers.formatDecimal(kpiBackorders?.totalValue ?: 0, 0, 'COMMA', 2, 'POINT') + ' shorted'}">$0</div>
+                </div>
+            </div>
+        </div>
     </div>
-    <!-- End of three months sales bars graph card -->
 
-
-    <!-- Last Three Months Average card -->
-    <div class="card col-md-4">
-      <div class="card-body">
-        <!-- Checks if there is sales data to display, otherwise display no sales data to display message -->
-        <div class="salesGraph" th:if="${!lastThreeMonthsSales.lastThreeMonthsSales.isEmpty()}">
-          <h5 class="card-title text-center">Three Months Average Sales</h5>
-          <p class="card-text text-center"
-            th:text="${#numbers.formatCurrency(lastThreeMonthsSales.getThreeMonthsAverageSales())}">
-            Customer List</p>
+    <!-- Row 2: Inventory snapshot tiles -->
+    <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small mb-1"><i class="bi bi-cash-stack me-2"></i>Inventory value</div>
+                    <div class="h4 mb-0" th:text="${'$' + #numbers.formatDecimal(inventory?.totalValue ?: 0, 0, 'COMMA', 2, 'POINT')}">$0</div>
+                </div>
+            </div>
         </div>
-        <div class="salesGraph" th:unless="${!lastThreeMonthsSales.lastThreeMonthsSales.isEmpty()}">
-          <h5 class="card-title text-center">No sales data to display</h5>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small mb-1"><i class="bi bi-boxes me-2"></i>Units on hand</div>
+                    <div class="h4 mb-0" th:text="${#numbers.formatInteger(inventory?.totalUnits ?: 0, 0, 'COMMA')}">0</div>
+                </div>
+            </div>
         </div>
-      </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small mb-1"><i class="bi bi-x-circle text-danger me-2"></i>Out-of-stock SKUs</div>
+                    <div class="h4 mb-0" th:text="${inventory?.oosCount ?: 0}">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small mb-1"><i class="bi bi-graph-down-arrow text-warning me-2"></i>Low-stock SKUs</div>
+                    <div class="h4 mb-0" th:text="${inventory?.lowStockCount ?: 0}">0</div>
+                    <div class="text-muted small">WoI &lt; 2</div>
+                </div>
+            </div>
+        </div>
     </div>
-    <!-- END Last Three Months Average card -->
-  </div>
 
-  <div class="row">
-    <!-- Top Five movers Div-->
-    <div class="card p-2">
-      <div class="card-body">
-        <!-- Checks if there is stock level data to display, otherwise display no stock level data to display message -->
-        <div class="salesGraph" th:if="${!topFiveMovers.isEmpty()}">
-          <h5 class="my-3 text-center card-title" th:text="|Top 5 Movers|">Customer List</h5>
-          <table class="table">
-            <thead>
-              <tr>
-                <th scope="col">Sku</th>
-                <th scope="col">Description</th>
-                <th scope="col">Qty on Hand</th>
-                <th scope="col">Average Week Sales</th>
-                <th scope="col">Weeks of Inventory</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr th:each="mover : ${topFiveMovers}">
-                <th scope="row" th:text="${mover.getSku()}">101010</th>
-                <td th:text="${mover.getDescription()}">Iphone 14</td>
-                <td th:text="${mover.getQtyOnHand()}">190</td>
-                <td th:text="${mover.getAverageWeekSales()}">40</td>
-                <td th:text="${mover.getWeeksOfInventory()}">4.0</td>
-              </tr>
-            </tbody>
-          </table>
+    <!-- Row 3: Daily sales trend + Ops stats -->
+    <div class="row g-3 mb-3">
+        <div class="col-md-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Daily sales — last 30 days</h5>
+                    <div th:if="${dailySales != null and !dailySales.isEmpty()}">
+                        <canvas id="dailySalesChart" height="100"></canvas>
+                    </div>
+                    <div th:if="${dailySales == null or dailySales.isEmpty()}" class="text-muted small">
+                        No sales in the last 30 days.
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="salesGraph" th:unless="${!topFiveMovers.isEmpty()}">
-          <h5 class="my-3 text-center card-title">No stock level data to display</h5>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Operations</h5>
+                    <div class="d-flex justify-content-between border-bottom py-2">
+                        <span><i class="bi bi-list-check me-2"></i>Pending picking jobs</span>
+                        <strong th:text="${pendingPicks}">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom py-2">
+                        <span><i class="bi bi-arrow-down-square me-2"></i>Stock on floor</span>
+                        <strong th:text="${stockOnFloor}">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between py-2">
+                        <span><i class="bi bi-receipt me-2"></i>Pending GRNs</span>
+                        <strong th:text="${pendingGrns}">0</strong>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-    <!-- END Stock Levels Table  -->
-  </div>
+
+    <!-- Row 4: Top vendors + PO status -->
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Top vendors — YTD spend</h5>
+                    <div th:if="${topVendors != null and !topVendors.isEmpty()}">
+                        <canvas id="vendorSpendChart" height="160"></canvas>
+                    </div>
+                    <div th:if="${topVendors == null or topVendors.isEmpty()}" class="text-muted small">
+                        No PO spend this year yet.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">PO status breakdown</h5>
+                    <div th:if="${poStatusBuckets != null and !poStatusBuckets.isEmpty()}">
+                        <canvas id="poStatusChart" height="160"></canvas>
+                    </div>
+                    <div th:if="${poStatusBuckets == null or poStatusBuckets.isEmpty()}" class="text-muted small">
+                        No purchase orders.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 5: Reorder list + Top movers -->
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Items to reorder</h5>
+                    <div th:if="${reorderItems == null or reorderItems.isEmpty()}" class="text-muted small">
+                        Nothing critical to reorder — every fast-moving item either has stock or an open PO.
+                    </div>
+                    <table th:if="${reorderItems != null and !reorderItems.isEmpty()}" class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Description</th>
+                                <th>Vendor</th>
+                                <th class="text-end">QoH</th>
+                                <th class="text-end">Wk velocity</th>
+                                <th class="text-end">WoI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item : ${reorderItems}">
+                                <td th:text="${item.sku}">123</td>
+                                <td th:text="${item.description}">Desc</td>
+                                <td th:text="${item.vendorName}">Vendor</td>
+                                <td class="text-end" th:text="${item.qtyOnHand}">0</td>
+                                <td class="text-end" th:text="${item.weeklyVelocity}">0</td>
+                                <td class="text-end fw-semibold text-danger" th:text="${item.weeksOfInventory}">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Top 5 movers</h5>
+                    <div th:if="${topFiveMovers == null or topFiveMovers.isEmpty()}" class="text-muted small">
+                        No sales velocity recorded.
+                    </div>
+                    <table th:if="${topFiveMovers != null and !topFiveMovers.isEmpty()}" class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Description</th>
+                                <th class="text-end">QoH</th>
+                                <th class="text-end">Avg wk sales</th>
+                                <th class="text-end">WoI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="mover : ${topFiveMovers}">
+                                <td th:text="${mover.sku}">000</td>
+                                <td th:text="${mover.description}">Desc</td>
+                                <td class="text-end" th:text="${mover.qtyOnHand}">0</td>
+                                <td class="text-end" th:text="${mover.averageWeekSales}">0</td>
+                                <td class="text-end" th:text="${mover.weeksOfInventory}">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 6: PO aging table -->
+    <div class="row g-3 mb-3">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Purchase orders aging &gt; 30 days</h5>
+                    <div th:if="${agingPos == null or agingPos.isEmpty()}" class="text-muted small">
+                        No POs older than 30 days are still open.
+                    </div>
+                    <table th:if="${agingPos != null and !agingPos.isEmpty()}" class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>PO #</th>
+                                <th>Vendor</th>
+                                <th>Date</th>
+                                <th class="text-end">Age (days)</th>
+                                <th>Status</th>
+                                <th class="text-end">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="po : ${agingPos}">
+                                <td><a th:href="@{'/purchase-orders/' + ${po.id}}" th:text="${po.id}">42</a></td>
+                                <td th:text="${po.vendorName}">Vendor</td>
+                                <td th:text="${po.date}">2026-01-01</td>
+                                <td class="text-end fw-semibold" th:classappend="${po.ageDays > 60 ? 'text-danger' : 'text-warning'}" th:text="${po.ageDays}">0</td>
+                                <td>
+                                    <span th:if="${po.status == 0}" class="badge bg-secondary">IN TRANSIT</span>
+                                    <span th:if="${po.status == 2}" class="badge bg-warning text-dark">PARTIALLY RECEIVED</span>
+                                </td>
+                                <td class="text-end" th:text="${'$' + #numbers.formatDecimal(po.total ?: 0, 0, 'COMMA', 2, 'POINT')}">$0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
-<!-- Header fragment -->
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    (function () {
+        const dailySalesRaw   = /*[[${dailySales}]]*/   [];
+        const topVendorsRaw   = /*[[${topVendors}]]*/   [];
+        const poStatusRaw     = /*[[${poStatusBuckets}]]*/ [];
+
+        // --- Daily sales line chart ---
+        const dailyEl = document.getElementById('dailySalesChart');
+        if (dailyEl && dailySalesRaw.length) {
+            new Chart(dailyEl, {
+                type: 'line',
+                data: {
+                    labels: dailySalesRaw.map(r => r.day),
+                    datasets: [{
+                        label: 'Sales',
+                        data: dailySalesRaw.map(r => r.total),
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13,110,253,0.15)',
+                        fill: true,
+                        tension: 0.25,
+                        pointRadius: 2
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { callback: v => '$' + v.toLocaleString() } }
+                    }
+                }
+            });
+        }
+
+        // --- Top vendors horizontal bar chart ---
+        const vendorEl = document.getElementById('vendorSpendChart');
+        if (vendorEl && topVendorsRaw.length) {
+            new Chart(vendorEl, {
+                type: 'bar',
+                data: {
+                    labels: topVendorsRaw.map(r => r.vendorName),
+                    datasets: [{
+                        label: 'YTD spend',
+                        data: topVendorsRaw.map(r => r.total),
+                        backgroundColor: ['#0d6efd', '#6610f2', '#6f42c1', '#d63384', '#fd7e14']
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, ticks: { callback: v => '$' + v.toLocaleString() } }
+                    }
+                }
+            });
+        }
+
+        // --- PO status doughnut ---
+        const poEl = document.getElementById('poStatusChart');
+        if (poEl && poStatusRaw.length) {
+            const statusLabels = { 0: 'In transit', 1: 'Received', 2: 'Partially received' };
+            const statusColors = { 0: '#6c757d', 1: '#198754', 2: '#ffc107' };
+            new Chart(poEl, {
+                type: 'doughnut',
+                data: {
+                    labels: poStatusRaw.map(r => statusLabels[r.status] || ('Status ' + r.status)),
+                    datasets: [{
+                        data: poStatusRaw.map(r => r.count),
+                        backgroundColor: poStatusRaw.map(r => statusColors[r.status] || '#adb5bd')
+                    }]
+                },
+                options: {
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+    })();
+    /*]]>*/
+</script>
+
+<!-- Footer fragment -->
 <div th:insert="~{fragments/footer :: footer}"></div>
+</html>

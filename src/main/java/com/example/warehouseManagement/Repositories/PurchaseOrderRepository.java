@@ -8,7 +8,11 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import com.example.warehouseManagement.Domains.PurchaseOrder;
+import com.example.warehouseManagement.Domains.DTOs.AgingPoDto;
+import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
+import com.example.warehouseManagement.Domains.DTOs.PoStatusBucketDto;
 import com.example.warehouseManagement.Domains.DTOs.PurchaseOrderDto;
+import com.example.warehouseManagement.Domains.DTOs.VendorSpendDto;
 
 
 public interface PurchaseOrderRepository extends CrudRepository<PurchaseOrder, Long>{
@@ -94,5 +98,75 @@ public interface PurchaseOrderRepository extends CrudRepository<PurchaseOrder, L
         po.date
     """, nativeQuery = true)
     public List<PurchaseOrderDto> findAllPendingPurchaseOrder();
-    
+
+    /**
+     * Dashboard KPI: count + value of open purchase orders
+     * (IN_TRANSIT = 0, PARTIALLY_RECEIVED = 2). RECEIVED (1) is closed.
+     */
+    @Query(value = """
+      SELECT
+        COUNT(DISTINCT po.id) AS "count",
+        COALESCE(ROUND(SUM(pol.qty * ic.cost), 2), 0) AS "totalValue"
+      FROM purchase_order po
+      LEFT JOIN purchase_order_line pol ON pol.purchase_order_id = po.id
+      LEFT JOIN item_cost ic ON ic.id = pol.item_cost_id
+      WHERE po.status IN (0, 2)
+      """, nativeQuery = true)
+    public OpenOrdersKpiDto findOpenPurchaseOrdersKpi();
+
+    /**
+     * Top 5 vendors by YTD spend (sum of qty * cost across all POs raised in
+     * the current calendar year).
+     */
+    @Query(value = """
+      SELECT
+        v.name AS "vendorName",
+        ROUND(SUM(pol.qty * ic.cost), 2) AS "total"
+      FROM purchase_order po
+      INNER JOIN purchase_order_line pol ON pol.purchase_order_id = po.id
+      INNER JOIN item_cost ic ON ic.id = pol.item_cost_id
+      INNER JOIN vendor v ON v.id = po.vendor_id
+      WHERE EXTRACT(YEAR FROM po.date) = EXTRACT(YEAR FROM CURRENT_DATE())
+      GROUP BY v.id, v.name
+      ORDER BY "total" DESC
+      LIMIT 5
+      """, nativeQuery = true)
+    public List<VendorSpendDto> findTopVendorsBySpendYtd();
+
+    /**
+     * PO count grouped by status — feeds the doughnut chart.
+     * 0 = IN_TRANSIT, 1 = RECEIVED, 2 = PARTIALLY_RECEIVED.
+     */
+    @Query(value = """
+      SELECT
+        po.status AS "status",
+        COUNT(*) AS "count"
+      FROM purchase_order po
+      GROUP BY po.status
+      ORDER BY po.status
+      """, nativeQuery = true)
+    public List<PoStatusBucketDto> findPoStatusBuckets();
+
+    /**
+     * POs older than 30 days that are still IN_TRANSIT (0) or PARTIALLY_RECEIVED (2).
+     * Sorted oldest-first so the worst offenders are at the top.
+     */
+    @Query(value = """
+      SELECT
+        po.id AS "id",
+        v.name AS "vendorName",
+        po.date AS "date",
+        DATEDIFF('DAY', po.date, CURRENT_DATE()) AS "ageDays",
+        po.status AS "status",
+        ROUND(SUM(pol.qty * ic.cost), 2) AS "total"
+      FROM purchase_order po
+      INNER JOIN purchase_order_line pol ON pol.purchase_order_id = po.id
+      INNER JOIN item_cost ic ON ic.id = pol.item_cost_id
+      INNER JOIN vendor v ON v.id = po.vendor_id
+      WHERE po.status IN (0, 2)
+        AND DATEDIFF('DAY', po.date, CURRENT_DATE()) > 30
+      GROUP BY po.id, v.name, po.date, po.status
+      ORDER BY "ageDays" DESC
+      """, nativeQuery = true)
+    public List<AgingPoDto> findAgingPurchaseOrders();
 }

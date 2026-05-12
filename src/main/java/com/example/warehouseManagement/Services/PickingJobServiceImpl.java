@@ -142,4 +142,9 @@ public class PickingJobServiceImpl implements PickingJobService {
         return pickingJobRepository.save(pickingJob);
     }
 
+    @Override
+    public long countPending() {
+        return pickingJobRepository.countByStatus(PjStatus.PENDING);
+    }
+
 }

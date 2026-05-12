@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.example.warehouseManagement.Domains.Backorder;
 import com.example.warehouseManagement.Domains.SalesOrder;
 import com.example.warehouseManagement.Domains.DTOs.BackorderDto;
+import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
 import com.example.warehouseManagement.Repositories.BackorderRepository;
 
 @Service
@@ -41,5 +42,10 @@ public class BackorderServiceImpl implements BackorderService {
     public List<BackorderDto> findBackordersByYear(int year) {
         return backorderRepository.findBackordersByYear(year);
     }
-    
+
+    @Override
+    public OpenOrdersKpiDto findBackorderKpi() {
+        return backorderRepository.findBackorderKpi();
+    }
+
 }

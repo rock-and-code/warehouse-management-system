@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<div th:insert="~{fragments/header :: header}"></div>
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <div class="col-md-6 mx-auto">
+        <h1 class="my-3">Edit user</h1>
+
+        <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger">
+            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+        </div>
+
+        <form th:action="@{'/admin/users/' + ${userForm.id} + '/update'}" th:object="${userForm}" method="post" class="row g-3 needs-validation" novalidate>
+            <div class="col-md-12">
+                <label for="username" class="form-label">Username</label>
+                <input class="form-control" th:field="*{username}" type="text" id="username" required>
+                <div class="text-danger small" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+            </div>
+            <div class="col-md-12">
+                <label for="email" class="form-label">Email</label>
+                <input class="form-control" th:field="*{email}" type="email" id="email" required>
+                <div class="text-danger small" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+            </div>
+            <div class="col-md-12">
+                <label for="password" class="form-label">New password</label>
+                <input class="form-control" th:field="*{password}" type="password" id="password" minlength="8">
+                <div class="form-text">Leave blank to keep current password.</div>
+                <div class="text-danger small" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+            </div>
+            <div class="col-md-6">
+                <label for="role" class="form-label">Role</label>
+                <select class="form-select" th:field="*{role}" id="role">
+                    <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
+                </select>
+            </div>
+            <div class="col-md-3 form-check pt-4">
+                <input class="form-check-input" th:field="*{enabled}" type="checkbox" id="enabled">
+                <label class="form-check-label" for="enabled">Enabled</label>
+            </div>
+            <div class="col-md-3 form-check pt-4">
+                <input class="form-check-input" th:field="*{twoFactorEnabled}" type="checkbox" id="twoFactorEnabled">
+                <label class="form-check-label" for="twoFactorEnabled">2FA</label>
+            </div>
+            <div class="col-12 d-grid">
+                <button type="submit" class="btn btn-dark">Save</button>
+            </div>
+            <div class="col-12">
+                <a th:href="@{'/admin/users/' + ${userForm.id}}" class="btn btn-link">Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:insert="~{fragments/footer :: footer}"></div>
+</html>

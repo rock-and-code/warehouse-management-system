@@ -1,125 +1,183 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary" th:fragment="navbar">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">Navbar</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
-          </li>
-          <!-- Dropdown Tab -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Customers
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/customers/new-customer">New Customer</a></li>
-              <li><a class="dropdown-item" href="/customers">Customers</a></li>
-            </ul>
-          </li>
-          <!-- Dropdown Tab End -->
-          <!-- Dropdown Tab -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Vendors
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/vendors/new-vendor">New Vendor</a></li>
-              <li><a class="dropdown-item" href="/vendors">Vendors</a></li>
-            </ul>
-          </li>
-          <!-- Report Tab -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Reports
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/reports/sales-order-by-customer">Sales Order By Customer</a></li>
-              <li><a class="dropdown-item" href="/reports/sales-order-details">Sales Order By Number</a></li>
-              <li><a class="dropdown-item" href="/reports/pending-sales-orders-by-year-month">Pending Sales Order By Year and Month</a></li>
-              <li><a class="dropdown-item" href="/reports/stock-level-report-by-vendor">Stock Level Report By Vendor</a></li>
-              <li><a class="dropdown-item" href="/reports/back-order-report-by-year">Back Order Report By Year</a></li>
-            </ul>
-          </li>
-          <!-- END Report Tab -->
-          <!-- Sales Order Tab -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Sales Orders
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/sales-orders/new-sales-order">New Sales Order</a></li>
-              <li><a class="dropdown-item" href="/sales-orders">Sales Orders</a></li>
-              <li><a class="dropdown-item" href="/sales-orders/pending">Pending Sales Orders</a></li>
-            </ul>
-          </li>
-          <!-- END Sales Order Tab -->
-          <!-- Purchase Order Tab -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Purchase Orders
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/purchase-orders/new-purchase-order">New Purchase Order</a></li>
-              <li><a class="dropdown-item" href="/purchase-orders">Purchase Orders</a></li>
-              <li><a class="dropdown-item" href="/purchase-orders/pending">Pending Purchase Orders</a></li>
-            </ul>
-          </li>
-          <!-- END Purchase Order Tab -->
-          <!-- Goods Receipt Note Tab -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Goods Receipt Notes
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/goods-receipt-notes/search-purchase-order">Search Purchase Order</a></li>
-              <li><a class="dropdown-item" href="/goods-receipt-notes/pending-goods-receipt-notes">Pending Goods Receipt Notes</a></li>
-              <li><a class="dropdown-item" href="/goods-receipt-notes/fulfilled-goods-receipt-notes">Fulfilled Goods Receipt Notes</a></li>
-            </ul>
-          </li>
-          <!-- END Goods Receipt Notes-->
-           <!-- Put Away Tasks Tab -->
-           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Put Away Tasks
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/put-aways/floor">Put Away Tasks On Floor</a></li>
-              <li><a class="dropdown-item" href="/put-aways/search-warehouse-section">Search Put Away Tasks</a></li>
-            </ul>
-          </li>
-          <!-- END Goods Receipt Notes-->
-          <!-- Picking Job Tab -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Picking Jobs
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/picking-jobs">Picking Jobs</a></li>
-              <li><a class="dropdown-item" href="#">Another action</a></li>
-            </ul>
-          </li>
-           <!-- Dropdown Tab -->
-           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Items
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/items/new-item">New Item</a></li>
-              <li><a class="dropdown-item" href="/items">Items</a></li>
-            </ul>
-          </li>
-          <!-- END Picking Job Tab -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<div th:fragment="navbar">
+
+    <!-- Sidebar (md+) — fixed-position left rail -->
+    <aside class="wms-sidebar bg-dark text-white p-3 d-none d-md-block">
+        <a href="/" class="text-white text-decoration-none d-flex align-items-center mb-4">
+            <i class="bi bi-box-seam fs-4 me-2"></i>
+            <span class="fs-5 fw-semibold">Warehouse</span>
+        </a>
+        <ul class="nav nav-pills flex-column gap-1">
+            <li class="nav-item">
+                <a class="nav-link" href="/"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center justify-content-between" data-bs-toggle="collapse" href="#nav-customers" role="button" aria-expanded="false">
+                    <span><i class="bi bi-people me-2"></i>Customers</span>
+                    <i class="bi bi-chevron-down small"></i>
+                </a>
+                <div class="collapse submenu" id="nav-customers">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link" href="/customers">All customers</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/customers/new-customer">New customer</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center justify-content-between" data-bs-toggle="collapse" href="#nav-vendors" role="button" aria-expanded="false">
+                    <span><i class="bi bi-truck me-2"></i>Vendors</span>
+                    <i class="bi bi-chevron-down small"></i>
+                </a>
+                <div class="collapse submenu" id="nav-vendors">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link" href="/vendors">All vendors</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/vendors/new-vendor">New vendor</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center justify-content-between" data-bs-toggle="collapse" href="#nav-items" role="button" aria-expanded="false">
+                    <span><i class="bi bi-box me-2"></i>Items</span>
+                    <i class="bi bi-chevron-down small"></i>
+                </a>
+                <div class="collapse submenu" id="nav-items">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link" href="/items">All items</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/items/new-item">New item</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center justify-content-between" data-bs-toggle="collapse" href="#nav-sales" role="button" aria-expanded="false">
+                    <span><i class="bi bi-cart me-2"></i>Sales orders</span>
+                    <i class="bi bi-chevron-down small"></i>
+                </a>
+                <div class="collapse submenu" id="nav-sales">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link" href="/sales-orders">All orders</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/sales-orders/pending">Pending</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/sales-orders/new-sales-order">New order</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center justify-content-between" data-bs-toggle="collapse" href="#nav-purchases" role="button" aria-expanded="false">
+                    <span><i class="bi bi-bag-check me-2"></i>Purchase orders</span>
+                    <i class="bi bi-chevron-down small"></i>
+                </a>
+                <div class="collapse submenu" id="nav-purchases">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link" href="/purchase-orders">All orders</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/purchase-orders/pending">Pending</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/purchase-orders/new-purchase-order">New order</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center justify-content-between" data-bs-toggle="collapse" href="#nav-grn" role="button" aria-expanded="false">
+                    <span><i class="bi bi-receipt me-2"></i>Receipt notes</span>
+                    <i class="bi bi-chevron-down small"></i>
+                </a>
+                <div class="collapse submenu" id="nav-grn">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link" href="/goods-receipt-notes/search-purchase-order">Search PO</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/goods-receipt-notes/pending-goods-receipt-notes">Pending</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/goods-receipt-notes/fulfilled-goods-receipt-notes">Fulfilled</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center justify-content-between" data-bs-toggle="collapse" href="#nav-putaway" role="button" aria-expanded="false">
+                    <span><i class="bi bi-arrow-down-square me-2"></i>Put-away</span>
+                    <i class="bi bi-chevron-down small"></i>
+                </a>
+                <div class="collapse submenu" id="nav-putaway">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link" href="/put-aways/floor">On floor</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/put-aways/search-warehouse-section">By section</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/picking-jobs"><i class="bi bi-list-check me-2"></i>Picking jobs</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center justify-content-between" data-bs-toggle="collapse" href="#nav-reports" role="button" aria-expanded="false">
+                    <span><i class="bi bi-bar-chart me-2"></i>Reports</span>
+                    <i class="bi bi-chevron-down small"></i>
+                </a>
+                <div class="collapse submenu" id="nav-reports">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link" href="/reports/sales-order-by-customer">Sales by customer</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/reports/sales-order-details">Sales by number</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/reports/pending-sales-orders-by-year-month">Pending sales</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/reports/stock-level-report-by-vendor">Stock level</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/reports/back-order-report-by-year">Backorders</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                <a class="nav-link d-flex align-items-center justify-content-between" data-bs-toggle="collapse" href="#nav-admin" role="button" aria-expanded="false">
+                    <span><i class="bi bi-shield-lock me-2"></i>Admin</span>
+                    <i class="bi bi-chevron-down small"></i>
+                </a>
+                <div class="collapse submenu" id="nav-admin">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link" href="/admin/users">Users</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/admin/users/new">New user</a></li>
+                    </ul>
+                </div>
+            </li>
         </ul>
-        <!-- <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form> -->
-      </div>
+    </aside>
+
+    <!-- Offcanvas sidebar (mobile only) -->
+    <div class="offcanvas offcanvas-start bg-dark text-white wms-sidebar-offcanvas" tabindex="-1" id="wmsMobileSidebar" aria-labelledby="wmsMobileSidebarLabel" style="width: 240px;">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-white" id="wmsMobileSidebarLabel">
+                <i class="bi bi-box-seam me-2"></i>Warehouse
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-3">
+            <ul class="nav nav-pills flex-column gap-1">
+                <li class="nav-item"><a class="nav-link text-white" href="/"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="/customers"><i class="bi bi-people me-2"></i>Customers</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="/vendors"><i class="bi bi-truck me-2"></i>Vendors</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="/items"><i class="bi bi-box me-2"></i>Items</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="/sales-orders"><i class="bi bi-cart me-2"></i>Sales orders</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="/purchase-orders"><i class="bi bi-bag-check me-2"></i>Purchase orders</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="/goods-receipt-notes/pending-goods-receipt-notes"><i class="bi bi-receipt me-2"></i>Receipt notes</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="/put-aways/floor"><i class="bi bi-arrow-down-square me-2"></i>Put-away</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="/picking-jobs"><i class="bi bi-list-check me-2"></i>Picking jobs</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="/reports/sales-order-by-customer"><i class="bi bi-bar-chart me-2"></i>Reports</a></li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')"><a class="nav-link text-white" href="/admin/users"><i class="bi bi-shield-lock me-2"></i>Admin</a></li>
+            </ul>
+        </div>
     </div>
-  </nav>
+
+    <!-- Fixed topbar -->
+    <header class="wms-topbar bg-body-tertiary border-bottom d-flex align-items-center px-3">
+        <button class="btn btn-outline-secondary btn-sm d-md-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#wmsMobileSidebar" aria-controls="wmsMobileSidebar">
+            <i class="bi bi-list"></i>
+        </button>
+        <h1 class="h5 mb-0" th:text="${title} ?: 'Warehouse'">Dashboard</h1>
+        <div class="ms-auto d-flex align-items-center gap-3" sec:authorize="isAuthenticated()">
+            <span class="text-muted small d-none d-sm-inline">
+                <i class="bi bi-person-circle me-1"></i>
+                <span sec:authentication="name">user</span>
+            </span>
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button type="submit" class="btn btn-outline-dark btn-sm">
+                    <i class="bi bi-box-arrow-right me-1"></i>Sign out
+                </button>
+            </form>
+        </div>
+    </header>
+
+</div>
+</body>
+</html>

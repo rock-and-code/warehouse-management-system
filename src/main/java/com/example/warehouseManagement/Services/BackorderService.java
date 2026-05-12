@@ -5,6 +5,7 @@ import java.util.List;
 import com.example.warehouseManagement.Domains.Backorder;
 import com.example.warehouseManagement.Domains.SalesOrder;
 import com.example.warehouseManagement.Domains.DTOs.BackorderDto;
+import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
 
 public interface BackorderService {
     public Iterable<Backorder> findAll();
@@ -12,4 +13,7 @@ public interface BackorderService {
     public Backorder save(Backorder backorder);
     public void delete(Backorder backorder);
     public List<BackorderDto> findBackordersByYear(int year);
+
+    /** Dashboard KPI: count + total value of active backorders. */
+    OpenOrdersKpiDto findBackorderKpi();
 }

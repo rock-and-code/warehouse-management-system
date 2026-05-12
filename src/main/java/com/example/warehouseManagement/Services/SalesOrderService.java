@@ -6,6 +6,8 @@ import java.util.Optional;
 import com.example.warehouseManagement.Domains.Customer;
 import com.example.warehouseManagement.Domains.LastThreeMonthsSales;
 import com.example.warehouseManagement.Domains.SalesOrder;
+import com.example.warehouseManagement.Domains.DTOs.DailySalesDto;
+import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
 import com.example.warehouseManagement.Domains.DTOs.PendingSalesOrderDto;
 import com.example.warehouseManagement.Domains.DTOs.SalesOrderDto;
 import com.example.warehouseManagement.Domains.Exceptions.SalesOrderNotFoundException;
@@ -81,6 +83,12 @@ public interface SalesOrderService {
      * @return
      */
     public LastThreeMonthsSales findLastThreeMonthsSales();
+
+    /** Dashboard KPI: count + value of sales orders not yet fully shipped. */
+    OpenOrdersKpiDto findOpenSalesOrdersKpi();
+
+    /** Dashboard line chart: daily sales totals for the last 30 days. */
+    List<DailySalesDto> findDailySalesLast30Days();
 }
 
 
