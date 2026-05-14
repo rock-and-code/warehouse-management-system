@@ -132,6 +132,13 @@ public class Bootstrap implements CommandLineRunner {
 
         seedUsers();
 
+        // Skip demo-data seeding when the DB already has vendors. Mirrors the
+        // seedUsers() guard above so a file-based H2 doesn't accumulate duplicates
+        // across restarts.
+        if (vendorRepository.count() > 0) {
+            return;
+        }
+
         // Variables
         Random random = new SecureRandom();
         // Seed-data window: Jan 1 of the current year through the last day of the
