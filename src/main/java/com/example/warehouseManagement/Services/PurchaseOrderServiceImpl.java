@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.warehouseManagement.Domains.GoodsReceiptNote;
 import com.example.warehouseManagement.Domains.GoodsReceiptNote.GrnStatus;
@@ -87,6 +88,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
      * @return
      */
     @Override
+    @Transactional
     public PurchaseOrder updateById(Long id, PurchaseOrder purchaseOrder) throws PurchaseOrderNotFoundException, ReceivedOrderModificationException {
         if (purchaseOrderRepository.findById(id).isEmpty()) {
             throw new PurchaseOrderNotFoundException();
@@ -134,6 +136,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
      * Persists a Purchase order in the dba
      */
     @Override
+    @Transactional
     public PurchaseOrder save(PurchaseOrder purchaseOrder) {
         PurchaseOrder po = purchaseOrderRepository.save(purchaseOrder);
         // Adds goods receipt note
@@ -161,6 +164,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
      * Delete a persisted purchase order from the DBA
      */
     @Override
+    @Transactional
     public void delete(PurchaseOrder purchaseOrder) {
         purchaseOrderRepository.delete(purchaseOrder);
     }

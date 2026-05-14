@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.warehouseManagement.Domains.PickingJob;
 import com.example.warehouseManagement.Domains.PickingJobLine;
@@ -93,6 +94,7 @@ public class StockServiceImpl implements StockService {
     }
 
     @Override
+    @Transactional
     public void putAwayStocks(PutAwayTasksDtoWrapper wrapper, List<Stock> stocks) {
         for (int i=0; i<wrapper.getPutAwayTasks().size(); i++) {
             PutAwayTaskDto putAwayTaskDto = wrapper.getPutAwayTasks().get(i);
