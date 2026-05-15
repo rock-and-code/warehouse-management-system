@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import com.example.warehouseManagement.Domains.Customer;
 import com.example.warehouseManagement.Domains.LastThreeMonthsSales;
 import com.example.warehouseManagement.Domains.SalesOrder;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedSalesOrderSearchCriteria;
 import com.example.warehouseManagement.Domains.DTOs.DailySalesDto;
 import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
 import com.example.warehouseManagement.Domains.DTOs.PendingSalesOrderDto;
@@ -47,6 +48,11 @@ public interface SalesOrderService {
      * Paginated PENDING sales orders — used by /sales-orders/pending.
      */
     public Page<SalesOrder> findPendingPage(Pageable pageable);
+    /**
+     * Advanced search — empty criteria returns every row (matches Page<SalesOrder>
+     * shape from findAll). Spec returns cb.conjunction() when nothing is set.
+     */
+    public Page<SalesOrder> findAdvanced(AdvancedSalesOrderSearchCriteria criteria, Pageable pageable);
     /**
      * Returns a list of all the sales order placed by a customer in the dba by a given customer id
      * @param customerId

@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.example.warehouseManagement.Domains.SalesOrder;
 import com.example.warehouseManagement.Domains.SalesOrder.SoStatus;
 import com.example.warehouseManagement.Domains.SalesOrderLine;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedSalesOrderSearchCriteria;
+import com.example.warehouseManagement.Domains.DTOs.TextMode;
 import com.example.warehouseManagement.Domains.Exceptions.SalesOrderNotFoundException;
 import com.example.warehouseManagement.Domains.Exceptions.ShippedOrderModificationException;
 import com.example.warehouseManagement.Services.CustomerService;
@@ -142,28 +144,35 @@ public class SalesOrderController {
      * @return the name of the view to render
      */
     @GetMapping
-    public String getAllSalesOrders(@PageableDefault(size = 25, sort = "date", direction = Sort.Direction.DESC) Pageable pageable,
-                                    Model model) {
+    public String getAllSalesOrders(
+            @ModelAttribute("criteria") AdvancedSalesOrderSearchCriteria criteria,
+            @PageableDefault(size = 25, sort = "date", direction = Sort.Direction.DESC) Pageable pageable,
+            Model model) {
         model.addAttribute("title", "Sales Orders");
         model.addAttribute("customers", customerService.findAll());
-        model.addAttribute("page", salesOrderService.findAll(pageable));
+        model.addAttribute("page", salesOrderService.findAdvanced(criteria, pageable));
+        model.addAttribute("textModes", TextMode.values());
+        model.addAttribute("statuses", SoStatus.values());
         return "salesOrders/salesOrders";
     }
 
     /**
-     * GET /sales-order/pending
+     * GET /sales-orders/pending
      *
-     * Gets all sales orders.
-     *
-     * @param model a Model object to be populated with data for the view
-     * @return the name of the view to render
+     * Pending-only convenience endpoint kept for the navbar shortcut. The
+     * canonical list now supports status filtering via the Advanced modal,
+     * but this URL still works as a bookmark.
      */
     @GetMapping(PENDING_SALES_ORDER_PATH)
-    public String getAllPendingSalesOrders(@PageableDefault(size = 25, sort = "date", direction = Sort.Direction.DESC) Pageable pageable,
-                                           Model model) {
+    public String getAllPendingSalesOrders(
+            @ModelAttribute("criteria") AdvancedSalesOrderSearchCriteria criteria,
+            @PageableDefault(size = 25, sort = "date", direction = Sort.Direction.DESC) Pageable pageable,
+            Model model) {
         model.addAttribute("title", "Sales Orders");
         model.addAttribute("customers", customerService.findAll());
         model.addAttribute("page", salesOrderService.findPendingPage(pageable));
+        model.addAttribute("textModes", TextMode.values());
+        model.addAttribute("statuses", SoStatus.values());
         return "salesOrders/salesOrders";
     }
 
