@@ -140,14 +140,9 @@ public class VendorController {
      */
     @PostMapping(UPDATE_VENDOR_ID_PATH)
     public String updateVendor(@PathVariable(name = "vendorId", required = false) Long id,
-        @ModelAttribute Vendor updatedVendor, HttpServletRequest request, Model model) {
-        try {
-            vendorService.updateById(id, updatedVendor);
-        } catch (VendorNotFoundException e) {
-            return "redirect:/vendors?notFound"; // Redirect to the list of vendors with an error message.
-        }
-        // Redirect to the vendor details page if the vendor is saved
-        // successfully.
+        @ModelAttribute Vendor updatedVendor, HttpServletRequest request, Model model)
+            throws VendorNotFoundException {
+        vendorService.updateById(id, updatedVendor);
         return String.format("redirect:/vendors/%d", id);
     }
 

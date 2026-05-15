@@ -152,13 +152,10 @@ public class ItemController {
      */
     @PostMapping(UPDATE_ITEM_ID_PATH)
     public String updateItemDescriptionAndSKU(@PathVariable(name = "itemId", required = false) Long id,
-        @ModelAttribute Item updatedItem, Model model) {
-        try {
-            itemService.updateDescriptionAndSKUById(id, updatedItem);
-        } catch (ItemNotFoundException e) {
-            return "redirect:/items?notFound"; 
-        }
-        return String.format("redirect:/items/%d", id);  // Returning the view template name
+        @ModelAttribute Item updatedItem, Model model)
+            throws ItemNotFoundException {
+        itemService.updateDescriptionAndSKUById(id, updatedItem);
+        return String.format("redirect:/items/%d", id);
     }
 
     /**
