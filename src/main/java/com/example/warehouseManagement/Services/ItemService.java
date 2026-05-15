@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.Vendor;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedItemSearchCriteria;
 import com.example.warehouseManagement.Domains.Exceptions.ItemNotFoundException;
 
 public interface ItemService {
@@ -17,6 +18,11 @@ public interface ItemService {
      */
     public Iterable<Item> findAll();
     public Page<Item> findAll(Pageable pageable);
+    /**
+     * Advanced search — empty criteria returns every row (matches Page<Item>
+     * shape from findAll). Spec returns cb.conjunction() when nothing is set.
+     */
+    public Page<Item> findAdvanced(AdvancedItemSearchCriteria criteria, Pageable pageable);
     /**
      * Return a product given its id
      * @param id
