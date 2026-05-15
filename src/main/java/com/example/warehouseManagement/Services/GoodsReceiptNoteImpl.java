@@ -1,9 +1,13 @@
 package com.example.warehouseManagement.Services;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,12 +20,17 @@ import com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus;
 import com.example.warehouseManagement.Domains.PurchaseOrderLine;
 import com.example.warehouseManagement.Domains.Stock;
 import com.example.warehouseManagement.Domains.WarehouseSection;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedGrnSearchCriteria;
 import com.example.warehouseManagement.Domains.DTOs.GoodsReceiptNoteDto;
 import com.example.warehouseManagement.Domains.DTOs.GoodsReceiptNoteLineDto;
+import com.example.warehouseManagement.Domains.DTOs.TextMode;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteLineRepository;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteRepository;
 import com.example.warehouseManagement.Repositories.StockRepository;
 import com.example.warehouseManagement.Repositories.WarehouseSectionRepository;
+
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate;
 
 @Service
 public class GoodsReceiptNoteImpl implements GoodsReceiptNoteService {
@@ -129,13 +138,68 @@ public class GoodsReceiptNoteImpl implements GoodsReceiptNoteService {
     }
 
     @Override
-    public List<GoodsReceiptNote> findAllPending() {
-        return goodsReceiptNoteRepository.findAllPending();
+    public Page<GoodsReceiptNote> findAdvanced(AdvancedGrnSearchCriteria criteria, Pageable pageable) {
+        return goodsReceiptNoteRepository.findAll(buildSpec(criteria), pageable);
     }
-    
-    @Override
-    public List<GoodsReceiptNote> findAllFulfilled() {
-        return goodsReceiptNoteRepository.findAllFulfilled();
+
+    private static Specification<GoodsReceiptNote> buildSpec(AdvancedGrnSearchCriteria c) {
+        return (root, query, cb) -> {
+            List<Predicate> ps = new ArrayList<>();
+
+            if (c.getId() != null && !c.getId().isBlank()) {
+                String idStr = c.getId().trim();
+                TextMode mode = c.getIdMode() == null ? TextMode.STARTS_WITH : c.getIdMode();
+                if (mode == TextMode.EQUALS) {
+                    try {
+                        ps.add(cb.equal(root.get("id"), Long.parseLong(idStr)));
+                    } catch (NumberFormatException ignored) {
+                        ps.add(cb.disjunction());
+                    }
+                } else {
+                    Expression<String> idText = root.<Long>get("id").as(String.class);
+                    String pattern = (mode == TextMode.STARTS_WITH) ? idStr + "%" : "%" + idStr + "%";
+                    ps.add(cb.like(idText, pattern));
+                }
+            }
+
+            if (c.getPurchaseOrderId() != null && !c.getPurchaseOrderId().isBlank()) {
+                String poStr = c.getPurchaseOrderId().trim();
+                TextMode mode = c.getPurchaseOrderIdMode() == null ? TextMode.STARTS_WITH : c.getPurchaseOrderIdMode();
+                if (mode == TextMode.EQUALS) {
+                    try {
+                        ps.add(cb.equal(root.get("purchaseOrder").get("id"), Long.parseLong(poStr)));
+                    } catch (NumberFormatException ignored) {
+                        ps.add(cb.disjunction());
+                    }
+                } else {
+                    Expression<String> poText = root.get("purchaseOrder").<Long>get("id").as(String.class);
+                    String pattern = (mode == TextMode.STARTS_WITH) ? poStr + "%" : "%" + poStr + "%";
+                    ps.add(cb.like(poText, pattern));
+                }
+            }
+
+            if (c.getVendor() != null && !c.getVendor().isBlank()) {
+                String v = c.getVendor().trim().toLowerCase();
+                Expression<String> vendorName = cb.lower(root.get("purchaseOrder").get("vendor").get("name"));
+                switch (c.getVendorMode() == null ? TextMode.CONTAINS : c.getVendorMode()) {
+                    case EQUALS      -> ps.add(cb.equal(vendorName, v));
+                    case STARTS_WITH -> ps.add(cb.like(vendorName, v + "%"));
+                    case CONTAINS    -> ps.add(cb.like(vendorName, "%" + v + "%"));
+                }
+            }
+
+            if (c.getDateFrom() != null) {
+                ps.add(cb.greaterThanOrEqualTo(root.get("date"), c.getDateFrom()));
+            }
+            if (c.getDateTo() != null) {
+                ps.add(cb.lessThanOrEqualTo(root.get("date"), c.getDateTo()));
+            }
+            if (c.getStatus() != null) {
+                ps.add(cb.equal(root.get("status"), c.getStatus()));
+            }
+
+            return ps.isEmpty() ? cb.conjunction() : cb.and(ps.toArray(Predicate[]::new));
+        };
     }
 
     @Override
