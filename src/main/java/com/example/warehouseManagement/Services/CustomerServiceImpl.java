@@ -2,6 +2,8 @@ package com.example.warehouseManagement.Services;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.warehouseManagement.Domains.Customer;
@@ -12,8 +14,8 @@ import com.example.warehouseManagement.Repositories.CustomerRepository;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
-    
-    
+
+
     public CustomerServiceImpl(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
     }
@@ -21,6 +23,11 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Iterable<Customer> findAll() {
         return customerRepository.findAll();
+    }
+
+    @Override
+    public Page<Customer> findAll(Pageable pageable) {
+        return customerRepository.findAll(pageable);
     }
 
     @Override

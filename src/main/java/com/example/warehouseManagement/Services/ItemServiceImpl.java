@@ -3,6 +3,8 @@ package com.example.warehouseManagement.Services;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.warehouseManagement.Domains.Item;
@@ -25,6 +27,11 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Iterable<Item> findAll() {
         return itemRepository.findAll();
+    }
+
+    @Override
+    public Page<Item> findAll(Pageable pageable) {
+        return itemRepository.findAll(pageable);
     }
     /**
      * Return a item given its id

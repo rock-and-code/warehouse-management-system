@@ -3,6 +3,9 @@ package com.example.warehouseManagement.Services;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.Vendor;
 import com.example.warehouseManagement.Domains.Exceptions.ItemNotFoundException;
@@ -13,6 +16,7 @@ public interface ItemService {
      * @return
      */
     public Iterable<Item> findAll();
+    public Page<Item> findAll(Pageable pageable);
     /**
      * Return a product given its id
      * @param id

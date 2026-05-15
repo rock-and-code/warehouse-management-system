@@ -3,8 +3,8 @@ package com.example.warehouseManagement.Repositories;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import com.example.warehouseManagement.Domains.PurchaseOrder;
@@ -15,7 +15,7 @@ import com.example.warehouseManagement.Domains.DTOs.PurchaseOrderDto;
 import com.example.warehouseManagement.Domains.DTOs.VendorSpendDto;
 
 
-public interface PurchaseOrderRepository extends CrudRepository<PurchaseOrder, Long>{
+public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Long>{
     /**
      * Return a Purchase Order that matches the given purchase order number
      * @param purchaseOrderNumber
