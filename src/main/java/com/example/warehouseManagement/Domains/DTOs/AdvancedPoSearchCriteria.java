@@ -18,12 +18,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AdvancedPoSearchCriteria {
 
-    public enum TextMode {
-        EQUALS,
-        STARTS_WITH,
-        CONTAINS
-    }
-
     /** PO id as text — supports partial matches via {@link #idMode}. */
     private String id;
     private TextMode idMode = TextMode.STARTS_WITH;
