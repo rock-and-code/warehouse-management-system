@@ -2,6 +2,9 @@ package com.example.warehouseManagement.Controllers;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.warehouseManagement.Domains.StatePool;
 import com.example.warehouseManagement.Domains.Vendor;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedVendorSearchCriteria;
+import com.example.warehouseManagement.Domains.DTOs.TextMode;
 import com.example.warehouseManagement.Domains.Exceptions.VendorNotFoundException;
 import com.example.warehouseManagement.Services.VendorService;
 
@@ -46,11 +51,14 @@ public class VendorController {
      * @return the name of the view to render
      */
     @GetMapping
-    public String getVendors(Model model) {
-        // Adding a list of vendors and a title attribute to the model
-        model.addAttribute("vendors", vendorService.findAll());
+    public String getVendors(
+            @ModelAttribute("criteria") AdvancedVendorSearchCriteria criteria,
+            @PageableDefault(size = 25, sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
+            Model model) {
+        model.addAttribute("page", vendorService.findAdvanced(criteria, pageable));
         model.addAttribute("title", "Vendors");
-        return "vendors/vendors"; // Returning the view template name
+        model.addAttribute("textModes", TextMode.values());
+        return "vendors/vendors";
     }
 
 
