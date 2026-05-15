@@ -4,10 +4,13 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.example.warehouseManagement.Domains.Customer;
 
-public interface CustomerRepository extends JpaRepository<Customer, Long>{
+public interface CustomerRepository
+        extends JpaRepository<Customer, Long>,
+                JpaSpecificationExecutor<Customer> {
 
     /**
      * Case-insensitive LIKE search on name, capped by Pageable.
