@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.warehouseManagement.Domains.Customer;
 import com.example.warehouseManagement.Domains.Item;
@@ -71,6 +72,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
     }
 
     @Override
+    @Transactional
     public SalesOrder updateById(Long id, SalesOrder salesOrder)
             throws SalesOrderNotFoundException, ShippedOrderModificationException {
         if (salesOrderRepository.findById(id).isEmpty()) {
@@ -124,6 +126,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
     }
 
     @Override
+    @Transactional
     public SalesOrder save(SalesOrder salesOrder) {
         // TODO: TEST WITHOUT PERSISTING CHILDS ENTITIES USING REPO SINCE PARENT CASCADE
         // TYPE IS ALL
@@ -147,6 +150,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
     }
 
     @Override
+    @Transactional
     public void delete(SalesOrder salesOrder) {
         salesOrderRepository.delete(salesOrder);
     }

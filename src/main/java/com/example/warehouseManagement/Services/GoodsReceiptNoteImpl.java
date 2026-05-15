@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.warehouseManagement.Domains.GoodsReceiptNote;
 import com.example.warehouseManagement.Domains.GoodsReceiptNote.GrnStatus;
@@ -92,6 +93,7 @@ public class GoodsReceiptNoteImpl implements GoodsReceiptNoteService {
     }
 
     @Override
+    @Transactional
     public GoodsReceiptNote fulfill(GoodsReceiptNote goodsReceiptNote, GoodsReceiptNoteDto goodsReceiptNoteDto) {
         PurchaseOrder purchaseOrder = goodsReceiptNote.getPurchaseOrder();
         int purchaseOrderLines = purchaseOrder.getPurchaseOrderLines().size();

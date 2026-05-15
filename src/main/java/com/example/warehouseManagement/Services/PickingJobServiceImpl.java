@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.warehouseManagement.Domains.Backorder;
 import com.example.warehouseManagement.Domains.PickingJob;
@@ -79,6 +80,7 @@ public class PickingJobServiceImpl implements PickingJobService {
      * if not, it will create another picking job line for the backorder 
      */
     @Override
+    @Transactional
     public PickingJob fulfill(PickingJob pickingJob, PickingJobDto pickingJobDto) {
         //Collections to collect fulfilled and not fulfilled picking job lines
         List<PickingJobLine> pickingJobDtoLinesForBackOrders = new ArrayList<>();
