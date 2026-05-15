@@ -37,7 +37,7 @@ public class DashBoardController {
         this.pickingJobService = pickingJobService;
     }
 
-    @GetMapping(value = "/")
+    @GetMapping
     public String getDashBoard(Model model) {
         model.addAttribute("title", "Dashboard");
         // Row 1 — KPI cards

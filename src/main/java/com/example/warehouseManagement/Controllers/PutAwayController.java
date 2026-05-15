@@ -19,19 +19,14 @@ import com.example.warehouseManagement.Services.StockService;
 import com.example.warehouseManagement.Services.WarehouseSectionService;
 
 @Controller
-@RequestMapping(value = "/")
+@RequestMapping("/put-aways")
 public class PutAwayController {
-    /**
-     * Constants for path definitions.
-     */
-    public static final String PUT_AWAY_PATH = "put-aways";
-    public static final String PUT_AWAY_BY_SPECIFIC_WAREHOUSE_SECTION_PATH = PUT_AWAY_PATH + "/{warehouseSectionId}";
-    public static final String SEARCH_WAREHOUSE_SECTION = PUT_AWAY_PATH + "/search-warehouse-section";
-    public static final String PUT_AWAY_ITEMS_FROM_FLOOR_PATH = PUT_AWAY_PATH + "/floor";
-    public static final String FLOOR = "00-00-0-0";
-    /**
-     * Dependencies.
-     */
+
+    private static final String PUT_AWAY_BY_SPECIFIC_WAREHOUSE_SECTION_PATH = "/{warehouseSectionId}";
+    private static final String SEARCH_WAREHOUSE_SECTION_PATH = "/search-warehouse-section";
+    private static final String PUT_AWAY_ITEMS_FROM_FLOOR_PATH = "/floor";
+    private static final String FLOOR = "00-00-0-0";
+
     private final StockService stockService;
     private final WarehouseSectionService warehouseSectionService;
 
@@ -47,7 +42,7 @@ public class PutAwayController {
         this.warehouseSectionService = warehouseSectionService;
     }
 
-    @GetMapping(value = PUT_AWAY_ITEMS_FROM_FLOOR_PATH)
+    @GetMapping(PUT_AWAY_ITEMS_FROM_FLOOR_PATH)
     public String putAwayTaskOnFloor(Model model) {
         Optional<WarehouseSection> floor = warehouseSectionService.findWarehouseSectionBySectionNumber(FLOOR);
         PutAwayTasksDtoWrapper wrapper = PutAwayTasksDtoWrapper.builder()
@@ -59,7 +54,7 @@ public class PutAwayController {
         return "putAwayTasks/putAwayTasksOnFloor";
     }
 
-    @PostMapping(value = PUT_AWAY_ITEMS_FROM_FLOOR_PATH)
+    @PostMapping(PUT_AWAY_ITEMS_FROM_FLOOR_PATH)
     public String fulfillPutAwayTask(@ModelAttribute PutAwayTasksDtoWrapper wrapper, Model model) {
         List<Stock> stocks = stockService.findStocksOnFloor();
         if (wrapper != null) {
@@ -70,14 +65,14 @@ public class PutAwayController {
         }
     }
 
-    @GetMapping(value = SEARCH_WAREHOUSE_SECTION)
+    @GetMapping(SEARCH_WAREHOUSE_SECTION_PATH)
     public String searchWarehouseSection(Model model) {
         model.addAttribute("searchWarehouseSectionDto", new SearchWarehouseSectionDto());
         model.addAttribute("title", "Search Warehouse Section");
         return "putAwayTasks/searchWarehouseSectionForm";
     }
 
-    @PostMapping(value = SEARCH_WAREHOUSE_SECTION)
+    @PostMapping(SEARCH_WAREHOUSE_SECTION_PATH)
     public String putAwayFromSpecificWarehouseSection(
             @ModelAttribute SearchWarehouseSectionDto searchWarehouseSectionDto,
             Model model) {
@@ -99,7 +94,7 @@ public class PutAwayController {
         }
     }
 
-    @PostMapping(value = PUT_AWAY_BY_SPECIFIC_WAREHOUSE_SECTION_PATH)
+    @PostMapping(PUT_AWAY_BY_SPECIFIC_WAREHOUSE_SECTION_PATH)
     public String fulfillPutAwayTaskFromSpecificWarehouseSection(@PathVariable Long warehouseSectionId,
             @ModelAttribute PutAwayTasksDtoWrapper wrapper,
             Model model) {

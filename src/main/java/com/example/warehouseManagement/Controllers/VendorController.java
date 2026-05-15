@@ -21,15 +21,14 @@ import jakarta.servlet.http.HttpServletRequest;
  * Controller class for handling vendor operations.
  */
 @Controller
-@RequestMapping(value = "/")
+@RequestMapping("/vendors")
 public class VendorController {
 
-    private final VendorService vendorService;
+    private static final String NEW_VENDOR_PATH = "/new-vendor";
+    private static final String VENDOR_ID_PATH = "/{vendorId}";
+    private static final String UPDATE_VENDOR_ID_PATH = VENDOR_ID_PATH + "/update";
 
-    private static final String VENDOR_PATH = "vendors";
-    private static final String NEW_VENDOR_PATH = VENDOR_PATH + "/new-vendor";
-    private static final String VENDOR_PATH_ID = VENDOR_PATH + "/{vendorId}";
-    private static final String UPDATE_VENDOR_PATH_ID = VENDOR_PATH_ID + "/update";
+    private final VendorService vendorService;
 
     /**
      * Constructor.
@@ -46,7 +45,7 @@ public class VendorController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render
      */
-    @GetMapping(value = VENDOR_PATH)
+    @GetMapping
     public String getVendors(Model model) {
         // Adding a list of vendors and a title attribute to the model
         model.addAttribute("vendors", vendorService.findAll());
@@ -64,7 +63,7 @@ public class VendorController {
      * @param model      a Model object to be populated with data for the view
      * @return the name of the view to render
      */
-    @GetMapping(value = NEW_VENDOR_PATH)
+    @GetMapping(NEW_VENDOR_PATH)
     public String newvendor(@ModelAttribute Vendor mewVendor, Model model) {
         model.addAttribute("states", StatePool.getStates());
         model.addAttribute("newVendor", Vendor.builder().build());
@@ -82,7 +81,7 @@ public class VendorController {
      * @return the name of the view to render, or a redirect to the vendors
      *         list page if the new vendor is saved successfully
      */
-    @PostMapping(value = NEW_VENDOR_PATH)
+    @PostMapping(NEW_VENDOR_PATH)
     public String saveVendor(@ModelAttribute Vendor newVendor,
             HttpServletRequest request, Model model) {
         vendorService.save(newVendor);
@@ -98,7 +97,7 @@ public class VendorController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of vendor if the vendor is not found
      */
-    @GetMapping(value = VENDOR_PATH_ID)
+    @GetMapping(VENDOR_ID_PATH)
     public String getVendorDetails(@PathVariable(name = "vendorId", required = false) Long id, Model model) {
         Optional<Vendor> vendor = vendorService.findById(id);
         // Checking if the vendor exists
@@ -118,7 +117,7 @@ public class VendorController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of vendors if the vendor is not found
      */
-    @GetMapping(value = UPDATE_VENDOR_PATH_ID)
+    @GetMapping(UPDATE_VENDOR_ID_PATH)
     public String getVendorUpdateForm(@PathVariable(name = "vendorId", required = false) Long id, Model model) {
            Optional<Vendor> vendor = vendorService.findById(id);
         // Checking if the vendor exists
@@ -139,8 +138,8 @@ public class VendorController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of vendors if the vendor is not found
      */
-    @PostMapping(value = UPDATE_VENDOR_PATH_ID)
-    public String updateVendor(@PathVariable(name = "vendorId", required = false) Long id, 
+    @PostMapping(UPDATE_VENDOR_ID_PATH)
+    public String updateVendor(@PathVariable(name = "vendorId", required = false) Long id,
         @ModelAttribute Vendor updatedVendor, HttpServletRequest request, Model model) {
         try {
             vendorService.updateById(id, updatedVendor);
@@ -159,7 +158,7 @@ public class VendorController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of vendor if the vendor is not found or cannot be deleted
      */
-    @PostMapping(value = VENDOR_PATH_ID, params = "delete")
+    @PostMapping(value = VENDOR_ID_PATH, params = "delete")
     public String deleteVendor(@PathVariable(name = "vendorId", required = false) Long id, Model model) {
         Optional<Vendor> vendor = vendorService.findById(id);
          // Check if the vendor exists.
