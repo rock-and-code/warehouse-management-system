@@ -34,3 +34,6 @@ build/
 
 ### Claude Code ###
 CLAUDE.md
+
+### H2 file-based database ###
+/data/
