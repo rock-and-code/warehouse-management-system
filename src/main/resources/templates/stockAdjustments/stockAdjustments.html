@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:insert="~{fragments/header :: header}"></div>
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container-fluid px-4 py-3">
+    <div th:if="${param.applied}" class="alert alert-success alert-dismissible fade show my-3" role="alert">
+        Adjustment applied.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center my-3">
+        <h1 class="m-0">Stock Adjustments</h1>
+        <a class="btn btn-dark" href="/stock-adjustments/new">
+            <i class="bi bi-plus-lg me-1"></i>New adjustment
+        </a>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Type</th>
+                <th scope="col">Item</th>
+                <th scope="col">From</th>
+                <th scope="col">To</th>
+                <th scope="col" class="text-end">Qty</th>
+                <th scope="col">Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:if="${page.isEmpty()}">
+                <td colspan="7" class="text-muted text-center py-3">No stock adjustments recorded yet.</td>
+            </tr>
+            <tr th:each="adj : ${page.content}">
+                <td th:text="|${#temporals.monthNameShort(adj.adjustmentDate)} ${#temporals.format(adj.adjustmentDate, ' dd, yyyy')}|">May 14, 2026</td>
+                <td><span class="badge bg-secondary" th:text="${adj.type.name()}">CYCLE_COUNT</span></td>
+                <td th:text="${adj.item != null} ? |${adj.item.sku} — ${adj.item.description}| : ''">100 — Widget</td>
+                <td th:text="${adj.source != null} ? ${adj.source.sectionNumber} : ''">AA-01-1-A</td>
+                <td th:text="${adj.destination != null} ? ${adj.destination.sectionNumber} : '—'">AA-01-2-A</td>
+                <td class="text-end" th:text="${adj.qty}">0</td>
+                <td th:text="${adj.notes} ?: ''"></td>
+            </tr>
+        </tbody>
+    </table>
+    <nav th:if="${page != null and page.totalPages > 1}" class="d-flex justify-content-between align-items-center mt-3">
+        <div class="text-muted small">
+            Page <span th:text="${page.number + 1}">1</span>
+            of <span th:text="${page.totalPages}">1</span>
+            — <span th:text="${page.totalElements}">0</span> total
+        </div>
+        <ul class="pagination mb-0">
+            <li class="page-item" th:classappend="${page.first} ? 'disabled' : ''">
+                <a class="page-link" th:href="@{/stock-adjustments(page=${page.number - 1}, size=${page.size})}">&laquo;</a>
+            </li>
+            <li class="page-item" th:classappend="${page.last} ? 'disabled' : ''">
+                <a class="page-link" th:href="@{/stock-adjustments(page=${page.number + 1}, size=${page.size})}">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<div th:insert="~{fragments/footer :: footer}"></div>
+</html>

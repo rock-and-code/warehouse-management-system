@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:insert="~{fragments/header :: header}"></div>
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container-fluid px-4 py-3" style="max-width: 720px;">
+    <div th:if="${param.failed}" class="alert alert-danger">Couldn't apply that adjustment (likely qty exceeds on-hand).</div>
+    <div th:if="${param.invalid}" class="alert alert-warning">Missing item or source section.</div>
+
+    <h1 class="my-3">New Stock Adjustment</h1>
+
+    <form th:action="@{/stock-adjustments/new}" th:object="${stockAdjustment}" method="post" class="card shadow-sm">
+        <div class="card-body row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Type</label>
+                <select class="form-select" th:field="*{type}">
+                    <option th:each="t : ${types}" th:value="${t}" th:text="${t.name()}">CYCLE_COUNT</option>
+                </select>
+                <div class="form-text">
+                    <strong>CYCLE_COUNT</strong>: sets qty at source to the new value.<br>
+                    <strong>DAMAGE</strong> / <strong>TRANSFER</strong>: move qty from source to destination.<br>
+                    <strong>WRITE_OFF</strong>: subtract qty from source.
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <label class="form-label">Item</label>
+                <select class="form-select" th:field="*{item.id}" required>
+                    <option value="" disabled selected>— pick an item —</option>
+                    <option th:each="i : ${items}" th:value="${i.id}"
+                            th:text="|${i.sku} — ${i.description}|">100 — Widget</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Source section</label>
+                <select class="form-select" th:field="*{source.id}" required>
+                    <option value="" disabled selected>— pick a section —</option>
+                    <option th:each="s : ${sections}" th:value="${s.id}" th:text="${s.sectionNumber}">AA-01-1-A</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Destination section <span class="text-muted small">(transfer / damage)</span></label>
+                <select class="form-select" th:field="*{destination.id}">
+                    <option value="">— none —</option>
+                    <option th:each="s : ${sections}" th:value="${s.id}" th:text="${s.sectionNumber}">AA-01-2-A</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Quantity</label>
+                <input type="number" min="0" class="form-control" th:field="*{qty}" required>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Date</label>
+                <input type="date" class="form-control" th:field="*{adjustmentDate}">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Notes</label>
+                <input type="text" class="form-control" th:field="*{notes}" maxlength="255" placeholder="Optional reason...">
+            </div>
+
+            <div class="col-12 d-flex justify-content-end gap-2">
+                <a class="btn btn-outline-secondary" href="/stock-adjustments">Cancel</a>
+                <button type="submit" class="btn btn-dark">Apply adjustment</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div th:insert="~{fragments/footer :: footer}"></div>
+</html>
