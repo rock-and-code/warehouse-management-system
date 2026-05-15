@@ -16,5 +16,10 @@ public interface ItemRepository extends JpaRepository<Item, Long>{
      * @return
      */
     List<Item> findByVendor(Vendor vendor);
-    
+
+    /**
+     * Case-insensitive LIKE search on description, capped by Pageable.
+     * Used by the global search bar.
+     */
+    List<Item> findByDescriptionContainingIgnoreCase(String description, Pageable pageable);
 }

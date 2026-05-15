@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:insert="~{fragments/header :: header}"></div>
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container-fluid px-4 py-3">
+    <h1 class="my-3">
+        Search results
+        <small class="text-muted" th:if="${!#strings.isEmpty(query)}" th:text="|for &quot;${query}&quot;|"></small>
+    </h1>
+
+    <div th:if="${#strings.isEmpty(query)}" class="alert alert-info">
+        Type a term into the search box at the top to find items, customers, or vendors.
+    </div>
+
+    <!-- ITEMS -->
+    <div class="card shadow-sm mb-3" th:if="${!#strings.isEmpty(query)}">
+        <div class="card-body">
+            <h5 class="card-title">
+                <i class="bi bi-box me-1"></i>Items
+                <span class="text-muted small" th:text="|(${items.size()})|"></span>
+            </h5>
+            <div th:if="${items.isEmpty()}" class="text-muted small">No matching items.</div>
+            <table th:unless="${items.isEmpty()}" class="table table-sm align-middle mb-0">
+                <thead><tr><th>SKU</th><th>Description</th><th>Vendor</th><th></th></tr></thead>
+                <tbody>
+                <tr th:each="item : ${items}">
+                    <td th:text="${item.sku}">100</td>
+                    <td th:text="${item.description}">Widget</td>
+                    <td th:text="${item.vendor != null} ? ${item.vendor.name} : ''">Acme</td>
+                    <td><a th:href="@{|/items/${item.id}|}" class="btn btn-outline-secondary btn-sm">Details</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="card shadow-sm mb-3" th:if="${!#strings.isEmpty(query)}">
+        <div class="card-body">
+            <h5 class="card-title">
+                <i class="bi bi-people me-1"></i>Customers
+                <span class="text-muted small" th:text="|(${customers.size()})|"></span>
+            </h5>
+            <div th:if="${customers.isEmpty()}" class="text-muted small">No matching customers.</div>
+            <table th:unless="${customers.isEmpty()}" class="table table-sm align-middle mb-0">
+                <thead><tr><th>Name</th><th>City</th><th>State</th><th></th></tr></thead>
+                <tbody>
+                <tr th:each="c : ${customers}">
+                    <td th:text="${c.name}">Bob</td>
+                    <td th:text="${c.city}">Jersey City</td>
+                    <td th:text="${c.state}">NJ</td>
+                    <td><a th:href="@{|/customers/${c.id}|}" class="btn btn-outline-secondary btn-sm">Details</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- VENDORS -->
+    <div class="card shadow-sm mb-3" th:if="${!#strings.isEmpty(query)}">
+        <div class="card-body">
+            <h5 class="card-title">
+                <i class="bi bi-truck me-1"></i>Vendors
+                <span class="text-muted small" th:text="|(${vendors.size()})|"></span>
+            </h5>
+            <div th:if="${vendors.isEmpty()}" class="text-muted small">No matching vendors.</div>
+            <table th:unless="${vendors.isEmpty()}" class="table table-sm align-middle mb-0">
+                <thead><tr><th>Name</th><th>City</th><th>State</th><th></th></tr></thead>
+                <tbody>
+                <tr th:each="v : ${vendors}">
+                    <td th:text="${v.name}">Acme</td>
+                    <td th:text="${v.city}">Boise</td>
+                    <td th:text="${v.state}">ID</td>
+                    <td><a th:href="@{|/vendors/${v.id}|}" class="btn btn-outline-secondary btn-sm">Details</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:insert="~{fragments/footer :: footer}"></div>
+</html>
