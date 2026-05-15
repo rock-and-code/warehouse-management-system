@@ -77,7 +77,7 @@ public class GoodsReceiptNoteController {
         model.addAttribute("purchaseOrderNumberDto", new PurchaseOrderNumberDto());
         model.addAttribute("title", "Search Purchase Order");
         model.addAttribute("purchaseOrders", purchaseOrderService.findAllPendingPurchaseOrder());
-        model.addAttribute("textModes", com.example.warehouseManagement.Domains.DTOs.AdvancedPoSearchCriteria.TextMode.values());
+        model.addAttribute("textModes", com.example.warehouseManagement.Domains.DTOs.TextMode.values());
         model.addAttribute("statuses", com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus.values());
         if (criteria.isActive()) {
             model.addAttribute("advancedResults", purchaseOrderService.findAdvanced(criteria, pageable));

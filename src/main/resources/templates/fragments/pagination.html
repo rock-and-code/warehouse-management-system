@@ -5,11 +5,17 @@
   Caller passes a Spring Data Page<?> as `page` plus the base URL (path only, no query).
   Example: <div th:replace="~{fragments/pagination :: pagination(page=${page}, baseUrl='/customers')}"></div>
 
-  Preserves the current `sort` query param so paging doesn't reset the user's sort.
+  Behavior: preserves the FULL current query string when generating pager links — only
+  rewrites `page=` (and additionally `sort=` for the sortHeader fragment). So advanced-
+  search filters like ?name=foo&status=PENDING are kept intact when paginating.
 -->
 <body>
 <nav th:fragment="pagination(page, baseUrl)"
      th:if="${page != null and page.totalPages > 1}"
+     th:with="qs=${#strings.defaultString(currentQueryString, '')},
+              qsNoPage=${qs.replaceAll('(^|&)page=[^&]*', '')},
+              qsClean=${qsNoPage.replaceAll('^&', '')},
+              sep=${qsClean.isEmpty() ? '?' : ('?' + qsClean + '&')}"
      class="d-flex justify-content-between align-items-center mt-3"
      aria-label="Pagination">
     <div class="text-muted small">
@@ -21,7 +27,7 @@
         <!-- Previous -->
         <li class="page-item" th:classappend="${page.first} ? 'disabled' : ''">
             <a class="page-link"
-               th:href="@{${baseUrl}(page=${page.number - 1}, size=${page.size}, sort=${param.sort})}"
+               th:href="${baseUrl} + ${sep} + 'page=' + ${page.number - 1}"
                aria-label="Previous">&laquo;</a>
         </li>
         <!-- Numbered links: show a window of up to 5 pages around current. -->
@@ -31,13 +37,13 @@
             class="page-item"
             th:classappend="${i == page.number} ? 'active' : ''">
             <a class="page-link"
-               th:href="@{${baseUrl}(page=${i}, size=${page.size}, sort=${param.sort})}"
+               th:href="${baseUrl} + ${sep} + 'page=' + ${i}"
                th:text="${i + 1}">1</a>
         </li>
         <!-- Next -->
         <li class="page-item" th:classappend="${page.last} ? 'disabled' : ''">
             <a class="page-link"
-               th:href="@{${baseUrl}(page=${page.number + 1}, size=${page.size}, sort=${param.sort})}"
+               th:href="${baseUrl} + ${sep} + 'page=' + ${page.number + 1}"
                aria-label="Next">&raquo;</a>
         </li>
     </ul>
@@ -48,12 +54,17 @@
   Usage:
     <th th:replace="~{fragments/pagination :: sortHeader(label='Name', property='name', page=${page}, baseUrl='/customers')}"></th>
   Toggles between asc/desc on the active column. Other columns become asc on first click.
+  Preserves every active filter, resets page=0 on toggle.
 -->
-<th th:fragment="sortHeader(label, property, page, baseUrl)" scope="col">
+<th th:fragment="sortHeader(label, property, page, baseUrl)" scope="col"
+    th:with="qs=${#strings.defaultString(currentQueryString, '')},
+             qsNoPageNoSort=${qs.replaceAll('(^|&)(page|sort)=[^&]*', '')},
+             qsClean=${qsNoPageNoSort.replaceAll('^&', '')},
+             sep=${qsClean.isEmpty() ? '?' : ('?' + qsClean + '&')}">
     <a th:with="active=${page != null and page.sort.getOrderFor(property) != null},
                 isAsc=${active and page.sort.getOrderFor(property).ascending},
                 nextDir=${isAsc} ? 'desc' : 'asc'"
-       th:href="@{${baseUrl}(page=0, size=${page != null} ? ${page.size} : 25, sort=${property} + ',' + ${nextDir})}"
+       th:href="${baseUrl} + ${sep} + 'page=0&sort=' + ${property} + ',' + ${nextDir}"
        class="text-decoration-none text-reset">
         <span th:text="${label}">Label</span>
         <span th:if="${active and isAsc}">&#9650;</span>

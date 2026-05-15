@@ -18,7 +18,7 @@ import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus;
 import com.example.warehouseManagement.Domains.PurchaseOrderLine;
 import com.example.warehouseManagement.Domains.DTOs.AdvancedPoSearchCriteria;
-import com.example.warehouseManagement.Domains.DTOs.AdvancedPoSearchCriteria.TextMode;
+import com.example.warehouseManagement.Domains.DTOs.TextMode;
 import com.example.warehouseManagement.Domains.DTOs.AgingPoDto;
 import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
 import com.example.warehouseManagement.Domains.DTOs.PoStatusBucketDto;
