@@ -24,16 +24,15 @@ import jakarta.servlet.http.HttpServletRequest;
  * Controller class for handling itemPrice operations.
  */
 @Controller
-@RequestMapping(value = "/")
+@RequestMapping("/items/{itemId}/itemPrices")
 public class ItemPriceController {
+
+    private static final String NEW_ITEM_PRICE_PATH = "/new-item-price";
+    private static final String ITEM_PRICE_ID_PATH = "/{itemPriceId}";
+    private static final String UPDATE_ITEM_PRICE_ID_PATH = ITEM_PRICE_ID_PATH + "/update";
 
     private final ItemPriceService itemPriceService;
     private final ItemService itemService;
-
-    private static final String ITEM_PRICE_PATH = "items/{itemId}/itemPrices";
-    private static final String NEW_ITEM_PRICE_PATH = ITEM_PRICE_PATH + "/new-item-price";
-    private static final String ITEM_PRICE_PATH_ID = ITEM_PRICE_PATH + "/{itemPriceId}";
-    private static final String UPDATE_ITEM_PRICE_PATH_ID = ITEM_PRICE_PATH_ID + "/update";
 
     /**
      * Constructor.
@@ -54,7 +53,7 @@ public class ItemPriceController {
      * @param model      a Model object to be populated with data for the view
      * @return the name of the view to render
      */
-    @GetMapping(value = NEW_ITEM_PRICE_PATH)
+    @GetMapping(NEW_ITEM_PRICE_PATH)
     public String newitemPrice(@PathVariable(name = "itemId", required = false) Long itemId, Model model) {
         model.addAttribute("item", itemService.findById(itemId).get());
         model.addAttribute("itemPriceDto", new ItemPriceDto());
@@ -72,7 +71,7 @@ public class ItemPriceController {
      * @return the name of the view to render, or a redirect to the itemPrice prices
      *         list page if the itemPrice is saved successfully
      */
-    @PostMapping(value = NEW_ITEM_PRICE_PATH)
+    @PostMapping(NEW_ITEM_PRICE_PATH)
     public String saveItemPrice(@PathVariable(name = "itemId", required = false) Long itemId,
         @PathVariable(name = "itemPriceId", required = false) Long itemPriceId, 
         @ModelAttribute ItemPriceDto itemPriceDto,
@@ -97,7 +96,7 @@ public class ItemPriceController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of item prices if the item price is not found
      */
-    @GetMapping(value = ITEM_PRICE_PATH_ID)
+    @GetMapping(ITEM_PRICE_ID_PATH)
     public String getItemPriceDetails(@PathVariable(name = "itemId", required = false) Long itemId,
         @PathVariable(name = "itemPriceId", required = false) Long itemPriceId, Model model) {
         Optional<ItemPrice> itemPrice = itemPriceService.findById(itemPriceId);
@@ -118,7 +117,7 @@ public class ItemPriceController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of item prices if the item price is not found
      */
-    @GetMapping(value = UPDATE_ITEM_PRICE_PATH_ID)
+    @GetMapping(UPDATE_ITEM_PRICE_ID_PATH)
     public String getItemPriceUpdateForm(@PathVariable(name = "itemId", required = false) Long itemId,
         @PathVariable(name = "itemPriceId", required = false) Long itemPriceId, Model model) {
         Optional<Item> item = itemService.findById(itemId);
@@ -144,7 +143,7 @@ public class ItemPriceController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of item prices if the item price is not found
      */
-    @PostMapping(value = UPDATE_ITEM_PRICE_PATH_ID)
+    @PostMapping(UPDATE_ITEM_PRICE_ID_PATH)
     public String updateItemPrice(@PathVariable(name = "itemId", required = false) Long itemId,
         @PathVariable(name = "itemPriceId", required = false) Long itemPriceId, 
         @ModelAttribute ItemPrice item, Model model) {
@@ -166,7 +165,7 @@ public class ItemPriceController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the item detail screen if the item price is not found or cannot be deleted
      */
-    @PostMapping(value = ITEM_PRICE_PATH_ID, params = "delete")
+    @PostMapping(value = ITEM_PRICE_ID_PATH, params = "delete")
     public String deleteItemPrice(@PathVariable(name = "itemId", required = false) Long itemId,
         @PathVariable(name = "itemPriceId", required = false) Long itemPriceId, Model model) {
         Optional<ItemPrice> itemPrice = itemPriceService.findById(itemPriceId);

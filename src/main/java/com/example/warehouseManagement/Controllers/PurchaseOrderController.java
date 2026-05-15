@@ -24,13 +24,12 @@ import com.example.warehouseManagement.Util.Counter;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
-@RequestMapping(value = "/")
+@RequestMapping("/purchase-orders")
 public class PurchaseOrderController {
 
-    private static final String PURCHASE_ORDER_PATH = "purchase-orders";
-    private static final String PENDING_PURCHASE_ORDER_PATH = PURCHASE_ORDER_PATH + "/pending";
-    private static final String NEW_PURCHASE_ORDER_PATH = PURCHASE_ORDER_PATH + "/new-purchase-order";
-    private static final String PURCHASE_ORDER_ID_PATH = PURCHASE_ORDER_PATH + "/{orderId}";
+    private static final String PENDING_PURCHASE_ORDER_PATH = "/pending";
+    private static final String NEW_PURCHASE_ORDER_PATH = "/new-purchase-order";
+    private static final String PURCHASE_ORDER_ID_PATH = "/{orderId}";
     private static final String UPDATE_PURCHASE_ORDER_ID_PATH = PURCHASE_ORDER_ID_PATH + "/update";
     private final PurchaseOrderService purchaseOrderService;
     private final PurchaseOrderLineService purchaseOrderLineService;
@@ -61,7 +60,7 @@ public class PurchaseOrderController {
      * @return the name of the view template to render
      */
 
-    @GetMapping(value = NEW_PURCHASE_ORDER_PATH)
+    @GetMapping(NEW_PURCHASE_ORDER_PATH)
     public String newPurchaseOrder(@ModelAttribute PurchaseOrder purchaseOrder, Model model) {
         model.addAttribute("purchaseOrder", purchaseOrder);
         model.addAttribute("vendors", vendorService.findAll());
@@ -134,7 +133,7 @@ public class PurchaseOrderController {
      * @param model the Model object to populate with data for the view
      * @return the name of the view template to render
      */
-    @GetMapping(value = PURCHASE_ORDER_PATH)
+    @GetMapping
     public String getAllPurchaseOrders(Model model) {
         // TODO: -> Add pagination (25 records per page)
         // Set the tittle, add the list of vendors and a list of purchase orders to the
@@ -154,7 +153,7 @@ public class PurchaseOrderController {
      * @param model a Model object to be populated with data for the view
      * @return the name of the view to render
      */
-    @GetMapping(value = PENDING_PURCHASE_ORDER_PATH)
+    @GetMapping(PENDING_PURCHASE_ORDER_PATH)
     public String getAllPendingPurchaseOrders(Model model) {
         // TODO: -> Add pagination (25 records per page)
         // Add the title, customers, and sales orders to the model.
@@ -172,7 +171,7 @@ public class PurchaseOrderController {
      * @param model   the Model object to populate with data for the view
      * @return the name of the view template to render
      */
-    @GetMapping(value = PURCHASE_ORDER_ID_PATH)
+    @GetMapping(PURCHASE_ORDER_ID_PATH)
     public String getPurchaseOrderDetails(@PathVariable Long orderId, Model model) {
         // Finds the purchase order with the specified ID.
         Optional<PurchaseOrder> order = purchaseOrderService.findById(orderId);
@@ -201,7 +200,7 @@ public class PurchaseOrderController {
      * @return the name of the view to render, or a redirect to the purchase orders
      *         list page if the purchase order is not found
      */
-    @GetMapping(value = UPDATE_PURCHASE_ORDER_ID_PATH)
+    @GetMapping(UPDATE_PURCHASE_ORDER_ID_PATH)
     public String getUpdatePurchaseOrderForm(@PathVariable Long orderId, Model model) {
         Optional<PurchaseOrder> order = purchaseOrderService.findById(orderId);
         // If the purchase order is found, add it to the model and return the name of the

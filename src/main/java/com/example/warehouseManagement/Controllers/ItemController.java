@@ -24,16 +24,15 @@ import jakarta.servlet.http.HttpServletRequest;
  * Controller class for handling item operations.
  */
 @Controller
-@RequestMapping(value = "/")
+@RequestMapping("/items")
 public class ItemController {
+
+    private static final String NEW_ITEM_PATH = "/new-item";
+    private static final String ITEM_ID_PATH = "/{itemId}";
+    private static final String UPDATE_ITEM_ID_PATH = ITEM_ID_PATH + "/update";
 
     private final ItemService itemService;
     private final VendorService vendorService;
-
-    private static final String ITEM_PATH = "items";
-    private static final String NEW_ITEM_PATH = ITEM_PATH + "/new-item";
-    private static final String ITEM_PATH_ID = ITEM_PATH + "/{itemId}";
-    private static final String UPDATE_ITEM_PATH_ID = ITEM_PATH_ID + "/update";
 
     /**
      * Constructor.
@@ -54,7 +53,7 @@ public class ItemController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render
      */
-    @GetMapping(value = ITEM_PATH)
+    @GetMapping
     public String getItems(Model model) {
         // Adding a list of items and a title attribute to the model
         model.addAttribute("items", itemService.findAll());
@@ -72,7 +71,7 @@ public class ItemController {
      * @param model      a Model object to be populated with data for the view
      * @return the name of the view to render
      */
-    @GetMapping(value = NEW_ITEM_PATH)
+    @GetMapping(NEW_ITEM_PATH)
     public String newItem(@ModelAttribute ItemDto itemDto, Model model) {
         model.addAttribute("states", StatePool.getStates());
         model.addAttribute("vendors", vendorService.findAll());
@@ -91,7 +90,7 @@ public class ItemController {
      * @return the name of the view to render, or a redirect to the items
      *         list page if the item is saved successfully
      */
-    @PostMapping(value = NEW_ITEM_PATH)
+    @PostMapping(NEW_ITEM_PATH)
     public String saveItem(@ModelAttribute ItemDto itemDto,
             HttpServletRequest request, Model model) {
         Optional<Vendor> vendor = vendorService.findById(itemDto.getVendorId());
@@ -110,7 +109,7 @@ public class ItemController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of items if the item is not found
      */
-    @GetMapping(value = ITEM_PATH_ID)
+    @GetMapping(ITEM_ID_PATH)
     public String getItemDetails(@PathVariable(name = "itemId", required = false) Long id, Model model) {
         Optional<Item> item = itemService.findById(id);
         // Checking if the item exists
@@ -130,7 +129,7 @@ public class ItemController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of items if the item is not found
      */
-    @GetMapping(value = UPDATE_ITEM_PATH_ID)
+    @GetMapping(UPDATE_ITEM_ID_PATH)
     public String getItemUpdateForm(@PathVariable(name = "itemId", required = false) Long id, Model model) {
         Optional<Item> item = itemService.findById(id);
         // Checking if the item exists
@@ -151,8 +150,8 @@ public class ItemController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of items if the item is not found
      */
-    @PostMapping(value = UPDATE_ITEM_PATH_ID)
-    public String updateItemDescriptionAndSKU(@PathVariable(name = "itemId", required = false) Long id, 
+    @PostMapping(UPDATE_ITEM_ID_PATH)
+    public String updateItemDescriptionAndSKU(@PathVariable(name = "itemId", required = false) Long id,
         @ModelAttribute Item updatedItem, Model model) {
         try {
             itemService.updateDescriptionAndSKUById(id, updatedItem);
@@ -169,7 +168,7 @@ public class ItemController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of items if the item is not found or cannot be deleted
      */
-    @PostMapping(value = ITEM_PATH_ID, params = "delete")
+    @PostMapping(value = ITEM_ID_PATH, params = "delete")
     public String deleteItem(@PathVariable(name = "itemId", required = false) Long id, Model model) {
         Optional<Item> item = itemService.findById(id);
          // Check if the item exists.

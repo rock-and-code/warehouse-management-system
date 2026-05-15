@@ -24,11 +24,12 @@ import com.example.warehouseManagement.Util.Counter;
  * Controller for picking jobs.
  */
 @Controller
-@RequestMapping(value = "/")
+@RequestMapping("/picking-jobs")
 public class PickingJobController {
-    public static final String PICKING_JOB_PATH = "picking-jobs";
-    public static final String PICKING_JOB_ID_PATH = PICKING_JOB_PATH + "/{pickingJobId}";
-    public static final String FULFILL_PICKING_JOB = PICKING_JOB_PATH + "/fulfill-job" + "/{pickingJobId}";
+
+    private static final String PICKING_JOB_ID_PATH = "/{pickingJobId}";
+    private static final String FULFILL_PICKING_JOB_PATH = "/fulfill-job/{pickingJobId}";
+
     private final PickingJobService pickingJobService;
     private final WarehouseSectionService warehouseSectionService;
     private final StockService stockService;
@@ -58,7 +59,7 @@ public class PickingJobController {
      * @param model the Model object to populate with data for the view
      * @return the name of the view template to render
      */
-    @GetMapping(value = PICKING_JOB_PATH)
+    @GetMapping
     public String getAllPickingJobs(Model model) {
         model.addAttribute("title", "Picking Jobs");
         model.addAttribute("pickingJobs", pickingJobService.findAllPending());
@@ -72,7 +73,7 @@ public class PickingJobController {
      * @param model the Model object to populate with data for the view
      * @return the name of the view template to render
      */
-    @GetMapping(value = PICKING_JOB_ID_PATH)
+    @GetMapping(PICKING_JOB_ID_PATH)
     public String getPickingJobDetails(@PathVariable(value = "pickingJobId", required = false) Long id, Model model) {
         Optional<PickingJob> pickingJob = pickingJobService.findById(id);
         if (pickingJob.isPresent()) {
@@ -94,7 +95,7 @@ public class PickingJobController {
      * @param model the Model object to populate with data for the view
      * @return the name of the view template to render
      */
-    @GetMapping(value = FULFILL_PICKING_JOB)
+    @GetMapping(FULFILL_PICKING_JOB_PATH)
     public String startPickingProcess(@PathVariable(value = "pickingJobId", required = true) Long id, Model model) {
         // Retrieves the picking job with the specified ID from the database.
         Optional<PickingJob> pickingJob = pickingJobService.findById(id);
@@ -132,7 +133,7 @@ public class PickingJobController {
      * @param model         the Model object to populate with data for the view
      * @return the name of the view template to render
      */
-    @PostMapping(value = FULFILL_PICKING_JOB)
+    @PostMapping(FULFILL_PICKING_JOB_PATH)
     public String fulfillPickingJob(@PathVariable(value = "pickingJobId", required = true) Long id,
             @ModelAttribute PickingJobDto pickingJobDto, Model model) {
         // Retrieves the picking job with the specified ID from the database.

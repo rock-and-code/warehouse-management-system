@@ -36,6 +36,11 @@ import jakarta.validation.Valid;
 @Controller
 public class AuthController {
 
+    private static final String LOGIN_PATH = "/login";
+    private static final String VERIFY_2FA_PATH = "/verify-2fa";
+    private static final String FORGOT_PASSWORD_PATH = "/forgot-password";
+    private static final String RESET_PASSWORD_PATH = "/reset-password";
+
     private final UserService userService;
     private final EmailService emailService;
     private final SecurityContextRepository securityContextRepository;
@@ -51,7 +56,7 @@ public class AuthController {
         this.baseUrl = baseUrl;
     }
 
-    @GetMapping("/login")
+    @GetMapping(LOGIN_PATH)
     public String loginPage(Model model) {
         model.addAttribute("title", "Sign in");
         return "auth/login";
@@ -59,7 +64,7 @@ public class AuthController {
 
     // ----- 2FA -----
 
-    @GetMapping("/verify-2fa")
+    @GetMapping(VERIFY_2FA_PATH)
     public String verify2faForm(HttpSession session, Model model) {
         if (session.getAttribute(TwoFactorAuthenticationSuccessHandler.PENDING_2FA_USERNAME) == null) {
             return "redirect:/login";
@@ -69,7 +74,7 @@ public class AuthController {
         return "auth/verify2fa";
     }
 
-    @PostMapping("/verify-2fa")
+    @PostMapping(VERIFY_2FA_PATH)
     public String verify2faSubmit(@Validated @ModelAttribute("twoFactor") TwoFactorVerificationDto dto,
                                   BindingResult binding,
                                   HttpServletRequest request,
@@ -106,14 +111,14 @@ public class AuthController {
 
     // ----- Forgot password -----
 
-    @GetMapping("/forgot-password")
+    @GetMapping(FORGOT_PASSWORD_PATH)
     public String forgotPasswordForm(Model model) {
         model.addAttribute("title", "Forgot password");
         model.addAttribute("forgotPassword", new ForgotPasswordDto());
         return "auth/forgotPassword";
     }
 
-    @PostMapping("/forgot-password")
+    @PostMapping(FORGOT_PASSWORD_PATH)
     public String forgotPasswordSubmit(@Valid @ModelAttribute("forgotPassword") ForgotPasswordDto dto,
                                        BindingResult binding,
                                        Model model) {
@@ -132,7 +137,7 @@ public class AuthController {
 
     // ----- Reset password -----
 
-    @GetMapping("/reset-password")
+    @GetMapping(RESET_PASSWORD_PATH)
     public String resetPasswordForm(@RequestParam(required = false) String token, Model model) {
         if (token == null || userService.findByValidResetToken(token).isEmpty()) {
             return "redirect:/login?invalidResetToken";
@@ -144,7 +149,7 @@ public class AuthController {
         return "auth/resetPassword";
     }
 
-    @PostMapping("/reset-password")
+    @PostMapping(RESET_PASSWORD_PATH)
     public String resetPasswordSubmit(@Valid @ModelAttribute("resetPassword") ResetPasswordDto dto,
                                       BindingResult binding,
                                       Model model) {
