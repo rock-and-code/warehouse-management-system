@@ -35,5 +35,9 @@ build/
 ### Claude Code ###
 CLAUDE.md
 
+### Local environment ###
+.env
+.env.local
+.env.*.local
 ### H2 file-based database ###
 /data/
