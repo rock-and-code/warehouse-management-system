@@ -28,7 +28,11 @@
             <div class="col-12">
                 <label for="warehouseSection" class="form-label">Warehouse Section</label>
                 <input class="form-control" type="text" id="warehouseSection" th:field="*{warehouseSectionNumber}"
-                    name="salesOrder" required>
+                    name="salesOrder" required
+                    data-autocomplete-source="WAREHOUSE_SECTION"
+                    data-autocomplete-mode="CONTAINS"
+                    data-autocomplete-fill-on-select="true"
+                    autocomplete="off">
                 <div class="invalid-feedback">
                     Please enter the Warehouse Section
                 </div>

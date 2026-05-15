@@ -9,7 +9,8 @@ public interface SuggestionService {
         PURCHASE_ORDER,
         ITEM,
         CUSTOMER,
-        VENDOR
+        VENDOR,
+        WAREHOUSE_SECTION
     }
 
     enum Mode {

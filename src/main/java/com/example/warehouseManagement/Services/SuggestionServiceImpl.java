@@ -10,10 +10,12 @@ import com.example.warehouseManagement.Domains.Customer;
 import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.Vendor;
+import com.example.warehouseManagement.Domains.WarehouseSection;
 import com.example.warehouseManagement.Repositories.CustomerRepository;
 import com.example.warehouseManagement.Repositories.ItemRepository;
 import com.example.warehouseManagement.Repositories.PurchaseOrderRepository;
 import com.example.warehouseManagement.Repositories.VendorRepository;
+import com.example.warehouseManagement.Repositories.WarehouseSectionRepository;
 
 import jakarta.annotation.PostConstruct;
 
@@ -31,17 +33,20 @@ public class SuggestionServiceImpl implements SuggestionService {
     private final ItemRepository itemRepository;
     private final CustomerRepository customerRepository;
     private final VendorRepository vendorRepository;
+    private final WarehouseSectionRepository warehouseSectionRepository;
 
     private final Map<Type, SuggestionIndex> indexes = new EnumMap<>(Type.class);
 
     public SuggestionServiceImpl(PurchaseOrderRepository purchaseOrderRepository,
                                  ItemRepository itemRepository,
                                  CustomerRepository customerRepository,
-                                 VendorRepository vendorRepository) {
+                                 VendorRepository vendorRepository,
+                                 WarehouseSectionRepository warehouseSectionRepository) {
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.itemRepository = itemRepository;
         this.customerRepository = customerRepository;
         this.vendorRepository = vendorRepository;
+        this.warehouseSectionRepository = warehouseSectionRepository;
     }
 
     @PostConstruct
@@ -69,6 +74,11 @@ public class SuggestionServiceImpl implements SuggestionService {
         }
         for (Vendor v : vendorRepository.findAll()) {
             next.get(Type.VENDOR).add(v.getName(), v.getId());
+        }
+        for (WarehouseSection ws : warehouseSectionRepository.findAll()) {
+            // sectionNumber (e.g. "01-02-3-4") is the label the user types; id
+            // is included so any future href-template autocomplete can navigate.
+            next.get(Type.WAREHOUSE_SECTION).add(ws.getSectionNumber(), ws.getId());
         }
 
         indexes.clear();
