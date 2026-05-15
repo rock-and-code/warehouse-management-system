@@ -2,15 +2,28 @@ package com.example.warehouseManagement.Services;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.example.warehouseManagement.Domains.Vendor;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedVendorSearchCriteria;
 import com.example.warehouseManagement.Domains.Exceptions.VendorNotFoundException;
 
 public interface VendorService {
     /**
-     * Returns a list of all the vendors persisted in the dba
-     * @return
+     * Iterable variant — keep for callers populating <select> dropdowns in
+     * other forms (NewItemForm, NewPurchaseOrderForm). Don't remove.
      */
     public Iterable<Vendor> findAll();
+    /**
+     * Paginated variant used by the /vendors list page.
+     */
+    public Page<Vendor> findAll(Pageable pageable);
+    /**
+     * Advanced search — empty criteria returns every row (matches Page<Vendor>
+     * shape from findAll). Spec returns cb.conjunction() when nothing is set.
+     */
+    public Page<Vendor> findAdvanced(AdvancedVendorSearchCriteria criteria, Pageable pageable);
     /**
      * Returns a vendor by a given id
      * @param id

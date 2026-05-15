@@ -27,24 +27,68 @@
         </div>
     </div>
     <!-- Page headers -->
-    <h1 class="my-3">Vendor List</h1>
+    <div class="d-flex justify-content-between align-items-center my-3">
+        <h1 class="m-0">Vendor List</h1>
+        <a class="btn btn-dark" th:href="@{/vendors/new-vendor}">
+            <i class="bi bi-plus-lg me-1"></i>New vendor
+        </a>
+    </div>
+
+    <!-- Simple search bar (binds to criteria.name) + Advanced button -->
+    <form th:action="@{/vendors}" method="get" th:object="${criteria}" class="card shadow-sm mb-3">
+        <div class="card-body row g-2 align-items-end">
+            <div class="col-md-8">
+                <label class="form-label small mb-1">Search by name</label>
+                <input type="search" class="form-control" th:field="*{name}"
+                       placeholder="Type a vendor name..."
+                       data-autocomplete-source="VENDOR"
+                       data-autocomplete-mode="CONTAINS"
+                       data-autocomplete-fill-on-select="true">
+                <input type="hidden" th:field="*{nameMode}">
+                <input type="hidden" th:field="*{id}">
+                <input type="hidden" th:field="*{idMode}">
+                <input type="hidden" th:field="*{city}">
+                <input type="hidden" th:field="*{cityMode}">
+                <input type="hidden" th:field="*{state}">
+                <input type="hidden" th:field="*{stateMode}">
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-dark flex-grow-1">
+                    <i class="bi bi-search me-1"></i>Search
+                </button>
+                <button type="button" class="btn btn-outline-secondary"
+                        data-bs-toggle="modal" data-bs-target="#advancedSearchModal">
+                    <i class="bi bi-funnel me-1"></i>Advanced
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div th:if="${criteria.isActive()}" class="d-flex justify-content-between align-items-center mb-2">
+        <span class="text-muted small"
+              th:text="|Filtered: ${page.totalElements} match(es)|">Filtered: 3 matches</span>
+        <a th:href="@{/vendors}" class="btn btn-link btn-sm">
+            <i class="bi bi-x-circle me-1"></i>Clear filters
+        </a>
+    </div>
+
     <!-- vendor list as table -->
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">Id</th>
-                <th scope="col">Name</th>
-                <th scope="col">Street</th>
-                <th scope="col">City</th>
-                <th scope="col">State</th>
-                <th scope="col">zipcode</th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='Id', property='id', page=${page}, baseUrl='/vendors')}"></th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='Name', property='name', page=${page}, baseUrl='/vendors')}"></th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='Street', property='street', page=${page}, baseUrl='/vendors')}"></th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='City', property='city', page=${page}, baseUrl='/vendors')}"></th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='State', property='state', page=${page}, baseUrl='/vendors')}"></th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='Zipcode', property='zipcode', page=${page}, baseUrl='/vendors')}"></th>
                 <th scope="col"></th>
                 <th scope="col"></th>
                 <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
-            <tr th:each="vendor : ${vendors}">
+            <tr th:each="vendor : ${page.content}">
                 <th scope="row" th:text="${vendor.id}">1</th>
                 <td th:text="${vendor.name}">Mark</td>
                 <td th:text="${vendor.street}">Otto</td>
@@ -61,6 +105,80 @@
             </tr>
         </tbody>
     </table>
+    <div th:replace="~{fragments/pagination :: pagination(page=${page}, baseUrl='/vendors')}"></div>
+</div>
+
+<!-- ====== Advanced search modal ====== -->
+<div class="modal fade" id="advancedSearchModal" tabindex="-1" aria-labelledby="advancedSearchModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="advancedSearchModalLabel"><i class="bi bi-funnel me-2"></i>Advanced Search — Vendors</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form th:action="@{/vendors}" method="get" th:object="${criteria}">
+        <div class="modal-body">
+          <p class="text-muted small mb-3">Every field is optional — leave all blank to list every vendor. Filters are AND-combined.</p>
+
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">Vendor id</label>
+              <select class="form-select form-select-sm" th:field="*{idMode}">
+                <option th:each="m : ${textModes}" th:value="${m}" th:text="${m.name().replace('_', ' ').toLowerCase()}">starts with</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label small mb-1">&nbsp;</label>
+              <input type="text" class="form-control" th:field="*{id}" placeholder="e.g. 10">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">Name</label>
+              <select class="form-select form-select-sm" th:field="*{nameMode}">
+                <option th:each="m : ${textModes}" th:value="${m}" th:text="${m.name().replace('_', ' ').toLowerCase()}">contains</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label small mb-1">&nbsp;</label>
+              <input type="text" class="form-control" th:field="*{name}" placeholder="e.g. Apple">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">City</label>
+              <select class="form-select form-select-sm" th:field="*{cityMode}">
+                <option th:each="m : ${textModes}" th:value="${m}" th:text="${m.name().replace('_', ' ').toLowerCase()}">contains</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label small mb-1">&nbsp;</label>
+              <input type="text" class="form-control" th:field="*{city}" placeholder="e.g. Cupertino">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">State</label>
+              <select class="form-select form-select-sm" th:field="*{stateMode}">
+                <option th:each="m : ${textModes}" th:value="${m}" th:text="${m.name().replace('_', ' ').toLowerCase()}">contains</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label small mb-1">&nbsp;</label>
+              <input type="text" class="form-control" th:field="*{state}" placeholder="e.g. CA">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-dark"><i class="bi bi-search me-1"></i>Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <!-- Footer fragment -->
