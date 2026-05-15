@@ -2,6 +2,7 @@ package com.example.warehouseManagement.Repositories;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
 
 import com.example.warehouseManagement.Domains.Item;
@@ -16,5 +17,10 @@ public interface ItemRepository extends CrudRepository<Item, Long>{
      * @return
      */
     List<Item> findByVendor(Vendor vendor);
-    
+
+    /**
+     * Case-insensitive LIKE search on description, capped by Pageable.
+     * Used by the global search bar.
+     */
+    List<Item> findByDescriptionContainingIgnoreCase(String description, Pageable pageable);
 }

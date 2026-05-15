@@ -165,6 +165,12 @@
             <i class="bi bi-list"></i>
         </button>
         <h1 class="h5 mb-0" th:text="${title} ?: 'Warehouse'">Dashboard</h1>
+        <form th:action="@{/search}" method="get" class="mx-3 d-none d-md-block" sec:authorize="isAuthenticated()" role="search">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-body-tertiary border-end-0"><i class="bi bi-search"></i></span>
+                <input type="search" class="form-control border-start-0" name="q" placeholder="Search items, customers, vendors..." style="min-width: 16rem;">
+            </div>
+        </form>
         <div class="ms-auto d-flex align-items-center gap-3" sec:authorize="isAuthenticated()">
             <span class="text-muted small d-none d-sm-inline">
                 <i class="bi bi-person-circle me-1"></i>
