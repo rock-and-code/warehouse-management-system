@@ -1,10 +1,12 @@
 package com.example.warehouseManagement.Services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +17,15 @@ import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus;
 import com.example.warehouseManagement.Domains.PurchaseOrderLine;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedPoSearchCriteria;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedPoSearchCriteria.TextMode;
 import com.example.warehouseManagement.Domains.DTOs.AgingPoDto;
 import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
 import com.example.warehouseManagement.Domains.DTOs.PoStatusBucketDto;
 import com.example.warehouseManagement.Domains.DTOs.PurchaseOrderDto;
 import com.example.warehouseManagement.Domains.DTOs.VendorSpendDto;
+
+import jakarta.persistence.criteria.Predicate;
 import com.example.warehouseManagement.Domains.Exceptions.PurchaseOrderNotFoundException;
 import com.example.warehouseManagement.Domains.Exceptions.ReceivedOrderModificationException;
 import com.example.warehouseManagement.Repositories.GoodsReceiptNoteLineRepository;
@@ -68,6 +74,62 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public Page<PurchaseOrder> findPendingPage(Pageable pageable) {
         return purchaseOrderRepository.findByStatus(PoStatus.IN_TRANSIT, pageable);
+    }
+
+    @Override
+    public Page<PurchaseOrder> findAdvanced(AdvancedPoSearchCriteria criteria, Pageable pageable) {
+        return purchaseOrderRepository.findAll(buildSpec(criteria), pageable);
+    }
+
+    /**
+     * AND-combine every populated filter. Empty / null fields drop out.
+     */
+    private static Specification<PurchaseOrder> buildSpec(AdvancedPoSearchCriteria c) {
+        return (root, query, cb) -> {
+            List<Predicate> ps = new ArrayList<>();
+
+            if (c.getId() != null && !c.getId().isBlank()) {
+                String idStr = c.getId().trim();
+                TextMode mode = c.getIdMode() == null ? TextMode.STARTS_WITH : c.getIdMode();
+                if (mode == TextMode.EQUALS) {
+                    // Exact equality — parse as Long so we still hit the indexed id column.
+                    try {
+                        ps.add(cb.equal(root.get("id"), Long.parseLong(idStr)));
+                    } catch (NumberFormatException ignored) {
+                        ps.add(cb.disjunction()); // un-parseable id → no match
+                    }
+                } else {
+                    // Partial match — cast id to text and LIKE against it.
+                    var idText = root.<Long>get("id").as(String.class);
+                    String pattern = (mode == TextMode.STARTS_WITH)
+                            ? idStr + "%"
+                            : "%" + idStr + "%";
+                    ps.add(cb.like(idText, pattern));
+                }
+            }
+
+            if (c.getVendor() != null && !c.getVendor().isBlank()) {
+                String v = c.getVendor().trim().toLowerCase();
+                var vendorName = cb.lower(root.get("vendor").get("name"));
+                switch (c.getVendorMode() == null ? TextMode.CONTAINS : c.getVendorMode()) {
+                    case EQUALS      -> ps.add(cb.equal(vendorName, v));
+                    case STARTS_WITH -> ps.add(cb.like(vendorName, v + "%"));
+                    case CONTAINS    -> ps.add(cb.like(vendorName, "%" + v + "%"));
+                }
+            }
+
+            if (c.getDateFrom() != null) {
+                ps.add(cb.greaterThanOrEqualTo(root.get("date"), c.getDateFrom()));
+            }
+            if (c.getDateTo() != null) {
+                ps.add(cb.lessThanOrEqualTo(root.get("date"), c.getDateTo()));
+            }
+            if (c.getStatus() != null) {
+                ps.add(cb.equal(root.get("status"), c.getStatus()));
+            }
+
+            return ps.isEmpty() ? cb.conjunction() : cb.and(ps.toArray(Predicate[]::new));
+        };
     }
 
     /**

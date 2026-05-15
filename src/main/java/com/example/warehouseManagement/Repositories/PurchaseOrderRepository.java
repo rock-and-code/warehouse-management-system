@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -18,7 +19,9 @@ import com.example.warehouseManagement.Domains.DTOs.PurchaseOrderDto;
 import com.example.warehouseManagement.Domains.DTOs.VendorSpendDto;
 
 
-public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Long>{
+public interface PurchaseOrderRepository
+        extends JpaRepository<PurchaseOrder, Long>,
+                JpaSpecificationExecutor<PurchaseOrder> {
 
     /**
      * Paginated lookup by status — used by /purchase-orders/pending.
