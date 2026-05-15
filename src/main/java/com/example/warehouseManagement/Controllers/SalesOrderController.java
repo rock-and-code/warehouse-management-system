@@ -159,13 +159,11 @@ public class SalesOrderController {
      * @return the name of the view to render
      */
     @GetMapping(PENDING_SALES_ORDER_PATH)
-    public String getAllPendingSalesOrders(Model model) {
-        // TODO: -> Add pagination (25 records per page)
-        // Add the title, customers, and sales orders to the model.
+    public String getAllPendingSalesOrders(@PageableDefault(size = 25, sort = "date", direction = Sort.Direction.DESC) Pageable pageable,
+                                           Model model) {
         model.addAttribute("title", "Sales Orders");
         model.addAttribute("customers", customerService.findAll());
-        model.addAttribute("salesOrders", salesOrderService.findAllPendingOrders());
-        // Return the name of the view to render.
+        model.addAttribute("page", salesOrderService.findPendingPage(pageable));
         return "salesOrders/salesOrders";
     }
 

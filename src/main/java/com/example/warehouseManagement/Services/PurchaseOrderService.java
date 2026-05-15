@@ -26,6 +26,10 @@ public interface PurchaseOrderService {
      */
     public Page<PurchaseOrder> findAll(Pageable pageable);
     /**
+     * Paginated IN_TRANSIT purchase orders — used by /purchase-orders/pending.
+     */
+    public Page<PurchaseOrder> findPendingPage(Pageable pageable);
+    /**
      * Returns a purchase order by a given id
      * @param id
      * @return

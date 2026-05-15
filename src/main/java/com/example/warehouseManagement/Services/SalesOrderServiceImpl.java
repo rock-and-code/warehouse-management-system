@@ -74,6 +74,11 @@ public class SalesOrderServiceImpl implements SalesOrderService {
     }
 
     @Override
+    public Page<SalesOrder> findPendingPage(Pageable pageable) {
+        return salesOrderRepository.findByStatus(SoStatus.PENDING, pageable);
+    }
+
+    @Override
     public List<SalesOrderDto> findAllByCustomer(Long customerId) {
         return salesOrderRepository.findAllByCustomer(customerId);
     }
