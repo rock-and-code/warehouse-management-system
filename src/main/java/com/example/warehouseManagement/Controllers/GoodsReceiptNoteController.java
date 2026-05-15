@@ -79,9 +79,9 @@ public class GoodsReceiptNoteController {
         model.addAttribute("purchaseOrders", purchaseOrderService.findAllPendingPurchaseOrder());
         model.addAttribute("textModes", com.example.warehouseManagement.Domains.DTOs.TextMode.values());
         model.addAttribute("statuses", com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus.values());
-        if (criteria.isActive()) {
-            model.addAttribute("advancedResults", purchaseOrderService.findAdvanced(criteria, pageable));
-        }
+        // Always populate results — empty criteria → every PO, paginated. This
+        // matches the load-everything UX of the per-entity list pages.
+        model.addAttribute("advancedResults", purchaseOrderService.findAdvanced(criteria, pageable));
         return "goodsReceiptNotes/searchPurchaseOrder";
     }
 

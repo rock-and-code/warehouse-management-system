@@ -53,20 +53,27 @@
         </form>
     </div>
 
-    <!-- ====== Advanced search results, shown when the modal form was submitted ====== -->
-    <div th:if="${advancedResults != null}" class="container mt-4">
-        <h2 class="h4 mb-3">
-            Advanced search results
-            <small class="text-muted" th:text="|(${advancedResults.totalElements})|"></small>
-        </h2>
+    <!-- ====== Purchase orders — empty criteria lists every PO, paginated ====== -->
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="h4 m-0">
+                <span th:if="${criteria.isActive()}">Advanced search results</span>
+                <span th:unless="${criteria.isActive()}">Purchase orders</span>
+                <small class="text-muted" th:text="|(${advancedResults.totalElements})|"></small>
+            </h2>
+            <a th:if="${criteria.isActive()}" th:href="@{/goods-receipt-notes/search-purchase-order}"
+               class="btn btn-link btn-sm">
+                <i class="bi bi-x-circle me-1"></i>Clear filters
+            </a>
+        </div>
         <div th:if="${advancedResults.isEmpty()}" class="alert alert-info">No purchase orders match those filters.</div>
         <table th:unless="${advancedResults.isEmpty()}" class="table table-sm align-middle">
             <thead>
                 <tr>
-                    <th>Id</th>
-                    <th>Date</th>
-                    <th>Vendor</th>
-                    <th>Status</th>
+                    <th th:replace="~{fragments/pagination :: sortHeader(label='Id', property='id', page=${advancedResults}, baseUrl='/goods-receipt-notes/search-purchase-order')}"></th>
+                    <th th:replace="~{fragments/pagination :: sortHeader(label='Date', property='date', page=${advancedResults}, baseUrl='/goods-receipt-notes/search-purchase-order')}"></th>
+                    <th th:replace="~{fragments/pagination :: sortHeader(label='Vendor', property='vendor.name', page=${advancedResults}, baseUrl='/goods-receipt-notes/search-purchase-order')}"></th>
+                    <th th:replace="~{fragments/pagination :: sortHeader(label='Status', property='status', page=${advancedResults}, baseUrl='/goods-receipt-notes/search-purchase-order')}"></th>
                     <th class="text-end">Total</th>
                     <th></th>
                 </tr>
@@ -86,6 +93,7 @@
                 </tr>
             </tbody>
         </table>
+        <div th:replace="~{fragments/pagination :: pagination(page=${advancedResults}, baseUrl='/goods-receipt-notes/search-purchase-order')}"></div>
     </div>
 </div>
 
