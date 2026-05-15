@@ -291,16 +291,9 @@ public class SalesOrderController {
      */
     @PostMapping(value = UPDATE_SALES_ORDER_ID_PATH, params = "save")
     public String updateSalesOrder(@PathVariable("orderId") Long id, @ModelAttribute SalesOrder salesOrder,
-            HttpServletRequest request, Model model) {
-        try {
-            salesOrderService.updateById(id, salesOrder);
-        } catch (SalesOrderNotFoundException e) {
-            return "redirect:/sales-orders?notFound";
-        } catch (ShippedOrderModificationException e) {
-            return "redirect:/sales-orders?cannotBeUpdated";
-        }
-        // Redirect to the sales orders list page if the sales order was updated
-        // successfully.
+            HttpServletRequest request, Model model)
+            throws SalesOrderNotFoundException, ShippedOrderModificationException {
+        salesOrderService.updateById(id, salesOrder);
         return "redirect:/sales-orders?updated";
     }
 

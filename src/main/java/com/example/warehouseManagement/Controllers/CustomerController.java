@@ -140,14 +140,9 @@ public class CustomerController {
      */
     @PostMapping(UPDATE_CUSTOMER_ID_PATH)
     public String updateCustomer(@PathVariable(name = "customerId", required = false) Long id,
-        @ModelAttribute Customer updatedCustomer, HttpServletRequest request, Model model) {
-        try {
-            customerService.updateById(id, updatedCustomer);
-        } catch (CustomerNotFoundException e) {
-            return "redirect:/customers?notFound"; // Redirect to the list of customers with an error message.
-        }
-        // Redirect to the customer details page if the customer is saved
-        // successfully.
+        @ModelAttribute Customer updatedCustomer, HttpServletRequest request, Model model)
+            throws CustomerNotFoundException {
+        customerService.updateById(id, updatedCustomer);
         return String.format("redirect:/customers/%d", id);
     }
 

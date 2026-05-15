@@ -287,16 +287,9 @@ public class PurchaseOrderController {
      */
     @PostMapping(value = UPDATE_PURCHASE_ORDER_ID_PATH, params = "save")
     public String updatepurchaseOrder(@PathVariable("orderId") Long id, @ModelAttribute PurchaseOrder purchaseOrder,
-            HttpServletRequest request, Model model) {
-        try {
-            purchaseOrderService.updateById(id, purchaseOrder);
-        } catch (PurchaseOrderNotFoundException e) {
-            return "redirect:/purchase-orders?notFound";
-        } catch (ReceivedOrderModificationException e) {
-            return "redirect:/purchase-orders?cannotBeUpdated";
-        }
-        // Redirect to the purchase orders list page if the purchase order was updated
-        // successfully.
+            HttpServletRequest request, Model model)
+            throws PurchaseOrderNotFoundException, ReceivedOrderModificationException {
+        purchaseOrderService.updateById(id, purchaseOrder);
         return "redirect:/purchase-orders?updated";
     }
 
