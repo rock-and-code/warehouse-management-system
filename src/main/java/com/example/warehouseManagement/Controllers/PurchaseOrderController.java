@@ -2,6 +2,9 @@ package com.example.warehouseManagement.Controllers;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -134,14 +137,11 @@ public class PurchaseOrderController {
      * @return the name of the view template to render
      */
     @GetMapping
-    public String getAllPurchaseOrders(Model model) {
-        // TODO: -> Add pagination (25 records per page)
-        // Set the tittle, add the list of vendors and a list of purchase orders to the
-        // model
+    public String getAllPurchaseOrders(@PageableDefault(size = 25, sort = "date", direction = Sort.Direction.DESC) Pageable pageable,
+                                       Model model) {
         model.addAttribute("title", "Purchase Orders");
         model.addAttribute("vendors", vendorService.findAll());
-        model.addAttribute("purchaseOrders", purchaseOrderService.findAllPurchaseOrder());
-        // Returns the name of the view template to render.
+        model.addAttribute("page", purchaseOrderService.findAll(pageable));
         return "purchaseOrders/purchaseOrders";
     }
 

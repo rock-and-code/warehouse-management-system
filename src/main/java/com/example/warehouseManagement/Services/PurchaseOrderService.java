@@ -3,6 +3,9 @@ package com.example.warehouseManagement.Services;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.DTOs.AgingPoDto;
 import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
@@ -18,6 +21,10 @@ public interface PurchaseOrderService {
      * @return
      */
     public Iterable<PurchaseOrder> findAll();
+    /**
+     * Paginated + sortable variant used by the list page.
+     */
+    public Page<PurchaseOrder> findAll(Pageable pageable);
     /**
      * Returns a purchase order by a given id
      * @param id

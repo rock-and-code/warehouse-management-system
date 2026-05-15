@@ -3,6 +3,9 @@ package com.example.warehouseManagement.Services;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.example.warehouseManagement.Domains.Customer;
 import com.example.warehouseManagement.Domains.LastThreeMonthsSales;
 import com.example.warehouseManagement.Domains.SalesOrder;
@@ -36,6 +39,10 @@ public interface SalesOrderService {
      * @return
      */
     public Iterable<SalesOrder> findAll();
+    /**
+     * Paginated + sortable variant used by the list page.
+     */
+    public Page<SalesOrder> findAll(Pageable pageable);
     /**
      * Returns a list of all the sales order placed by a customer in the dba by a given customer id
      * @param customerId

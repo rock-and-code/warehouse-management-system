@@ -3,6 +3,8 @@ package com.example.warehouseManagement.Services;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,6 +66,11 @@ public class SalesOrderServiceImpl implements SalesOrderService {
     @Override
     public Iterable<SalesOrder> findAll() {
         return salesOrderRepository.findAll();
+    }
+
+    @Override
+    public Page<SalesOrder> findAll(Pageable pageable) {
+        return salesOrderRepository.findAll(pageable);
     }
 
     @Override

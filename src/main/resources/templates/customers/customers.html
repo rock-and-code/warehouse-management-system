@@ -32,19 +32,19 @@
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">Id</th>
-                <th scope="col">Name</th>
-                <th scope="col">Street</th>
-                <th scope="col">City</th>
-                <th scope="col">State</th>
-                <th scope="col">zipcode</th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='Id', property='id', page=${page}, baseUrl='/customers')}"></th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='Name', property='name', page=${page}, baseUrl='/customers')}"></th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='Street', property='street', page=${page}, baseUrl='/customers')}"></th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='City', property='city', page=${page}, baseUrl='/customers')}"></th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='State', property='state', page=${page}, baseUrl='/customers')}"></th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='Zipcode', property='zipcode', page=${page}, baseUrl='/customers')}"></th>
                 <th scope="col"></th>
                 <th scope="col"></th>
                 <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
-            <tr th:each="customer : ${customers}">
+            <tr th:each="customer : ${page.content}">
                 <th scope="row" th:text="${customer.id}">1</th>
                 <td th:text="${customer.name}">Mark</td>
                 <td th:text="${customer.street}">Otto</td>
@@ -61,6 +61,7 @@
             </tr>
         </tbody>
     </table>
+    <div th:replace="~{fragments/pagination :: pagination(page=${page}, baseUrl='/customers')}"></div>
 </div>
 
 <!-- Footer fragment -->

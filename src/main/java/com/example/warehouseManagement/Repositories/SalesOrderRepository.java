@@ -2,8 +2,8 @@ package com.example.warehouseManagement.Repositories;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import com.example.warehouseManagement.Domains.Customer;
@@ -15,7 +15,7 @@ import com.example.warehouseManagement.Domains.DTOs.PendingSalesOrderDto;
 import com.example.warehouseManagement.Domains.DTOs.SalesOrderDto;
 
 
-public interface SalesOrderRepository extends CrudRepository<SalesOrder, Long>{
+public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long>{
     
     /**
      * Returns a list of sales order by a customer
