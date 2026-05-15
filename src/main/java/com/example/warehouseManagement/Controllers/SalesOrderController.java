@@ -27,13 +27,12 @@ import jakarta.servlet.http.HttpServletRequest;
  * Controller class for handling sales order operations.
  */
 @Controller
-@RequestMapping(value = "/")
+@RequestMapping("/sales-orders")
 public class SalesOrderController {
 
-    private static final String SALES_ORDER_PATH = "sales-orders";
-    private static final String PENDING_SALES_ORDER_PATH = SALES_ORDER_PATH + "/pending";
-    private static final String NEW_SALES_ORDER_PATH = SALES_ORDER_PATH + "/new-sales-order";
-    private static final String SALES_ORDER_ID_PATH = SALES_ORDER_PATH + "/{orderId}";
+    private static final String PENDING_SALES_ORDER_PATH = "/pending";
+    private static final String NEW_SALES_ORDER_PATH = "/new-sales-order";
+    private static final String SALES_ORDER_ID_PATH = "/{orderId}";
     private static final String UPDATE_SALES_ORDER_ID_PATH = SALES_ORDER_ID_PATH + "/update";
 
     private final SalesOrderService salesOrderService;
@@ -58,7 +57,7 @@ public class SalesOrderController {
      * @param model      a Model object to be populated with data for the view
      * @return the name of the view to render
      */
-    @GetMapping(value = NEW_SALES_ORDER_PATH)
+    @GetMapping(NEW_SALES_ORDER_PATH)
     public String newSalesOrder(@ModelAttribute SalesOrder salesOrder, Model model) {
         model.addAttribute("salesOrder", salesOrder);
         model.addAttribute("customers", customerService.findAll());
@@ -139,7 +138,7 @@ public class SalesOrderController {
      * @param model a Model object to be populated with data for the view
      * @return the name of the view to render
      */
-    @GetMapping(value = SALES_ORDER_PATH)
+    @GetMapping
     public String getAllSalesOrders(Model model) {
         // TODO: -> Add pagination (25 records per page)
         // Add the title, customers, and sales orders to the model.
@@ -158,7 +157,7 @@ public class SalesOrderController {
      * @param model a Model object to be populated with data for the view
      * @return the name of the view to render
      */
-    @GetMapping(value = PENDING_SALES_ORDER_PATH)
+    @GetMapping(PENDING_SALES_ORDER_PATH)
     public String getAllPendingSalesOrders(Model model) {
         // TODO: -> Add pagination (25 records per page)
         // Add the title, customers, and sales orders to the model.
@@ -179,7 +178,7 @@ public class SalesOrderController {
      * @return the name of the view to render, or a redirect to the sales orders
      *         list page if the sales order is not found
      */
-    @GetMapping(value = SALES_ORDER_ID_PATH)
+    @GetMapping(SALES_ORDER_ID_PATH)
     public String getSalesOrderDetails(@PathVariable Long orderId, Model model) {
         Optional<SalesOrder> order = salesOrderService.findById(orderId);
         // If the sales order is found, add it to the model and return the name of the
@@ -205,7 +204,7 @@ public class SalesOrderController {
      * @return the name of the view to render, or a redirect to the sales orders
      *         list page if the sales order is not found
      */
-    @GetMapping(value = UPDATE_SALES_ORDER_ID_PATH)
+    @GetMapping(UPDATE_SALES_ORDER_ID_PATH)
     public String getUpdateSalesOrderForm(@PathVariable Long orderId, Model model) {
         Optional<SalesOrder> order = salesOrderService.findById(orderId);
         // If the sales order is found, add it to the model and return the name of the

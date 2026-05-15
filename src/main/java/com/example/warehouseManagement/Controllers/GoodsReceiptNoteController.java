@@ -25,20 +25,15 @@ import com.example.warehouseManagement.Util.Counter;
  * Controller to handle goods receipt note requests.
  */
 @Controller
-@RequestMapping(value = "/")
+@RequestMapping("/goods-receipt-notes")
 public class GoodsReceiptNoteController {
-    /**
-     * Constants for path definitions.
-     */
-    public static final String GOODS_RECEIPT_NOTE_PATH = "goods-receipt-notes";
-    public static final String GOODS_RECEIPT_NOTE_ID_PATH = GOODS_RECEIPT_NOTE_PATH + "/{goodsReceiptNoteId}";
-    public static final String FULFILLED_GOODS_RECEIPT_NOTE_PATH = GOODS_RECEIPT_NOTE_PATH + "/fulfilled-goods-receipt-notes";
-    public static final String PENDING_GOODS_RECEIPT_NOTE_PATH = GOODS_RECEIPT_NOTE_PATH + "/pending-goods-receipt-notes";
-    public static final String SEARCH_PURCHASE_ORDER_PATH = GOODS_RECEIPT_NOTE_PATH + "/search-purchase-order";
-    public static final String START_RECEIVING_PO_PATH = GOODS_RECEIPT_NOTE_PATH + "/{purchaseOrderId}/receive";
-    /**
-     * Dependencies.
-     */
+
+    private static final String GOODS_RECEIPT_NOTE_ID_PATH = "/{goodsReceiptNoteId}";
+    private static final String FULFILLED_GOODS_RECEIPT_NOTE_PATH = "/fulfilled-goods-receipt-notes";
+    private static final String PENDING_GOODS_RECEIPT_NOTE_PATH = "/pending-goods-receipt-notes";
+    private static final String SEARCH_PURCHASE_ORDER_PATH = "/search-purchase-order";
+    private static final String START_RECEIVING_PO_PATH = "/{purchaseOrderId}/receive";
+
     private final GoodsReceiptNoteService goodsReceiptNoteService;
     private final PurchaseOrderService purchaseOrderService;
 
@@ -58,21 +53,21 @@ public class GoodsReceiptNoteController {
     }
 
 
-    @GetMapping(value = PENDING_GOODS_RECEIPT_NOTE_PATH)
+    @GetMapping(PENDING_GOODS_RECEIPT_NOTE_PATH)
     public String pendingGoodsReceiptNotes(Model model) {
         model.addAttribute("goodsReceiptNotes", goodsReceiptNoteService.findAllPending());
         model.addAttribute("title", "Pending Goods Receipt Notes");
         return "goodsReceiptNotes/pendingGoodsReceiptNotes";
     }
 
-    @GetMapping(value = FULFILLED_GOODS_RECEIPT_NOTE_PATH)
+    @GetMapping(FULFILLED_GOODS_RECEIPT_NOTE_PATH)
     public String fulfilledGoodsReceiptNotes(Model model) {
         model.addAttribute("goodsReceiptNotes", goodsReceiptNoteService.findAllFulfilled());
         model.addAttribute("title", "Fulfilled Goods Receipt Notes");
         return "goodsReceiptNotes/goodsReceiptNotes";
     }
 
-    @GetMapping(value = SEARCH_PURCHASE_ORDER_PATH)
+    @GetMapping(SEARCH_PURCHASE_ORDER_PATH)
     public String searchPurchaseOrder(@ModelAttribute PurchaseOrderNumberDto purchaseOrderNumberDto, Model model) {
         model.addAttribute("purchaseOrderNumberDto", new PurchaseOrderNumberDto());
         model.addAttribute("title", "Search Purchase Order");
@@ -80,7 +75,7 @@ public class GoodsReceiptNoteController {
         return "goodsReceiptNotes/searchPurchaseOrder";
     }
 
-    @GetMapping(value = GOODS_RECEIPT_NOTE_ID_PATH)
+    @GetMapping(GOODS_RECEIPT_NOTE_ID_PATH)
     public String getGoodsReceiptNoteDetails(@PathVariable(value = "goodsReceiptNoteId", required = false) Long id,
             Model model) {
         // Retrieves the goods receipt note with the specified ID from the database.
@@ -98,7 +93,7 @@ public class GoodsReceiptNoteController {
         }
     }
 
-    @PostMapping(value = SEARCH_PURCHASE_ORDER_PATH)
+    @PostMapping(SEARCH_PURCHASE_ORDER_PATH)
     public String displaySearchResults(@ModelAttribute PurchaseOrderNumberDto purchaseOrderNumberDto, Model model) {
         Long purchaseOrderId = purchaseOrderNumberDto.getPurchaseOrderNumber();
         Optional<PurchaseOrder> purchaseOrder = purchaseOrderService.findById(purchaseOrderId);
@@ -111,7 +106,7 @@ public class GoodsReceiptNoteController {
         }
     }
 
-    @GetMapping(value = START_RECEIVING_PO_PATH)
+    @GetMapping(START_RECEIVING_PO_PATH)
     public String startReceivingShipment(@PathVariable(value = "purchaseOrderId", required = true) Long id,
             Model model) {
         // Retrieves the goods receipt note with the specified ID from the database.
@@ -140,7 +135,7 @@ public class GoodsReceiptNoteController {
         }
     }
 
-    @PostMapping(value = START_RECEIVING_PO_PATH)
+    @PostMapping(START_RECEIVING_PO_PATH)
     public String finishReceivingShipment(@PathVariable(value = "purchaseOrderId", required = true) Long id,
             @ModelAttribute GoodsReceiptNoteDto goodsReceiptNoteDto,
             Model model) {

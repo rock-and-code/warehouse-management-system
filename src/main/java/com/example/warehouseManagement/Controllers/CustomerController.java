@@ -21,15 +21,14 @@ import jakarta.servlet.http.HttpServletRequest;
  * Controller class for handling customer operations.
  */
 @Controller
-@RequestMapping(value = "/")
+@RequestMapping("/customers")
 public class CustomerController {
 
-    private final CustomerService customerService;
+    private static final String NEW_CUSTOMER_PATH = "/new-customer";
+    private static final String CUSTOMER_ID_PATH = "/{customerId}";
+    private static final String UPDATE_CUSTOMER_ID_PATH = CUSTOMER_ID_PATH + "/update";
 
-    private static final String CUSTOMER_PATH = "customers";
-    private static final String NEW_CUSTOMER_PATH = CUSTOMER_PATH + "/new-customer";
-    private static final String CUSTOMER_PATH_ID = CUSTOMER_PATH + "/{customerId}";
-    private static final String UPDATE_CUSTOMER_PATH_ID = CUSTOMER_PATH_ID + "/update";
+    private final CustomerService customerService;
 
     /**
      * Constructor.
@@ -46,7 +45,7 @@ public class CustomerController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render
      */
-    @GetMapping(value = CUSTOMER_PATH)
+    @GetMapping
     public String getCustomers(Model model) {
         // Adding a list of customers and a title attribute to the model
         model.addAttribute("customers", customerService.findAll());
@@ -64,7 +63,7 @@ public class CustomerController {
      * @param model      a Model object to be populated with data for the view
      * @return the name of the view to render
      */
-    @GetMapping(value = NEW_CUSTOMER_PATH)
+    @GetMapping(NEW_CUSTOMER_PATH)
     public String newCustomer(@ModelAttribute Customer newCustomer, Model model) {
         model.addAttribute("states", StatePool.getStates());
         model.addAttribute("newCustomer", Customer.builder().build());
@@ -82,7 +81,7 @@ public class CustomerController {
      * @return the name of the view to render, or a redirect to the customers
      *         list page if the customer is saved successfully
      */
-    @PostMapping(value = NEW_CUSTOMER_PATH)
+    @PostMapping(NEW_CUSTOMER_PATH)
     public String saveCustomer(@ModelAttribute Customer newCustomer,
             HttpServletRequest request, Model model) {
         customerService.save(newCustomer);
@@ -98,7 +97,7 @@ public class CustomerController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of customers if the customer is not found
      */
-    @GetMapping(value = CUSTOMER_PATH_ID)
+    @GetMapping(CUSTOMER_ID_PATH)
     public String getCustomerDetails(@PathVariable(name = "customerId", required = false) Long id, Model model) {
         Optional<Customer> customer = customerService.findById(id);
         // Checking if the customer exists
@@ -118,7 +117,7 @@ public class CustomerController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of customers if the customer is not found
      */
-    @GetMapping(value = UPDATE_CUSTOMER_PATH_ID)
+    @GetMapping(UPDATE_CUSTOMER_ID_PATH)
     public String getCustomerUpdateForm(@PathVariable(name = "customerId", required = false) Long id, Model model) {
            Optional<Customer> customer = customerService.findById(id);
         // Checking if the customer exists
@@ -139,8 +138,8 @@ public class CustomerController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of customers if the customer is not found
      */
-    @PostMapping(value = UPDATE_CUSTOMER_PATH_ID)
-    public String updateCustomer(@PathVariable(name = "customerId", required = false) Long id, 
+    @PostMapping(UPDATE_CUSTOMER_ID_PATH)
+    public String updateCustomer(@PathVariable(name = "customerId", required = false) Long id,
         @ModelAttribute Customer updatedCustomer, HttpServletRequest request, Model model) {
         try {
             customerService.updateById(id, updatedCustomer);
@@ -159,7 +158,7 @@ public class CustomerController {
      * @param model the Model to populate with data for the view
      * @return the name of the view to render, or a redirect to the list of customers if the customer is not found or cannot be deleted
      */
-    @PostMapping(value = CUSTOMER_PATH_ID, params = "delete")
+    @PostMapping(value = CUSTOMER_ID_PATH, params = "delete")
     public String deleteCustomer(@PathVariable(name = "customerId", required = false) Long id, Model model) {
         Optional<Customer> customer = customerService.findById(id);
          // Check if the customer exists.
