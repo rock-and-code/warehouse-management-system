@@ -39,11 +39,18 @@ public class SearchController {
         this.vendorRepository = vendorRepository;
     }
 
+    public enum Mode {
+        CONTAINS, STARTS_WITH
+    }
+
     @GetMapping
-    public String search(@RequestParam(name = "q", required = false) String query, Model model) {
+    public String search(@RequestParam(name = "q", required = false) String query,
+                         @RequestParam(name = "mode", defaultValue = "CONTAINS") Mode mode,
+                         Model model) {
         String trimmed = query == null ? "" : query.trim();
         model.addAttribute("title", "Search");
         model.addAttribute("query", trimmed);
+        model.addAttribute("mode", mode);
 
         if (trimmed.isEmpty()) {
             model.addAttribute("items", List.of());
@@ -53,9 +60,18 @@ public class SearchController {
         }
 
         Pageable cap = PageRequest.of(0, PER_CATEGORY_LIMIT);
-        List<Item> items = itemRepository.findByDescriptionContainingIgnoreCase(trimmed, cap);
-        List<Customer> customers = customerRepository.findByNameContainingIgnoreCase(trimmed, cap);
-        List<Vendor> vendors = vendorRepository.findByNameContainingIgnoreCase(trimmed, cap);
+        List<Item> items;
+        List<Customer> customers;
+        List<Vendor> vendors;
+        if (mode == Mode.STARTS_WITH) {
+            items = itemRepository.findByDescriptionStartingWithIgnoreCase(trimmed, cap);
+            customers = customerRepository.findByNameStartingWithIgnoreCase(trimmed, cap);
+            vendors = vendorRepository.findByNameStartingWithIgnoreCase(trimmed, cap);
+        } else {
+            items = itemRepository.findByDescriptionContainingIgnoreCase(trimmed, cap);
+            customers = customerRepository.findByNameContainingIgnoreCase(trimmed, cap);
+            vendors = vendorRepository.findByNameContainingIgnoreCase(trimmed, cap);
+        }
 
         model.addAttribute("items", items);
         model.addAttribute("customers", customers);

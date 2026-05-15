@@ -180,7 +180,12 @@
         <form th:action="@{/search}" method="get" class="mx-3 d-none d-md-block" sec:authorize="isAuthenticated()" role="search">
             <div class="input-group input-group-sm">
                 <span class="input-group-text bg-body-tertiary border-end-0"><i class="bi bi-search"></i></span>
-                <input type="search" class="form-control border-start-0" name="q" placeholder="Search items, customers, vendors..." style="min-width: 16rem;">
+                <input type="search" class="form-control border-start-0" name="q"
+                       placeholder="Search items, customers, vendors..."
+                       style="min-width: 16rem;"
+                       data-autocomplete-source="ITEM"
+                       data-autocomplete-mode="CONTAINS"
+                       data-autocomplete-fill-on-select="true">
             </div>
         </form>
         <div class="ms-auto d-flex align-items-center gap-3" sec:authorize="isAuthenticated()">
