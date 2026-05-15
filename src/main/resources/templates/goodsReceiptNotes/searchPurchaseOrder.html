@@ -35,7 +35,11 @@
             <div class="col-12">
                 <label for="purchaseOrderId" class="form-label">Purchase Order</label>
                 <input class="form-control" type="text" id="purchaseOrderId" th:field="*{purchaseOrderNumber}"
-                    name="salesOrder" required>
+                    name="salesOrder" required
+                    data-autocomplete-source="PURCHASE_ORDER"
+                    data-autocomplete-mode="PREFIX"
+                    data-autocomplete-fill-on-select="true"
+                    autocomplete="off">
                 <div class="invalid-feedback">
                     Please enter the Purchase Order Number
                 </div>

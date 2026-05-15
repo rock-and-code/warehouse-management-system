@@ -9,8 +9,33 @@
         <small class="text-muted" th:if="${!#strings.isEmpty(query)}" th:text="|for &quot;${query}&quot;|"></small>
     </h1>
 
+    <!-- Refine the search: term + match mode. Submitting reloads with both query params. -->
+    <form th:action="@{/search}" method="get" class="card shadow-sm mb-3">
+        <div class="card-body row g-2 align-items-end">
+            <div class="col-md-7">
+                <label class="form-label small mb-1">Term</label>
+                <input class="form-control" type="search" name="q" th:value="${query}"
+                       placeholder="Search items, customers, vendors..."
+                       data-autocomplete-source="ITEM"
+                       th:attr="data-autocomplete-mode=${mode}"
+                       data-autocomplete-fill-on-select="true">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small mb-1">Match</label>
+                <select class="form-select" name="mode">
+                    <option value="CONTAINS"    th:selected="${mode != null and mode.name() == 'CONTAINS'}">Contains</option>
+                    <option value="STARTS_WITH" th:selected="${mode != null and mode.name() == 'STARTS_WITH'}">Starts with</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small mb-1">&nbsp;</label>
+                <button type="submit" class="btn btn-dark w-100">Search</button>
+            </div>
+        </div>
+    </form>
+
     <div th:if="${#strings.isEmpty(query)}" class="alert alert-info">
-        Type a term into the search box at the top to find items, customers, or vendors.
+        Type a term and pick a match mode to find items, customers, or vendors.
     </div>
 
     <!-- ITEMS -->

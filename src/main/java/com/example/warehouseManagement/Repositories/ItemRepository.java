@@ -20,7 +20,12 @@ public interface ItemRepository extends JpaRepository<Item, Long>{
 
     /**
      * Case-insensitive LIKE search on description, capped by Pageable.
-     * Used by the global search bar.
+     * Used by the global search bar (mode = CONTAINS).
      */
     List<Item> findByDescriptionContainingIgnoreCase(String description, Pageable pageable);
+
+    /**
+     * Case-insensitive prefix match on description (mode = PREFIX in /search).
+     */
+    List<Item> findByDescriptionStartingWithIgnoreCase(String prefix, Pageable pageable);
 }
