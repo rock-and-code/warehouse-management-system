@@ -2,6 +2,7 @@ package com.example.warehouseManagement.Controllers;
 
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.example.warehouseManagement.Domains.Exceptions.CustomerNotFoundException;
 import com.example.warehouseManagement.Domains.Exceptions.ItemNotFoundException;
@@ -10,6 +11,8 @@ import com.example.warehouseManagement.Domains.Exceptions.ReceivedOrderModificat
 import com.example.warehouseManagement.Domains.Exceptions.SalesOrderNotFoundException;
 import com.example.warehouseManagement.Domains.Exceptions.ShippedOrderModificationException;
 import com.example.warehouseManagement.Domains.Exceptions.VendorNotFoundException;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Centralizes the redirect-to-list-with-banner behavior that used to live as
@@ -61,5 +64,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ReceivedOrderModificationException.class)
     public String handleReceivedOrderModification() {
         return "redirect:/purchase-orders?cannotBeUpdated";
+    }
+
+    /**
+     * An invalid value bound to an enum query param on a list page
+     * (e.g. {@code /sales-orders?status=GARBAGE}) would otherwise surface as a
+     * 500. Redirect back to the same path with {@code ?invalidFilter} so the
+     * list template renders a small warning banner and shows everything.
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public String handleInvalidFilter(HttpServletRequest request) {
+        return "redirect:" + request.getRequestURI() + "?invalidFilter";
     }
 }

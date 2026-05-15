@@ -47,14 +47,66 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
+    <!-- ALERT: invalid enum query param (e.g. ?status=GARBAGE) -->
+    <div th:if="${param.invalidFilter}">
+        <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+            One of the filter values was not recognized — showing every sales order.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+
     <!-- Page headers -->
-    <h1 class="my-3" th:text="|Sales Orders|">Customer List</h1>
+    <div class="d-flex justify-content-between align-items-center my-3">
+        <h1 class="m-0" th:text="${title}">Sales Orders</h1>
+        <a class="btn btn-dark" th:href="@{/sales-orders/new-sales-order}">
+            <i class="bi bi-plus-lg me-1"></i>New sales order
+        </a>
+    </div>
+
+    <!-- Simple search bar (binds criteria.id) + Advanced button -->
+    <form th:action="@{/sales-orders}" method="get" th:object="${criteria}" class="card shadow-sm mb-3">
+        <div class="card-body row g-2 align-items-end">
+            <div class="col-md-8">
+                <label class="form-label small mb-1">Search by sales-order id</label>
+                <input type="search" class="form-control" th:field="*{id}"
+                       placeholder="Type a sales order id..."
+                       data-autocomplete-source="SALES_ORDER"
+                       data-autocomplete-mode="PREFIX"
+                       data-autocomplete-fill-on-select="true">
+                <input type="hidden" th:field="*{idMode}">
+                <input type="hidden" th:field="*{customer}">
+                <input type="hidden" th:field="*{customerMode}">
+                <input type="hidden" th:field="*{dateFrom}">
+                <input type="hidden" th:field="*{dateTo}">
+                <input type="hidden" th:field="*{status}">
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-dark flex-grow-1">
+                    <i class="bi bi-search me-1"></i>Search
+                </button>
+                <button type="button" class="btn btn-outline-secondary"
+                        data-bs-toggle="modal" data-bs-target="#advancedSearchModal">
+                    <i class="bi bi-funnel me-1"></i>Advanced
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div th:if="${criteria.isActive()}" class="d-flex justify-content-between align-items-center mb-2">
+        <span class="text-muted small"
+              th:text="|Filtered: ${page.totalElements} match(es)|">Filtered: 3 matches</span>
+        <a th:href="@{/sales-orders}" class="btn btn-link btn-sm">
+            <i class="bi bi-x-circle me-1"></i>Clear filters
+        </a>
+    </div>
+
     <!-- Customer list as table -->
     <table class="table">
         <thead>
             <tr>
                 <th th:replace="~{fragments/pagination :: sortHeader(label='Date', property='date', page=${page}, baseUrl='/sales-orders')}"></th>
                 <th th:replace="~{fragments/pagination :: sortHeader(label='Sales Order', property='id', page=${page}, baseUrl='/sales-orders')}"></th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='Customer', property='customer.name', page=${page}, baseUrl='/sales-orders')}"></th>
                 <th scope="col">Total</th>
                 <th th:replace="~{fragments/pagination :: sortHeader(label='Status', property='status', page=${page}, baseUrl='/sales-orders')}"></th>
                 <th scope="col"></th>
@@ -65,6 +117,7 @@
             <tr th:each="salesOrder : ${page.content}">
                 <th scope="row" th:text="|${#temporals.monthNameShort(salesOrder.date)} ${#temporals.format(salesOrder.date, ' dd, yyyy')}|">1</th>
                 <td th:text="${salesOrder.id}">1001</td>
+                <td th:text="${salesOrder.customer != null ? salesOrder.customer.name : ''}">Acme</td>
                 <td th:text="${#numbers.formatCurrency(salesOrder.total)}">$0</td>
                 <td th:text="${salesOrder.status.name()}">PENDING</td>
                 <td><a th:href="@{/sales-orders/{orderId}(orderId=${salesOrder.id})}" class="btn btn-outline-secondary">Details</a></td>
@@ -80,6 +133,74 @@
         </tbody>
     </table>
     <div th:replace="~{fragments/pagination :: pagination(page=${page}, baseUrl='/sales-orders')}"></div>
+</div>
+
+<!-- ====== Advanced search modal ====== -->
+<div class="modal fade" id="advancedSearchModal" tabindex="-1" aria-labelledby="advancedSearchModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="advancedSearchModalLabel"><i class="bi bi-funnel me-2"></i>Advanced Search — Sales Orders</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form th:action="@{/sales-orders}" method="get" th:object="${criteria}">
+        <div class="modal-body">
+          <p class="text-muted small mb-3">Every field is optional — leave all blank to list every sales order. Filters are AND-combined.</p>
+
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">SO id</label>
+              <select class="form-select form-select-sm" th:field="*{idMode}">
+                <option th:each="m : ${textModes}" th:value="${m}" th:text="${m.name().replace('_', ' ').toLowerCase()}">starts with</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label small mb-1">&nbsp;</label>
+              <input type="text" class="form-control" th:field="*{id}" placeholder="e.g. 10">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">Customer name</label>
+              <select class="form-select form-select-sm" th:field="*{customerMode}">
+                <option th:each="m : ${textModes}" th:value="${m}" th:text="${m.name().replace('_', ' ').toLowerCase()}">contains</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label small mb-1">&nbsp;</label>
+              <input type="text" class="form-control" th:field="*{customer}" placeholder="e.g. Acme">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-6">
+              <label class="form-label small mb-1">Date from</label>
+              <input type="date" class="form-control" th:field="*{dateFrom}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small mb-1">Date to</label>
+              <input type="date" class="form-control" th:field="*{dateTo}">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end">
+            <div class="col-md-6">
+              <label class="form-label small mb-1">Status</label>
+              <select class="form-select" th:field="*{status}">
+                <option value="">— any —</option>
+                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s.name()}">PENDING</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-dark"><i class="bi bi-search me-1"></i>Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <!-- Header fragment -->

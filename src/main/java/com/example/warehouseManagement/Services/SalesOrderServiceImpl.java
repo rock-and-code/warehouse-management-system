@@ -1,10 +1,12 @@
 package com.example.warehouseManagement.Services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,12 +18,16 @@ import com.example.warehouseManagement.Domains.PickingJobLine;
 import com.example.warehouseManagement.Domains.SalesOrder;
 import com.example.warehouseManagement.Domains.SalesOrder.SoStatus;
 import com.example.warehouseManagement.Domains.SalesOrderLine;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedSalesOrderSearchCriteria;
 import com.example.warehouseManagement.Domains.DTOs.DailySalesDto;
 import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
 import com.example.warehouseManagement.Domains.DTOs.PendingSalesOrderDto;
 import com.example.warehouseManagement.Domains.DTOs.SalesOrderDto;
+import com.example.warehouseManagement.Domains.DTOs.TextMode;
 import com.example.warehouseManagement.Domains.Exceptions.SalesOrderNotFoundException;
 import com.example.warehouseManagement.Domains.Exceptions.ShippedOrderModificationException;
+
+import jakarta.persistence.criteria.Predicate;
 import com.example.warehouseManagement.Repositories.ItemPriceRepository;
 import com.example.warehouseManagement.Repositories.ItemRepository;
 import com.example.warehouseManagement.Repositories.PickingJobLineRepository;
@@ -76,6 +82,55 @@ public class SalesOrderServiceImpl implements SalesOrderService {
     @Override
     public Page<SalesOrder> findPendingPage(Pageable pageable) {
         return salesOrderRepository.findByStatus(SoStatus.PENDING, pageable);
+    }
+
+    @Override
+    public Page<SalesOrder> findAdvanced(AdvancedSalesOrderSearchCriteria criteria, Pageable pageable) {
+        return salesOrderRepository.findAll(buildSpec(criteria), pageable);
+    }
+
+    private static Specification<SalesOrder> buildSpec(AdvancedSalesOrderSearchCriteria c) {
+        return (root, query, cb) -> {
+            List<Predicate> ps = new ArrayList<>();
+
+            if (c.getId() != null && !c.getId().isBlank()) {
+                String idStr = c.getId().trim();
+                TextMode mode = c.getIdMode() == null ? TextMode.STARTS_WITH : c.getIdMode();
+                if (mode == TextMode.EQUALS) {
+                    try {
+                        ps.add(cb.equal(root.get("id"), Long.parseLong(idStr)));
+                    } catch (NumberFormatException ignored) {
+                        ps.add(cb.disjunction());
+                    }
+                } else {
+                    var idText = root.<Long>get("id").as(String.class);
+                    String pattern = (mode == TextMode.STARTS_WITH) ? idStr + "%" : "%" + idStr + "%";
+                    ps.add(cb.like(idText, pattern));
+                }
+            }
+
+            if (c.getCustomer() != null && !c.getCustomer().isBlank()) {
+                String v = c.getCustomer().trim().toLowerCase();
+                var customerName = cb.lower(root.get("customer").get("name"));
+                switch (c.getCustomerMode() == null ? TextMode.CONTAINS : c.getCustomerMode()) {
+                    case EQUALS      -> ps.add(cb.equal(customerName, v));
+                    case STARTS_WITH -> ps.add(cb.like(customerName, v + "%"));
+                    case CONTAINS    -> ps.add(cb.like(customerName, "%" + v + "%"));
+                }
+            }
+
+            if (c.getDateFrom() != null) {
+                ps.add(cb.greaterThanOrEqualTo(root.get("date"), c.getDateFrom()));
+            }
+            if (c.getDateTo() != null) {
+                ps.add(cb.lessThanOrEqualTo(root.get("date"), c.getDateTo()));
+            }
+            if (c.getStatus() != null) {
+                ps.add(cb.equal(root.get("status"), c.getStatus()));
+            }
+
+            return ps.isEmpty() ? cb.conjunction() : cb.and(ps.toArray(Predicate[]::new));
+        };
     }
 
     @Override
