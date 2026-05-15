@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus;
 import com.example.warehouseManagement.Domains.PurchaseOrderLine;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedPoSearchCriteria;
+import com.example.warehouseManagement.Domains.DTOs.TextMode;
 import com.example.warehouseManagement.Domains.Exceptions.PurchaseOrderNotFoundException;
 import com.example.warehouseManagement.Domains.Exceptions.ReceivedOrderModificationException;
 import com.example.warehouseManagement.Services.ItemService;
@@ -137,11 +139,15 @@ public class PurchaseOrderController {
      * @return the name of the view template to render
      */
     @GetMapping
-    public String getAllPurchaseOrders(@PageableDefault(size = 25, sort = "date", direction = Sort.Direction.DESC) Pageable pageable,
-                                       Model model) {
+    public String getAllPurchaseOrders(
+            @ModelAttribute("criteria") AdvancedPoSearchCriteria criteria,
+            @PageableDefault(size = 25, sort = "date", direction = Sort.Direction.DESC) Pageable pageable,
+            Model model) {
         model.addAttribute("title", "Purchase Orders");
         model.addAttribute("vendors", vendorService.findAll());
-        model.addAttribute("page", purchaseOrderService.findAll(pageable));
+        model.addAttribute("page", purchaseOrderService.findAdvanced(criteria, pageable));
+        model.addAttribute("textModes", TextMode.values());
+        model.addAttribute("statuses", PoStatus.values());
         return "purchaseOrders/purchaseOrders";
     }
 
@@ -154,11 +160,15 @@ public class PurchaseOrderController {
      * @return the name of the view to render
      */
     @GetMapping(PENDING_PURCHASE_ORDER_PATH)
-    public String getAllPendingPurchaseOrders(@PageableDefault(size = 25, sort = "date", direction = Sort.Direction.DESC) Pageable pageable,
-                                              Model model) {
+    public String getAllPendingPurchaseOrders(
+            @ModelAttribute("criteria") AdvancedPoSearchCriteria criteria,
+            @PageableDefault(size = 25, sort = "date", direction = Sort.Direction.DESC) Pageable pageable,
+            Model model) {
         model.addAttribute("title", "Purchase Orders");
         model.addAttribute("vendors", vendorService.findAll());
         model.addAttribute("page", purchaseOrderService.findPendingPage(pageable));
+        model.addAttribute("textModes", TextMode.values());
+        model.addAttribute("statuses", PoStatus.values());
         return "purchaseOrders/purchaseOrders";
     }
 
