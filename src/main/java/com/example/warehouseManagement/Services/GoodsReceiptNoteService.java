@@ -3,8 +3,12 @@ package com.example.warehouseManagement.Services;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.example.warehouseManagement.Domains.GoodsReceiptNote;
 import com.example.warehouseManagement.Domains.PurchaseOrder;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedGrnSearchCriteria;
 import com.example.warehouseManagement.Domains.DTOs.GoodsReceiptNoteDto;
 
 public interface GoodsReceiptNoteService {
@@ -43,9 +47,11 @@ public interface GoodsReceiptNoteService {
      */
     public void delete(GoodsReceiptNote goodsReceiptNote);
 
-    public List<GoodsReceiptNote> findAllPending();
-
-    public List<GoodsReceiptNote> findAllFulfilled();
+    /**
+     * Advanced search — empty criteria returns every row, paginated. Spec
+     * returns cb.conjunction() when nothing is set.
+     */
+    Page<GoodsReceiptNote> findAdvanced(AdvancedGrnSearchCriteria criteria, Pageable pageable);
 
     public GoodsReceiptNote fulfill(GoodsReceiptNote goodsReceiptNote, GoodsReceiptNoteDto goodsReceiptNoteDto);
 

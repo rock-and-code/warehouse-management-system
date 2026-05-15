@@ -2,6 +2,9 @@ package com.example.warehouseManagement.Controllers;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,10 +14,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.warehouseManagement.Domains.GoodsReceiptNote;
+import com.example.warehouseManagement.Domains.GoodsReceiptNote.GrnStatus;
 import com.example.warehouseManagement.Domains.PurchaseOrder;
 import com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedGrnSearchCriteria;
 import com.example.warehouseManagement.Domains.DTOs.GoodsReceiptNoteDto;
 import com.example.warehouseManagement.Domains.DTOs.PurchaseOrderNumberDto;
+import com.example.warehouseManagement.Domains.DTOs.TextMode;
 import com.example.warehouseManagement.Services.GoodsReceiptNoteService;
 import com.example.warehouseManagement.Services.ItemService;
 import com.example.warehouseManagement.Services.PurchaseOrderService;
@@ -53,18 +59,32 @@ public class GoodsReceiptNoteController {
     }
 
 
-    @GetMapping(PENDING_GOODS_RECEIPT_NOTE_PATH)
-    public String pendingGoodsReceiptNotes(Model model) {
-        model.addAttribute("goodsReceiptNotes", goodsReceiptNoteService.findAllPending());
-        model.addAttribute("title", "Pending Goods Receipt Notes");
-        return "goodsReceiptNotes/pendingGoodsReceiptNotes";
+    /**
+     * Canonical GRN list. Empty criteria → every GRN, paginated by date desc.
+     * Filters are AND-combined and bound from the Advanced Search modal.
+     */
+    @GetMapping
+    public String list(
+            @ModelAttribute("criteria") AdvancedGrnSearchCriteria criteria,
+            @PageableDefault(size = 25, sort = "date", direction = Sort.Direction.DESC) Pageable pageable,
+            Model model) {
+        model.addAttribute("title", "Goods Receipt Notes");
+        model.addAttribute("page", goodsReceiptNoteService.findAdvanced(criteria, pageable));
+        model.addAttribute("textModes", TextMode.values());
+        model.addAttribute("statuses", GrnStatus.values());
+        return "goodsReceiptNotes/goodsReceiptNotes";
     }
 
+    /** Legacy pending-only URL — redirect to the canonical list with status filter. */
+    @GetMapping(PENDING_GOODS_RECEIPT_NOTE_PATH)
+    public String pendingGoodsReceiptNotes() {
+        return "redirect:/goods-receipt-notes?status=PENDING";
+    }
+
+    /** Legacy fulfilled-only URL — redirect to the canonical list with status filter. */
     @GetMapping(FULFILLED_GOODS_RECEIPT_NOTE_PATH)
-    public String fulfilledGoodsReceiptNotes(Model model) {
-        model.addAttribute("goodsReceiptNotes", goodsReceiptNoteService.findAllFulfilled());
-        model.addAttribute("title", "Fulfilled Goods Receipt Notes");
-        return "goodsReceiptNotes/goodsReceiptNotes";
+    public String fulfilledGoodsReceiptNotes() {
+        return "redirect:/goods-receipt-notes?status=FULFILLED";
     }
 
     @GetMapping(SEARCH_PURCHASE_ORDER_PATH)
@@ -99,7 +119,7 @@ public class GoodsReceiptNoteController {
             model.addAttribute("counter", new Counter());
             return "goodsReceiptNotes/goodsReceiptNoteDetails";
         } else {
-            return "redirect:/goods-receipt-notes/fulfilled-goods-receipt-notes?notFound";
+            return "redirect:/goods-receipt-notes?notFound";
         }
     }
 

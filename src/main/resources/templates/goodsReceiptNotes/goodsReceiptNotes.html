@@ -5,58 +5,194 @@
 <div th:insert="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
-    <!-- ALERTS TO PROVIDE USER FEEDBACK ON NOT FOUND PO -->
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON NOT FOUND GRN -->
     <div th:if="${param.notFound}">
         <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
             Goods Receipt Note not found
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
-    <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESSFUL FULFILLED PO -->
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON SUCCESSFUL FULFILLED GRN -->
     <div th:if="${param.fulfilled}">
         <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
             Goods Receipt Note Fulfilled
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
-    <!-- ALERTS TO PROVIDE USER FEEDBACK ON PARTIALLY FULFILLED PO -->
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON PARTIALLY FULFILLED GRN -->
     <div th:if="${param.partiallyFulfilled}">
         <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
             Goods Receipt Note Partially Fulfilled
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
-     <!-- ALERTS TO PROVIDE USER FEEDBACK ON NOT FULFILLED PO -->
-     <div th:if="${param.notFulfilled}">
+    <!-- ALERTS TO PROVIDE USER FEEDBACK ON NOT FULFILLED GRN -->
+    <div th:if="${param.notFulfilled}">
         <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
             Goods Receipt Note Was Not Fulfilled
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
-    <!-- Page headers -->
-    <h1 class="my-3" th:text="|Goods Receipt Notes|">Customer List</h1>
-    <!-- Customer list as table -->
+    <!-- ALERT: invalid enum query param (e.g. ?status=GARBAGE) -->
+    <div th:if="${param.invalidFilter}">
+        <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+            One of the filter values was not recognized — showing every goods receipt note.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <!-- Page header -->
+    <h1 class="my-3" th:text="${title}">Goods Receipt Notes</h1>
+
+    <!-- Simple search bar (binds criteria.id) + Advanced button -->
+    <form th:action="@{/goods-receipt-notes}" method="get" th:object="${criteria}" class="card shadow-sm mb-3">
+        <div class="card-body row g-2 align-items-end">
+            <div class="col-md-8">
+                <label class="form-label small mb-1">Search by goods-receipt-note id</label>
+                <input type="search" class="form-control" th:field="*{id}" placeholder="Type a goods receipt note id...">
+                <input type="hidden" th:field="*{idMode}">
+                <input type="hidden" th:field="*{purchaseOrderId}">
+                <input type="hidden" th:field="*{purchaseOrderIdMode}">
+                <input type="hidden" th:field="*{vendor}">
+                <input type="hidden" th:field="*{vendorMode}">
+                <input type="hidden" th:field="*{dateFrom}">
+                <input type="hidden" th:field="*{dateTo}">
+                <input type="hidden" th:field="*{status}">
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-dark flex-grow-1">
+                    <i class="bi bi-search me-1"></i>Search
+                </button>
+                <button type="button" class="btn btn-outline-secondary"
+                        data-bs-toggle="modal" data-bs-target="#advancedSearchModal">
+                    <i class="bi bi-funnel me-1"></i>Advanced
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div th:if="${criteria.isActive()}" class="d-flex justify-content-between align-items-center mb-2">
+        <span class="text-muted small"
+              th:text="|Filtered: ${page.totalElements} match(es)|">Filtered: 3 matches</span>
+        <a th:href="@{/goods-receipt-notes}" class="btn btn-link btn-sm">
+            <i class="bi bi-x-circle me-1"></i>Clear filters
+        </a>
+    </div>
+
+    <!-- GRN list as table -->
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">Date</th>
-                <th scope="col">Goods Receipt Note</th>
-                <th scope="col">Purchase Order</th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='Date', property='date', page=${page}, baseUrl='/goods-receipt-notes')}"></th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='Goods Receipt Note', property='id', page=${page}, baseUrl='/goods-receipt-notes')}"></th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='Purchase Order', property='purchaseOrder.id', page=${page}, baseUrl='/goods-receipt-notes')}"></th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='Vendor', property='purchaseOrder.vendor.name', page=${page}, baseUrl='/goods-receipt-notes')}"></th>
+                <th th:replace="~{fragments/pagination :: sortHeader(label='Status', property='status', page=${page}, baseUrl='/goods-receipt-notes')}"></th>
                 <th scope="col">Qty Received</th>
-                <th scope="col">Details</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
-            <tr th:each="goodsReceiptNote : ${goodsReceiptNotes}">
-                <th scope="row" th:text="|${#temporals.monthNameShort(goodsReceiptNote.date)} ${#temporals.format(goodsReceiptNote.date, ' dd, yyyy')}|">1</th>
-                <td th:text="${goodsReceiptNote.id}">Mark</td>
-                <td th:text="${goodsReceiptNote.purchaseOrder.id}">Mark</td>
-                <td th:text="${goodsReceiptNote.getTotalQty()}">Otto</td>
+            <tr th:each="goodsReceiptNote : ${page.content}">
+                <th scope="row" th:text="|${#temporals.monthNameShort(goodsReceiptNote.date)} ${#temporals.format(goodsReceiptNote.date, ' dd, yyyy')}|">May 15, 2026</th>
+                <td th:text="${goodsReceiptNote.id}">1</td>
+                <td th:text="${goodsReceiptNote.purchaseOrder != null ? goodsReceiptNote.purchaseOrder.id : ''}">42</td>
+                <td th:text="${goodsReceiptNote.purchaseOrder != null and goodsReceiptNote.purchaseOrder.vendor != null ? goodsReceiptNote.purchaseOrder.vendor.name : ''}">Acme</td>
+                <td><span class="badge bg-secondary" th:text="${goodsReceiptNote.status.name()}">PENDING</span></td>
+                <td th:text="${goodsReceiptNote.getTotalQty()}">0</td>
                 <td><a th:href="@{/goods-receipt-notes/{goodReceiptNoteId}(goodReceiptNoteId=${goodsReceiptNote.id})}" class="btn btn-outline-secondary">Details</a></td>
+                <td>
+                    <a th:if="${goodsReceiptNote.status.name() == 'PENDING'}"
+                       th:href="@{|/goods-receipt-notes/${goodsReceiptNote.purchaseOrder.id}/receive|}"
+                       class="btn btn-outline-primary">Fulfill</a>
+                </td>
             </tr>
         </tbody>
     </table>
+    <div th:replace="~{fragments/pagination :: pagination(page=${page}, baseUrl='/goods-receipt-notes')}"></div>
 </div>
 
-<!-- Header fragment -->
+<!-- ====== Advanced search modal ====== -->
+<div class="modal fade" id="advancedSearchModal" tabindex="-1" aria-labelledby="advancedSearchModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="advancedSearchModalLabel"><i class="bi bi-funnel me-2"></i>Advanced Search — Goods Receipt Notes</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form th:action="@{/goods-receipt-notes}" method="get" th:object="${criteria}">
+        <div class="modal-body">
+          <p class="text-muted small mb-3">Every field is optional — leave all blank to list every goods receipt note. Filters are AND-combined.</p>
+
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">GRN id</label>
+              <select class="form-select form-select-sm" th:field="*{idMode}">
+                <option th:each="m : ${textModes}" th:value="${m}" th:text="${m.name().replace('_', ' ').toLowerCase()}">starts with</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label small mb-1">&nbsp;</label>
+              <input type="text" class="form-control" th:field="*{id}" placeholder="e.g. 10">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">PO id</label>
+              <select class="form-select form-select-sm" th:field="*{purchaseOrderIdMode}">
+                <option th:each="m : ${textModes}" th:value="${m}" th:text="${m.name().replace('_', ' ').toLowerCase()}">starts with</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label small mb-1">&nbsp;</label>
+              <input type="text" class="form-control" th:field="*{purchaseOrderId}" placeholder="e.g. 42">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">Vendor name</label>
+              <select class="form-select form-select-sm" th:field="*{vendorMode}">
+                <option th:each="m : ${textModes}" th:value="${m}" th:text="${m.name().replace('_', ' ').toLowerCase()}">contains</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label small mb-1">&nbsp;</label>
+              <input type="text" class="form-control" th:field="*{vendor}" placeholder="e.g. Apple">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-6">
+              <label class="form-label small mb-1">Date from</label>
+              <input type="date" class="form-control" th:field="*{dateFrom}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small mb-1">Date to</label>
+              <input type="date" class="form-control" th:field="*{dateTo}">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end">
+            <div class="col-md-6">
+              <label class="form-label small mb-1">Status</label>
+              <select class="form-select" th:field="*{status}">
+                <option value="">— any —</option>
+                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s.name()}">PENDING</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-dark"><i class="bi bi-search me-1"></i>Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Footer fragment -->
 <div th:insert="~{fragments/footer :: footer}"></div>
