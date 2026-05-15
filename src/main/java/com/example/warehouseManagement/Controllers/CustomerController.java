@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.warehouseManagement.Domains.Customer;
 import com.example.warehouseManagement.Domains.StatePool;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedCustomerSearchCriteria;
+import com.example.warehouseManagement.Domains.DTOs.TextMode;
 import com.example.warehouseManagement.Domains.Exceptions.CustomerNotFoundException;
 import com.example.warehouseManagement.Services.CustomerService;
 
@@ -49,10 +51,13 @@ public class CustomerController {
      * @return the name of the view to render
      */
     @GetMapping
-    public String getCustomers(@PageableDefault(size = 25, sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
-                               Model model) {
-        model.addAttribute("page", customerService.findAll(pageable));
+    public String getCustomers(
+            @ModelAttribute("criteria") AdvancedCustomerSearchCriteria criteria,
+            @PageableDefault(size = 25, sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
+            Model model) {
+        model.addAttribute("page", customerService.findAdvanced(criteria, pageable));
         model.addAttribute("title", "Customers");
+        model.addAttribute("textModes", TextMode.values());
         return "customers/customers";
     }
 
