@@ -154,13 +154,11 @@ public class PurchaseOrderController {
      * @return the name of the view to render
      */
     @GetMapping(PENDING_PURCHASE_ORDER_PATH)
-    public String getAllPendingPurchaseOrders(Model model) {
-        // TODO: -> Add pagination (25 records per page)
-        // Add the title, customers, and sales orders to the model.
+    public String getAllPendingPurchaseOrders(@PageableDefault(size = 25, sort = "date", direction = Sort.Direction.DESC) Pageable pageable,
+                                              Model model) {
         model.addAttribute("title", "Purchase Orders");
         model.addAttribute("vendors", vendorService.findAll());
-        model.addAttribute("purchaseOrders", purchaseOrderService.findAllPendingPurchaseOrder());
-        // Return the name of the view to render.
+        model.addAttribute("page", purchaseOrderService.findPendingPage(pageable));
         return "purchaseOrders/purchaseOrders";
     }
 

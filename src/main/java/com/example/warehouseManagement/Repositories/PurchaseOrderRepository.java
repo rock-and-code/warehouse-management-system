@@ -3,11 +3,14 @@ package com.example.warehouseManagement.Repositories;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.example.warehouseManagement.Domains.PurchaseOrder;
+import com.example.warehouseManagement.Domains.PurchaseOrder.PoStatus;
 import com.example.warehouseManagement.Domains.DTOs.AgingPoDto;
 import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
 import com.example.warehouseManagement.Domains.DTOs.PoStatusBucketDto;
@@ -16,6 +19,12 @@ import com.example.warehouseManagement.Domains.DTOs.VendorSpendDto;
 
 
 public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Long>{
+
+    /**
+     * Paginated lookup by status — used by /purchase-orders/pending.
+     */
+    Page<PurchaseOrder> findByStatus(PoStatus status, Pageable pageable);
+
     /**
      * Return a Purchase Order that matches the given purchase order number
      * @param purchaseOrderNumber

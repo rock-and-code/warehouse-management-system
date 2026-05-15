@@ -65,6 +65,11 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         return purchaseOrderRepository.findAll(pageable);
     }
 
+    @Override
+    public Page<PurchaseOrder> findPendingPage(Pageable pageable) {
+        return purchaseOrderRepository.findByStatus(PoStatus.IN_TRANSIT, pageable);
+    }
+
     /**
      * Returns a purchase order that matches the given id
      */

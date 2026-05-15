@@ -44,6 +44,10 @@ public interface SalesOrderService {
      */
     public Page<SalesOrder> findAll(Pageable pageable);
     /**
+     * Paginated PENDING sales orders — used by /sales-orders/pending.
+     */
+    public Page<SalesOrder> findPendingPage(Pageable pageable);
+    /**
      * Returns a list of all the sales order placed by a customer in the dba by a given customer id
      * @param customerId
      * @return list of sales order

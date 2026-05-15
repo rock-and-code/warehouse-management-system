@@ -2,12 +2,15 @@ package com.example.warehouseManagement.Repositories;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.example.warehouseManagement.Domains.Customer;
 import com.example.warehouseManagement.Domains.SalesOrder;
+import com.example.warehouseManagement.Domains.SalesOrder.SoStatus;
 import com.example.warehouseManagement.Domains.DTOs.DailySalesDto;
 import com.example.warehouseManagement.Domains.DTOs.MonthlySalesDto;
 import com.example.warehouseManagement.Domains.DTOs.OpenOrdersKpiDto;
@@ -16,13 +19,18 @@ import com.example.warehouseManagement.Domains.DTOs.SalesOrderDto;
 
 
 public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long>{
-    
+
     /**
      * Returns a list of sales order by a customer
      * @param customer
      * @return
      */
     public List<SalesOrder> findByCustomer(Customer customer);
+
+    /**
+     * Paginated lookup by status — used by /sales-orders/pending.
+     */
+    Page<SalesOrder> findByStatus(SoStatus status, Pageable pageable);
     /**
      * Returns a list of the sales order with its total amount by a customer
      * @param customer
