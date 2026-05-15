@@ -2,6 +2,9 @@ package com.example.warehouseManagement.Controllers;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,11 +49,11 @@ public class CustomerController {
      * @return the name of the view to render
      */
     @GetMapping
-    public String getCustomers(Model model) {
-        // Adding a list of customers and a title attribute to the model
-        model.addAttribute("customers", customerService.findAll());
+    public String getCustomers(@PageableDefault(size = 25, sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
+                               Model model) {
+        model.addAttribute("page", customerService.findAll(pageable));
         model.addAttribute("title", "Customers");
-        return "customers/customers"; // Returning the view template name
+        return "customers/customers";
     }
 
 

@@ -2,6 +2,9 @@ package com.example.warehouseManagement.Controllers;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,11 +57,11 @@ public class ItemController {
      * @return the name of the view to render
      */
     @GetMapping
-    public String getItems(Model model) {
-        // Adding a list of items and a title attribute to the model
-        model.addAttribute("items", itemService.findAll());
+    public String getItems(@PageableDefault(size = 25, sort = "sku", direction = Sort.Direction.ASC) Pageable pageable,
+                           Model model) {
+        model.addAttribute("page", itemService.findAll(pageable));
         model.addAttribute("title", "Items");
-        return "items/items"; // Returning the view template name
+        return "items/items";
     }
 
 
