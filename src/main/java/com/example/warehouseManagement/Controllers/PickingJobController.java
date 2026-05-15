@@ -2,6 +2,9 @@ package com.example.warehouseManagement.Controllers;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,8 +14,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.warehouseManagement.Domains.PickingJob;
+import com.example.warehouseManagement.Domains.PickingJob.PjStatus;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedPickingJobSearchCriteria;
 import com.example.warehouseManagement.Domains.DTOs.PickingJobDto;
 import com.example.warehouseManagement.Domains.DTOs.PickingJobLineDto;
+import com.example.warehouseManagement.Domains.DTOs.TextMode;
 import com.example.warehouseManagement.Services.InvoiceService;
 import com.example.warehouseManagement.Services.PickingJobService;
 import com.example.warehouseManagement.Services.PurchaseOrderService;
@@ -60,9 +66,14 @@ public class PickingJobController {
      * @return the name of the view template to render
      */
     @GetMapping
-    public String getAllPickingJobs(Model model) {
+    public String getAllPickingJobs(
+            @ModelAttribute("criteria") AdvancedPickingJobSearchCriteria criteria,
+            @PageableDefault(size = 25, sort = "date", direction = Sort.Direction.DESC) Pageable pageable,
+            Model model) {
         model.addAttribute("title", "Picking Jobs");
-        model.addAttribute("pickingJobs", pickingJobService.findAllPending());
+        model.addAttribute("page", pickingJobService.findAdvanced(criteria, pageable));
+        model.addAttribute("textModes", TextMode.values());
+        model.addAttribute("statuses", PjStatus.values());
         return "pickingJobs/pickingJobs";
     }
 

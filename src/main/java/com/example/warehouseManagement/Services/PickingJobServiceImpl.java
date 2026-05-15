@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,13 +16,18 @@ import com.example.warehouseManagement.Domains.PickingJob.PjStatus;
 import com.example.warehouseManagement.Domains.PickingJobLine;
 import com.example.warehouseManagement.Domains.SalesOrder;
 import com.example.warehouseManagement.Domains.Stock;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedPickingJobSearchCriteria;
 import com.example.warehouseManagement.Domains.DTOs.PickingJobDto;
+import com.example.warehouseManagement.Domains.DTOs.TextMode;
 import com.example.warehouseManagement.Repositories.BackorderRepository;
 import com.example.warehouseManagement.Repositories.PickingJobLineRepository;
 import com.example.warehouseManagement.Repositories.PickingJobRepository;
 import com.example.warehouseManagement.Repositories.SalesOrderRepository;
 import com.example.warehouseManagement.Repositories.StockRepository;
 import com.example.warehouseManagement.Repositories.WarehouseSectionRepository;
+
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate;
 
 @Service
 public class PickingJobServiceImpl implements PickingJobService {
@@ -70,8 +78,68 @@ public class PickingJobServiceImpl implements PickingJobService {
     }
 
     @Override
-    public List<PickingJob> findAllPending() {
-        return pickingJobRepository.findAllPending();
+    public Page<PickingJob> findAdvanced(AdvancedPickingJobSearchCriteria criteria, Pageable pageable) {
+        return pickingJobRepository.findAll(buildSpec(criteria), pageable);
+    }
+
+    private static Specification<PickingJob> buildSpec(AdvancedPickingJobSearchCriteria c) {
+        return (root, query, cb) -> {
+            List<Predicate> ps = new ArrayList<>();
+
+            if (c.getId() != null && !c.getId().isBlank()) {
+                String idStr = c.getId().trim();
+                TextMode mode = c.getIdMode() == null ? TextMode.STARTS_WITH : c.getIdMode();
+                if (mode == TextMode.EQUALS) {
+                    try {
+                        ps.add(cb.equal(root.get("id"), Long.parseLong(idStr)));
+                    } catch (NumberFormatException ignored) {
+                        ps.add(cb.disjunction());
+                    }
+                } else {
+                    Expression<String> idText = root.<Long>get("id").as(String.class);
+                    String pattern = (mode == TextMode.STARTS_WITH) ? idStr + "%" : "%" + idStr + "%";
+                    ps.add(cb.like(idText, pattern));
+                }
+            }
+
+            if (c.getSalesOrderId() != null && !c.getSalesOrderId().isBlank()) {
+                String soStr = c.getSalesOrderId().trim();
+                TextMode mode = c.getSalesOrderIdMode() == null ? TextMode.STARTS_WITH : c.getSalesOrderIdMode();
+                if (mode == TextMode.EQUALS) {
+                    try {
+                        ps.add(cb.equal(root.get("salesOrder").get("id"), Long.parseLong(soStr)));
+                    } catch (NumberFormatException ignored) {
+                        ps.add(cb.disjunction());
+                    }
+                } else {
+                    Expression<String> soText = root.get("salesOrder").<Long>get("id").as(String.class);
+                    String pattern = (mode == TextMode.STARTS_WITH) ? soStr + "%" : "%" + soStr + "%";
+                    ps.add(cb.like(soText, pattern));
+                }
+            }
+
+            if (c.getCustomer() != null && !c.getCustomer().isBlank()) {
+                String v = c.getCustomer().trim().toLowerCase();
+                Expression<String> customerName = cb.lower(root.get("salesOrder").get("customer").get("name"));
+                switch (c.getCustomerMode() == null ? TextMode.CONTAINS : c.getCustomerMode()) {
+                    case EQUALS      -> ps.add(cb.equal(customerName, v));
+                    case STARTS_WITH -> ps.add(cb.like(customerName, v + "%"));
+                    case CONTAINS    -> ps.add(cb.like(customerName, "%" + v + "%"));
+                }
+            }
+
+            if (c.getDateFrom() != null) {
+                ps.add(cb.greaterThanOrEqualTo(root.get("date"), c.getDateFrom()));
+            }
+            if (c.getDateTo() != null) {
+                ps.add(cb.lessThanOrEqualTo(root.get("date"), c.getDateTo()));
+            }
+            if (c.getStatus() != null) {
+                ps.add(cb.equal(root.get("status"), c.getStatus()));
+            }
+
+            return ps.isEmpty() ? cb.conjunction() : cb.and(ps.toArray(Predicate[]::new));
+        };
     }
 
     /**

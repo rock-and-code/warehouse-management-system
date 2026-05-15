@@ -1,17 +1,14 @@
 package com.example.warehouseManagement.Repositories;
 
-import java.util.List;
-
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.example.warehouseManagement.Domains.PickingJob;
 import com.example.warehouseManagement.Domains.PickingJob.PjStatus;
 
-public interface PickingJobRepository extends CrudRepository<PickingJob, Long> {
-    @Query(value = "SELECT * FROM picking_job pj\n" + //
-            "WHERE pj.status = 0 ORDER BY pj.date", nativeQuery = true)
-    public List<PickingJob> findAllPending();
+public interface PickingJobRepository
+        extends JpaRepository<PickingJob, Long>,
+                JpaSpecificationExecutor<PickingJob> {
 
     long countByStatus(PjStatus status);
 }
