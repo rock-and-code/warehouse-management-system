@@ -65,7 +65,46 @@ Then open <http://localhost:8080> and sign in with one of the seeded accounts:
 | `admin`   | `Password123!`  | ADMIN  | off |
 | `manager` | `Password123!`  | USER   | on  |
 
-Signing in as `manager` triggers the 2FA flow — the 6-digit code is printed to the app log (search for `Your verification code is:`) since SMTP is not configured by default. To send real emails, set `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, and `MAIL_FROM` environment variables before launch.
+Signing in as `manager` triggers the 2FA flow. By default SMTP is not configured, so the 6-digit code is printed to the app log (search for `Your verification code is:`) instead of being emailed. To deliver real emails, see the next section.
+
+### Configure email for 2FA and password reset
+
+Outbound mail (2FA codes, password-reset links) goes through standard Spring Mail. Without credentials, `EmailService` falls back to logging the message body to the console — useful for dev, but you'll want real delivery for any other use case.
+
+1. **Copy the env template and fill in your SMTP details.** A `.env.example` ships at the project root; copy it to `.env` (already gitignored) and edit:
+   ```bash
+   cp .env.example .env
+   ```
+   ```bash
+   # .env
+   MAIL_HOST=smtp.gmail.com
+   MAIL_PORT=587
+   MAIL_USERNAME=you@gmail.com
+   MAIL_PASSWORD=your-app-password
+   MAIL_FROM=no-reply@yourdomain.com
+   APP_BASE_URL=http://localhost:8080
+   ```
+   For Gmail, `MAIL_PASSWORD` must be an [App Password](https://support.google.com/accounts/answer/185833), not your account password.
+
+2. **Source the file before launching.** Spring Boot doesn't auto-load `.env`; you have to export the values into the shell first:
+   ```bash
+   set -a; source .env; set +a
+   ./mvnw spring-boot:run
+   ```
+   `set -a` makes every variable that `source` introduces visible to child processes; `set +a` turns that behavior off after. The Maven plugin then forwards them to the Spring Boot JVM, where `application.properties` picks them up via `${MAIL_HOST}` etc.
+
+3. **Point the `manager` account at a real inbox.** The seeded address `manager@example.com` doesn't go anywhere. Log in as `admin / Password123!` → **Users** (`/admin/users`) → click `manager` → **Update** → set Email → save. The next 2FA login as `manager` will deliver the code to that address.
+
+   If you'd rather skip the UI, run this against the H2 console (<http://localhost:8080/h2-console>):
+   ```sql
+   UPDATE app_user SET email = 'you@yourdomain.com' WHERE username = 'manager';
+   ```
+
+**Alternatives to the sourced `.env` flow**, in case it doesn't fit your setup:
+
+- **IntelliJ / VS Code run configuration** — paste the variables into the Run Configuration's "Environment variables" field. No `.env` file on disk.
+- **`src/main/resources/application-local.properties` + `--spring.profiles.active=local`** — Spring-native. Values live in the source tree; gitignore the file.
+- **[`spring-dotenv`](https://github.com/paulschwarz/spring-dotenv)** — one Maven dependency makes Spring auto-load `.env` from the project root. Worth it if you do this often.
 
 ### Useful commands
 
