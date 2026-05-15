@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.StatePool;
 import com.example.warehouseManagement.Domains.Vendor;
+import com.example.warehouseManagement.Domains.DTOs.AdvancedItemSearchCriteria;
 import com.example.warehouseManagement.Domains.DTOs.ItemDto;
+import com.example.warehouseManagement.Domains.DTOs.TextMode;
 import com.example.warehouseManagement.Domains.Exceptions.ItemNotFoundException;
 import com.example.warehouseManagement.Services.ItemService;
 import com.example.warehouseManagement.Services.VendorService;
@@ -57,10 +59,13 @@ public class ItemController {
      * @return the name of the view to render
      */
     @GetMapping
-    public String getItems(@PageableDefault(size = 25, sort = "sku", direction = Sort.Direction.ASC) Pageable pageable,
-                           Model model) {
-        model.addAttribute("page", itemService.findAll(pageable));
+    public String getItems(
+            @ModelAttribute("criteria") AdvancedItemSearchCriteria criteria,
+            @PageableDefault(size = 25, sort = "sku", direction = Sort.Direction.ASC) Pageable pageable,
+            Model model) {
+        model.addAttribute("page", itemService.findAdvanced(criteria, pageable));
         model.addAttribute("title", "Items");
+        model.addAttribute("textModes", TextMode.values());
         return "items/items";
     }
 

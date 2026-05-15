@@ -4,12 +4,15 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.example.warehouseManagement.Domains.Item;
 import com.example.warehouseManagement.Domains.Vendor;
 
 
-public interface ItemRepository extends JpaRepository<Item, Long>{
+public interface ItemRepository
+        extends JpaRepository<Item, Long>,
+                JpaSpecificationExecutor<Item> {
 
     /**
      * Returns a list of all the products by a vendor

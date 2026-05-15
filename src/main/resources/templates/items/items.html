@@ -27,7 +27,51 @@
         </div>
     </div>
     <!-- Page headers -->
-    <h1 class="my-3">Item List</h1>
+    <div class="d-flex justify-content-between align-items-center my-3">
+        <h1 class="m-0">Item List</h1>
+        <a class="btn btn-dark" th:href="@{/items/new-item}">
+            <i class="bi bi-plus-lg me-1"></i>New item
+        </a>
+    </div>
+
+    <!-- Simple search bar (binds to criteria.description) + Advanced button -->
+    <form th:action="@{/items}" method="get" th:object="${criteria}" class="card shadow-sm mb-3">
+        <div class="card-body row g-2 align-items-end">
+            <div class="col-md-8">
+                <label class="form-label small mb-1">Search by description</label>
+                <input type="search" class="form-control" th:field="*{description}"
+                       placeholder="Type a product description..."
+                       data-autocomplete-source="ITEM"
+                       data-autocomplete-mode="CONTAINS"
+                       data-autocomplete-fill-on-select="true">
+                <input type="hidden" th:field="*{descriptionMode}">
+                <input type="hidden" th:field="*{id}">
+                <input type="hidden" th:field="*{idMode}">
+                <input type="hidden" th:field="*{sku}">
+                <input type="hidden" th:field="*{skuMode}">
+                <input type="hidden" th:field="*{vendor}">
+                <input type="hidden" th:field="*{vendorMode}">
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-dark flex-grow-1">
+                    <i class="bi bi-search me-1"></i>Search
+                </button>
+                <button type="button" class="btn btn-outline-secondary"
+                        data-bs-toggle="modal" data-bs-target="#advancedSearchModal">
+                    <i class="bi bi-funnel me-1"></i>Advanced
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div th:if="${criteria.isActive()}" class="d-flex justify-content-between align-items-center mb-2">
+        <span class="text-muted small"
+              th:text="|Filtered: ${page.totalElements} match(es)|">Filtered: 12 matches</span>
+        <a th:href="@{/items}" class="btn btn-link btn-sm">
+            <i class="bi bi-x-circle me-1"></i>Clear filters
+        </a>
+    </div>
+
     <!-- Item list as table -->
     <table class="table">
         <thead>
@@ -60,6 +104,79 @@
         </tbody>
     </table>
     <div th:replace="~{fragments/pagination :: pagination(page=${page}, baseUrl='/items')}"></div>
+</div>
+
+<!-- ====== Advanced search modal ====== -->
+<div class="modal fade" id="advancedSearchModal" tabindex="-1" aria-labelledby="advancedSearchModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="advancedSearchModalLabel"><i class="bi bi-funnel me-2"></i>Advanced Search — Items</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form th:action="@{/items}" method="get" th:object="${criteria}">
+        <div class="modal-body">
+          <p class="text-muted small mb-3">Every field is optional — leave all blank to list every item. Filters are AND-combined.</p>
+
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">Item id</label>
+              <select class="form-select form-select-sm" th:field="*{idMode}">
+                <option th:each="m : ${textModes}" th:value="${m}" th:text="${m.name().replace('_', ' ').toLowerCase()}">starts with</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label small mb-1">&nbsp;</label>
+              <input type="text" class="form-control" th:field="*{id}" placeholder="e.g. 10">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">SKU</label>
+              <select class="form-select form-select-sm" th:field="*{skuMode}">
+                <option th:each="m : ${textModes}" th:value="${m}" th:text="${m.name().replace('_', ' ').toLowerCase()}">starts with</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label small mb-1">&nbsp;</label>
+              <input type="text" class="form-control" th:field="*{sku}" placeholder="e.g. 1010">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">Description</label>
+              <select class="form-select form-select-sm" th:field="*{descriptionMode}">
+                <option th:each="m : ${textModes}" th:value="${m}" th:text="${m.name().replace('_', ' ').toLowerCase()}">contains</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label small mb-1">&nbsp;</label>
+              <input type="text" class="form-control" th:field="*{description}" placeholder="e.g. MacBook">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">Vendor</label>
+              <select class="form-select form-select-sm" th:field="*{vendorMode}">
+                <option th:each="m : ${textModes}" th:value="${m}" th:text="${m.name().replace('_', ' ').toLowerCase()}">contains</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label small mb-1">&nbsp;</label>
+              <input type="text" class="form-control" th:field="*{vendor}" placeholder="e.g. Apple">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-dark"><i class="bi bi-search me-1"></i>Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <!-- Footer fragment -->
