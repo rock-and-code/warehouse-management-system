@@ -29,6 +29,14 @@ public interface PurchaseOrderService {
      * Paginated IN_TRANSIT purchase orders — used by /purchase-orders/pending.
      */
     public Page<PurchaseOrder> findPendingPage(Pageable pageable);
+
+    /**
+     * Advanced search — runs the dynamic Specification built from the supplied
+     * criteria. Returns an empty page if the criteria has no filters set.
+     */
+    public Page<PurchaseOrder> findAdvanced(
+            com.example.warehouseManagement.Domains.DTOs.AdvancedPoSearchCriteria criteria,
+            Pageable pageable);
     /**
      * Returns a purchase order by a given id
      * @param id

@@ -29,7 +29,7 @@
             </div>
         </div>
         <h1 class="my-3 text-center">Search Purchase Order</h1>
-        <!-- Customer list as table -->
+        <!-- Quick lookup by id (autocomplete on the input). -->
         <form action="#" th:action="@{/goods-receipt-notes/search-purchase-order}" th:object="${purchaseOrderNumberDto}"
             method="post" class="row g-3 needs-validation" novalidate>
             <div class="col-12">
@@ -44,11 +44,121 @@
                     Please enter the Purchase Order Number
                 </div>
             </div>
-            <div class="col-12">
-                <button type="submit" class="btn btn-dark col-12">Search Purchase Order</button>
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-dark flex-grow-1">Search Purchase Order</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#advancedSearchModal">
+                    <i class="bi bi-funnel me-1"></i>Advanced
+                </button>
             </div>
         </form>
     </div>
+
+    <!-- ====== Advanced search results, shown when the modal form was submitted ====== -->
+    <div th:if="${advancedResults != null}" class="container mt-4">
+        <h2 class="h4 mb-3">
+            Advanced search results
+            <small class="text-muted" th:text="|(${advancedResults.totalElements})|"></small>
+        </h2>
+        <div th:if="${advancedResults.isEmpty()}" class="alert alert-info">No purchase orders match those filters.</div>
+        <table th:unless="${advancedResults.isEmpty()}" class="table table-sm align-middle">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Date</th>
+                    <th>Vendor</th>
+                    <th>Status</th>
+                    <th class="text-end">Total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="po : ${advancedResults.content}">
+                    <td th:text="${po.id}">1</td>
+                    <td th:text="${#temporals.format(po.date, 'yyyy-MM-dd')}">2026-05-15</td>
+                    <td th:text="${po.vendor != null ? po.vendor.name : ''}">Acme</td>
+                    <td><span class="badge bg-secondary" th:text="${po.status.name()}">IN_TRANSIT</span></td>
+                    <td class="text-end" th:text="${#numbers.formatCurrency(po.total)}">$0</td>
+                    <td>
+                        <a th:if="${po.status.name() != 'RECEIVED'}"
+                           th:href="@{|/goods-receipt-notes/${po.id}/receive|}"
+                           class="btn btn-outline-dark btn-sm">Start receiving</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ====== Oracle-style advanced search modal ====== -->
+<div class="modal fade" id="advancedSearchModal" tabindex="-1" aria-labelledby="advancedSearchModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="advancedSearchModalLabel"><i class="bi bi-funnel me-2"></i>Advanced Search</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form th:action="@{/goods-receipt-notes/search-purchase-order}" method="get" th:object="${criteria}">
+        <div class="modal-body">
+          <p class="text-muted small mb-3">Every field is optional — leave blank to skip. Filters are AND-combined.</p>
+
+          <!-- PO id row -->
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">PO id</label>
+              <select class="form-select form-select-sm" th:field="*{idMode}">
+                <option th:each="m : ${textModes}" th:value="${m}" th:text="${m.name().replace('_', ' ').toLowerCase()}">starts with</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label small mb-1">&nbsp;</label>
+              <input type="text" class="form-control" th:field="*{id}" placeholder="e.g. 10">
+            </div>
+          </div>
+
+          <!-- Vendor row -->
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">Vendor name</label>
+              <select class="form-select form-select-sm" th:field="*{vendorMode}">
+                <option th:each="m : ${textModes}" th:value="${m}" th:text="${m.name().replace('_', ' ').toLowerCase()}">contains</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label small mb-1">&nbsp;</label>
+              <input type="text" class="form-control" th:field="*{vendor}" placeholder="e.g. Apple">
+            </div>
+          </div>
+
+          <!-- Date range row -->
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-6">
+              <label class="form-label small mb-1">Date from</label>
+              <input type="date" class="form-control" th:field="*{dateFrom}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small mb-1">Date to</label>
+              <input type="date" class="form-control" th:field="*{dateTo}">
+            </div>
+          </div>
+
+          <!-- Status row -->
+          <div class="row g-2 align-items-end">
+            <div class="col-md-6">
+              <label class="form-label small mb-1">Status</label>
+              <select class="form-select" th:field="*{status}">
+                <option value="">— any —</option>
+                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s.name()}">IN_TRANSIT</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-dark"><i class="bi bi-search me-1"></i>Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <script>
